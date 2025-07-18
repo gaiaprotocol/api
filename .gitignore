@@ -170,3 +170,14 @@ dist
 
 .dev.vars
 .wrangler/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs & lock files
+*.log
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+npm-debug.log*
