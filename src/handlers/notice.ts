@@ -1,3 +1,5 @@
+import { jsonWithCors } from "../services/cors";
+
 export async function handleNotices(env: Env): Promise<Response> {
   try {
     const { results } = await env.DB.prepare(`
@@ -18,16 +20,4 @@ export async function handleNotices(env: Env): Promise<Response> {
       error: 'Failed to fetch notices'
     }, 500);
   }
-}
-
-function jsonWithCors(data: unknown, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': '*',
-    },
-  });
 }
