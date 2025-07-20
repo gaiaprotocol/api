@@ -5,5 +5,23 @@
 	"compatibility_date": "2025-07-15",
 	"observability": {
 		"enabled": true
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "gaiaprotocol",
+			"database_id": "28a4c1f5-8959-4444-b4a3-9143cd465339"
+		}
+	],
+	"env": {
+		"development": {
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "gaiaprotocol",
+					"database_id": "28a4c1f5-8959-4444-b4a3-9143cd465339"
+				}
+			]
+		}
 	}
 }
