@@ -7,15 +7,27 @@ export async function handleNotices(env: Env): Promise<Response> {
       LIMIT 10
     `).all();
 
-    return Response.json({
+    return jsonWithCors({
       success: true,
       data: results
     });
   } catch (err) {
     console.error(err);
-    return Response.json({
+    return jsonWithCors({
       success: false,
       error: 'Failed to fetch notices'
-    }, { status: 500 });
+    }, 500);
   }
+}
+
+function jsonWithCors(data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': '*',
+    },
+  });
 }
