@@ -1,5 +1,6 @@
 import { handleGetNames } from "./handlers/get-names";
 import { handleNotices } from "./handlers/notice";
+import { handleSearchNames } from "./handlers/search-names";
 import { handleSetName } from "./handlers/set-name";
 import { preflightResponse } from "./services/cors";
 
@@ -11,17 +12,10 @@ export default {
 
     const url = new URL(request.url);
 
-    if (url.pathname === '/notices') {
-      return handleNotices(env);
-    }
-
-    if (url.pathname === '/set-name') {
-      return handleSetName(request, env);
-    }
-
-    if (url.pathname === '/get-names') {
-      return handleGetNames(request, env);
-    }
+    if (url.pathname === '/notices') return handleNotices(env);
+    if (url.pathname === '/set-name') return handleSetName(request, env);
+    if (url.pathname === '/get-names') return handleGetNames(request, env);
+    if (url.pathname === '/search-names') return handleSearchNames(request, env);
 
     return new Response('Not Found', { status: 404 });
   },
