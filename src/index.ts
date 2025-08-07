@@ -32,6 +32,6 @@ export default {
   },
 
   async scheduled(controller, env, ctx) {
-    await syncNftOwnershipFromEvents(env, client, { [nftAddress]: tokenRange }, blockStep);
+    //await syncNftOwnershipFromEvents(env, client, { [nftAddress]: tokenRange }, blockStep);
   },
 } satisfies ExportedHandler<Env>;
