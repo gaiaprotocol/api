@@ -4,6 +4,7 @@ import { mainnet } from 'viem/chains';
 import { handleGetNames } from './handlers/get-names';
 import { handleHeldNftsRequest } from './handlers/held-nfts';
 import { handleInitNftOwnership } from './handlers/init-nft-ownership';
+import { handleNftDataByIds } from './handlers/nft-by-ids';
 import { handleNotices } from './handlers/notice';
 import { handleSearchNames } from './handlers/search-names';
 import { handleSetName } from './handlers/set-name';
@@ -28,6 +29,7 @@ export default {
     if (url.pathname === '/search-names') return handleSearchNames(request, env);
     if (url.pathname === '/init-nft-ownership') return handleInitNftOwnership(request, env);
     if (url.pathname.endsWith('/nfts')) return handleHeldNftsRequest(request, env);
+    if (url.pathname === '/nfts/by-ids') return handleNftDataByIds(request, env);
 
     return new Response('Not Found', { status: 404 });
   },
