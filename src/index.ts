@@ -8,11 +8,10 @@ import { handleSearchNames } from './handlers/search-names';
 import { handleSetName } from './handlers/set-name';
 import { preflightResponse } from './services/cors';
 
-const client = createPublicClient({ chain: mainnet, transport: http() });
-
-const nftAddress = '0x134590ACB661Da2B318BcdE6b39eF5cF8208E372';
-const tokenRange = { start: 0, end: 3332 };
-const blockStep = 500;
+const CLIENT = createPublicClient({ chain: mainnet, transport: http() });
+const NFT_ADDRESS = '0x134590ACB661Da2B318BcdE6b39eF5cF8208E372';
+const TOKEN_RANGE = { start: 0, end: 3332 };
+const BLOCK_STEP = 500;
 
 export default {
   async fetch(request, env, ctx): Promise<Response> {
@@ -32,6 +31,6 @@ export default {
   },
 
   async scheduled(controller, env, ctx) {
-    //await syncNftOwnershipFromEvents(env, client, { [nftAddress]: tokenRange }, blockStep);
+    await syncNftOwnershipFromEvents(env, CLIENT, { [NFT_ADDRESS]: TOKEN_RANGE }, BLOCK_STEP);
   },
 } satisfies ExportedHandler<Env>;

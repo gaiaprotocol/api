@@ -1,8 +1,8 @@
 const API_ENDPOINT = 'https://api.gaia.cc/init-nft-ownership';
-const START = 0;
+const START = 530;
 const END = 3332;
 const STEP = 10;
-const MAX_RETRIES = 3;
+const MAX_RETRIES = 10;
 const RETRY_DELAY_MS = 1000;
 const REQUEST_DELAY_MS = 200;
 
