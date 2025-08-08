@@ -2,6 +2,7 @@ import { syncNftOwnershipFromEvents } from '@gaiaprotocol/worker-common';
 import { createPublicClient, http } from 'viem';
 import { mainnet } from 'viem/chains';
 import { handleGetNames } from './handlers/get-names';
+import { handleHeldNftsRequest } from './handlers/held-nfts';
 import { handleInitNftOwnership } from './handlers/init-nft-ownership';
 import { handleNotices } from './handlers/notice';
 import { handleSearchNames } from './handlers/search-names';
@@ -26,6 +27,7 @@ export default {
     if (url.pathname === '/get-names') return handleGetNames(request, env);
     if (url.pathname === '/search-names') return handleSearchNames(request, env);
     if (url.pathname === '/init-nft-ownership') return handleInitNftOwnership(request, env);
+    if (url.pathname.endsWith('/nfts')) return handleHeldNftsRequest(request, env);
 
     return new Response('Not Found', { status: 404 });
   },
