@@ -11,6 +11,10 @@
 			"*/1 * * * *"
 		]
 	},
+	"assets": {
+		"directory": "./assets/",
+		"binding": "ASSETS"
+	},
 	"d1_databases": [
 		{
 			"binding": "DB",
