@@ -1,0 +1,406 @@
+[{
+    "name": "Background",
+    "parts": [{
+        "name": "Background",
+        "images": [{
+            "path": "background.png",
+            "order": 0
+        }]
+    }]
+}, {
+    "name": "Wing",
+    "parts": [{
+        "name": "None",
+        "percent": 90
+    }, {
+        "name": "Wing",
+        "images": [{
+            "path": "woman/0wing/0.png",
+            "order": 100
+        }]
+    }]
+}, {
+    "name": "Body",
+    "parts": [{
+        "name": "Diplax",
+        "images": [{
+            "path": "woman/2body/0.png",
+            "order": 300
+        }]
+    }, {
+        "name": "Armor",
+        "images": [{
+            "path": "woman/2body/1.png",
+            "order": 300
+        }]
+    }, {
+        "name": "Himation",
+        "images": [{
+            "path": "woman/2body/2.png",
+            "order": 300
+        }]
+    }, {
+        "name": "Chiton",
+        "images": [{
+            "path": "woman/2body/3.png",
+            "order": 300
+        }]
+    }, {
+        "name": "Harnes",
+        "images": [{
+            "path": "woman/2body/4.png",
+            "order": 300
+        }]
+    }, {
+        "name": "Constraints",
+        "images": [{
+            "path": "woman/2body/5.png",
+            "order": 300
+        }]
+    }, {
+        "name": "Chlamys",
+        "images": [{
+            "path": "woman/2body/6.png",
+            "order": 300
+        }]
+    }, {
+        "name": "Shoulder Armor",
+        "images": [{
+            "path": "woman/2body/7.png",
+            "order": 300
+        }]
+    }, {
+        "name": "Peplos",
+        "images": [{
+            "path": "woman/2body/8.png",
+            "order": 300
+        }]
+    }, {
+        "name": "Heavy Armor",
+        "images": [{
+            "path": "woman/2body/9.png",
+            "order": 300
+        }]
+    }]
+}, {
+    "name": "Head",
+    "parts": [{
+        "name": "Wound",
+        "images": [{
+            "path": "woman/3head/0.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Eye Tattoo",
+        "images": [{
+            "path": "woman/3head/1.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Anger",
+        "images": [{
+            "path": "woman/3head/2.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Serious",
+        "images": [{
+            "path": "woman/3head/3.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Happy",
+        "images": [{
+            "path": "woman/3head/4.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Madness",
+        "images": [{
+            "path": "woman/3head/5.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Sad",
+        "images": [{
+            "path": "woman/3head/6.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Cloudy",
+        "images": [{
+            "path": "woman/3head/7.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Ridicule",
+        "images": [{
+            "path": "woman/3head/8.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Calm",
+        "images": [{
+            "path": "woman/3head/9.png",
+            "order": 400
+        }]
+    }]
+}, {
+    "name": "Hair",
+    "parts": [{
+        "name": "Wavy",
+        "images": [{
+            "path": "woman/1bhair/0.png",
+            "order": 200
+        }, {
+            "path": "woman/4hair/0.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Shaggy",
+        "images": [{
+            "path": "woman/1bhair/1.png",
+            "order": 200
+        }, {
+            "path": "woman/4hair/1.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Bob",
+        "images": [{
+            "path": "woman/1bhair/2.png",
+            "order": 200
+        }, {
+            "path": "woman/4hair/2.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Wild",
+        "images": [{
+            "path": "woman/1bhair/3.png",
+            "order": 200
+        }, {
+            "path": "woman/4hair/3.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Short Wavy",
+        "images": [{
+            "path": "woman/1bhair/4.png",
+            "order": 200
+        }, {
+            "path": "woman/4hair/4.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Mohican",
+        "images": [{
+            "path": "woman/4hair/5.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Power",
+        "images": [{
+            "path": "woman/4hair/6.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Braid",
+        "images": [{
+            "path": "woman/1bhair/7.png",
+            "order": 200
+        }, {
+            "path": "woman/4hair/7.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Hime",
+        "images": [{
+            "path": "woman/1bhair/8.png",
+            "order": 200
+        }, {
+            "path": "woman/4hair/8.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Long Wavy",
+        "images": [{
+            "path": "woman/1bhair/9.png",
+            "order": 200
+        }, {
+            "path": "woman/4hair/9.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Natural",
+        "images": [{
+            "path": "woman/1bhair/10.png",
+            "order": 200
+        }, {
+            "path": "woman/4hair/10.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Ponytail",
+        "images": [{
+            "path": "woman/1bhair/11.png",
+            "order": 200
+        }, {
+            "path": "woman/4hair/11.png",
+            "order": 500
+        }]
+    }]
+}, {
+    "name": "Face",
+    "parts": [{
+        "name": "Eagle Eyes",
+        "images": [{
+            "path": "woman/5face/0.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Devil Eyes",
+        "images": [{
+            "path": "woman/5face/1.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Tears",
+        "images": [{
+            "path": "woman/5face/2.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Stare",
+        "images": [{
+            "path": "woman/5face/3.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Closed Eyes",
+        "images": [{
+            "path": "woman/5face/4.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Odd Eyes",
+        "images": [{
+            "path": "woman/5face/5.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Glance",
+        "images": [{
+            "path": "woman/5face/6.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Glowing Eyes",
+        "images": [{
+            "path": "woman/5face/7.png",
+            "order": 600
+        }, {
+            "path": "woman/7face_effect/7.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Cyborg Eyes",
+        "images": [{
+            "path": "woman/5face/8.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Smiling Eyes",
+        "images": [{
+            "path": "woman/5face/9.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Burning Eyes",
+        "images": [{
+            "path": "woman/5face/10.png",
+            "order": 600
+        }, {
+            "path": "woman/7face_effect/10.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Psionic",
+        "images": [{
+            "path": "woman/5face/11.png",
+            "order": 600
+        }, {
+            "path": "woman/7face_effect/11.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Eye Beam",
+        "images": [{
+            "path": "woman/5face/12.png",
+            "order": 600
+        }, {
+            "path": "woman/7face_effect/12.png",
+            "order": 800
+        }]
+    }]
+}, {
+    "name": "Accessory",
+    "parts": [{
+        "name": "None",
+        "percent": 60
+    }, {
+        "name": "Crown",
+        "images": [{
+            "path": "woman/6acce/0.png",
+            "order": 700
+        }]
+    }, {
+        "name": "Long Horns",
+        "images": [{
+            "path": "woman/6acce/1.png",
+            "order": 700
+        }]
+    }, {
+        "name": "Eye Patch",
+        "images": [{
+            "path": "woman/6acce/2.png",
+            "order": 700
+        }]
+    }, {
+        "name": "Short Horns",
+        "images": [{
+            "path": "woman/6acce/3.png",
+            "order": 700
+        }]
+    }, {
+        "name": "Laurel Wreath",
+        "images": [{
+            "path": "woman/6acce/4.png",
+            "order": 700
+        }]
+    }, {
+        "name": "Curved Horns",
+        "images": [{
+            "path": "woman/6acce/5.png",
+            "order": 700
+        }]
+    }, {
+        "name": "Goat Horns",
+        "images": [{
+            "path": "woman/6acce/6.png",
+            "order": 700
+        }]
+    }, {
+        "name": "Succubus Horns",
+        "images": [{
+            "path": "woman/6acce/7.png",
+            "order": 700
+        }]
+    }, {
+        "name": "Devil Horns",
+        "images": [{
+            "path": "woman/6acce/8.png",
+            "order": 700
+        }]
+    }]
+}]

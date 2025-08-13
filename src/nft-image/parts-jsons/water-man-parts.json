@@ -1,0 +1,855 @@
+[{
+    "name": "Background",
+    "parts": 
+    [{
+        "name": "BlueMarble",
+        "images": [{
+            "path": "man/background/0.png",
+            "order": 100
+        }]
+    }, {
+        "name": "BlueMarble2",
+        "images": [{
+            "path": "man/background/1.png",
+            "order": 100
+        }]
+    }, {
+        "name": "BlueMarble3",
+        "images": [{
+            "path": "man/background/2.png",
+            "order": 100
+        }]
+    }, {
+        "name": "BlueMarble4",
+        "images": [{
+            "path": "man/background/3.png",
+            "order": 100
+        }]
+    }, {
+        "name": "BlueMarble5",
+        "images": [{
+            "path": "man/background/4.png",
+            "order": 100
+        }]
+    }, {
+        "name": "BlueMarble6",
+        "images": [{
+            "path": "man/background/5.png",
+            "order": 100
+        }]
+    }, {
+        "name": "BlueMarble7",
+        "images": [{
+            "path": "man/background/6.png",
+            "order": 100
+        }]
+    }, {
+        "name": "BlueMarble8",
+        "images": [{
+            "path": "man/background/7.png",
+            "order": 100
+        }]
+    }, {
+        "name": "BlueMarble9",
+        "images": [{
+            "path": "man/background/8.png",
+            "order": 100
+        }]
+    }, {
+        "name": "BlueMarble10",
+        "images": [{
+            "path": "man/background/9.png",
+            "order": 100
+        }]
+    }]
+},
+{
+    "name": "Body",
+    "parts": 
+        [{
+        "name": "Light",
+        "images": [{
+            "path": "man/body/0.png",
+            "order": 300
+        }]
+    }, {
+        "name": "Dark",
+        "percent": 25,
+        "images": [{
+            "path": "man/body/1.png",
+            "order": 300
+        }]
+    }]
+},
+{
+    "name": "Mouth",
+    "parts": 
+    [{
+        "name": "Grin",
+        "images": [{
+            "path": "man/mouth/0.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Chewing",
+        "images": [{
+            "path": "man/mouth/1.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Smile",
+        "images": [{
+            "path": "man/mouth/2.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Frown",
+        "images": [{
+            "path": "man/mouth/3.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Closed",
+        "images": [{
+            "path": "man/mouth/4.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Relaxed",
+        "images": [{
+            "path": "man/mouth/5.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Not Bad",
+        "images": [{
+            "path": "man/mouth/6.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Growl",
+        "images": [{
+            "path": "man/mouth/7.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Happy",
+        "images": [{
+            "path": "man/mouth/8.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Fun",
+        "images": [{
+            "path": "man/mouth/9.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Serious",
+        "images": [{
+            "path": "man/mouth/10.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Kid",
+        "images": [{
+            "path": "man/mouth/11.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Open",
+        "images": [{
+            "path": "man/mouth/12.png",
+            "order": 400
+        }]
+    }]
+},
+{
+    "name": "Eye",
+    "parts": 
+    [{
+        "name": "Gold Chill",
+        "images": [{
+            "path": "man/eye/0.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Blue Chill",
+        "images": [{
+            "path": "man/eye/1.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Gold Striking",
+        "images": [{
+            "path": "man/eye/2.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Blue Striking",
+        "images": [{
+            "path": "man/eye/3.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Odd Eyes",
+        "images": [{
+            "path": "man/eye/4.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Dark Gold",
+        "images": [{
+            "path": "man/eye/5.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Gold Stare",
+        "images": [{
+            "path": "man/eye/6.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Blue Stare",
+        "images": [{
+            "path": "man/eye/7.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Blue Serious",
+        "images": [{
+            "path": "man/eye/8.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Gold Serious",
+        "images": [{
+            "path": "man/eye/9.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Ghost",
+        "images": [{
+            "path": "man/eye/10.png",
+            "order": 500
+        }]
+    }, {
+        "name": "White",
+        "images": [{
+            "path": "man/eye/11.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Closed",
+        "images": [{
+            "path": "man/eye/12.png",
+            "order": 500
+        }]
+    }, {
+        "name": "White Closed",
+        "images": [{
+            "path": "man/eye/13.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Fox Eyes",
+        "images": [{
+            "path": "man/eye/14.png",
+            "order": 500
+        }]
+    }, {
+        "name": "White Fox Eyes",
+        "images": [{
+            "path": "man/eye/15.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Gold Vampire",
+        "images": [{
+            "path": "man/eye/16.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Blue Vampire",
+        "images": [{
+            "path": "man/eye/17.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Blue Demon",
+        "images": [{
+            "path": "man/eye/18.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Gold Demon",
+        "images": [{
+            "path": "man/eye/19.png",
+            "order": 500
+        }]
+    }]
+},
+{
+    "name": "Onepiece",
+    "parts": 
+    [{
+        "name": "Dark Royal",
+        "images": [{
+            "path": "man/onepiece/0.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Light Royal",
+        "images": [{
+            "path": "man/onepiece/1.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Tuxedo",
+        "images": [{
+            "path": "man/onepiece/2.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Gothic",
+        "images": [{
+            "path": "man/onepiece/3.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Gold Oriental",
+        "images": [{
+            "path": "man/onepiece/4.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Blue Oriental",
+        "images": [{
+            "path": "man/onepiece/5.png",
+            "order": 600
+        }]
+    }, {
+        "name": "None",
+        "images": [{
+            "path": "man/inner/0.png",
+            "order": 600
+        }]
+    }, {
+        "name": "White Holder Neck",
+        "images": [{
+            "path": "man/inner/1.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Black Holder Neck",
+        "images": [{
+            "path": "man/inner/2.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Black Top",
+        "images": [{
+            "path": "man/inner/3.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Tatoo",
+        "images": [{
+            "path": "man/inner/4.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Oriental",
+        "images": [{
+            "path": "man/inner/5.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Blue Layered",
+        "images": [{
+            "path": "man/inner/6.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Gold Layered",
+        "images": [{
+            "path": "man/inner/7.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Armor",
+        "images": [{
+            "path": "man/inner/8.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Blue Suit",
+        "images": [{
+            "path": "man/inner/9.png",
+            "order": 600
+        }]
+    }]
+},
+{
+    "name": "Outer",
+    "parts": 
+    [{
+        "name": "None",
+        "percent": 60
+    }, {
+        "name": "Himation",
+        "condition": {
+            "trait": "Onepiece",
+            "values": ["None", "White Holder Neck", "Black Holder Neck", "Black Top", "Tatoo", "Oriental", "Blue Layered", "Gold Layered", "Armor", "Blue Suit"]
+        },
+        "images": [{
+            "path": "man/outer/0.png",
+            "order": 700
+        }]
+    }, {
+        "name": "Cape",
+        "condition": {
+            "trait": "Onepiece",
+            "values": ["None", "White Holder Neck", "Black Holder Neck", "Black Top", "Tatoo", "Oriental", "Blue Layered", "Gold Layered", "Armor", "Blue Suit"]
+        },
+        "images": [{
+            "path": "man/outer/1.png",
+            "order": 700
+        }]
+    }, {
+        "name": "Coat",
+        "condition": {
+            "trait": "Onepiece",
+            "values": ["None", "White Holder Neck", "Black Holder Neck", "Black Top", "Tatoo", "Oriental", "Blue Layered", "Gold Layered", "Armor", "Blue Suit"]
+        },
+        "images": [{
+            "path": "man/outer/2.png",
+            "order": 700
+        }]
+    }, {
+        "name": "Gold King",
+        "condition": {
+            "trait": "Onepiece",
+            "values": ["None", "White Holder Neck", "Black Holder Neck", "Black Top", "Tatoo", "Oriental", "Blue Layered", "Gold Layered", "Armor", "Blue Suit"]
+        },
+        "images": [{
+            "path": "man/outer/3.png",
+            "order": 700
+        }]
+    }, {
+        "name": "Dark Cloak",
+        "condition": {
+            "trait": "Onepiece",
+            "values": ["None", "White Holder Neck", "Black Holder Neck", "Black Top", "Tatoo", "Oriental", "Blue Layered", "Gold Layered", "Armor", "Blue Suit"]
+        },
+        "images": [{
+            "path": "man/outer/4.png",
+            "order": 700
+        }]
+    }, {
+        "name": "Light Cloak",
+        "condition": {
+            "trait": "Onepiece",
+            "values": ["None", "White Holder Neck", "Black Holder Neck", "Black Top", "Tatoo", "Oriental", "Blue Layered", "Gold Layered", "Armor", "Blue Suit"]
+        },
+        "images": [{
+            "path": "man/outer/5.png",
+            "order": 700
+        }]
+    }, {
+        "name": "Chiton",
+        "condition": {
+            "trait": "Onepiece",
+            "values": ["None", "White Holder Neck", "Black Holder Neck", "Black Top", "Tatoo", "Oriental", "Blue Layered", "Gold Layered", "Armor", "Blue Suit"]
+        },
+        "images": [{
+            "path": "man/outer/6.png",
+            "order": 700
+        }]
+    }, {
+        "name": "Tunic",
+        "condition": {
+            "trait": "Onepiece",
+            "values": ["None", "White Holder Neck", "Black Holder Neck", "Black Top", "Tatoo", "Oriental", "Blue Layered", "Gold Layered", "Armor", "Blue Suit"]
+        },
+        "images": [{
+            "path": "man/outer/7.png",
+            "order": 700
+        }]
+    }, {
+        "name": "Neck Guard",
+        "condition": {
+            "trait": "Onepiece",
+            "values": ["None", "White Holder Neck", "Black Holder Neck", "Black Top", "Tatoo", "Oriental", "Blue Layered", "Gold Layered", "Armor", "Blue Suit"]
+        },
+        "images": [{
+            "path": "man/outer/8.png",
+            "order": 700
+        }]
+    }, {
+        "name": "Dark Long Coat",
+        "condition": {
+            "trait": "Onepiece",
+            "values": ["None", "White Holder Neck", "Black Holder Neck", "Black Top", "Tatoo", "Oriental", "Blue Layered", "Gold Layered", "Armor", "Blue Suit"]
+        },
+        "images": [{
+            "path": "man/outer/9.png",
+            "order": 700
+        }]
+    }, {
+        "name": "Light Long Coat",
+        "condition": {
+            "trait": "Onepiece",
+            "values": ["None", "White Holder Neck", "Black Holder Neck", "Black Top", "Tatoo", "Oriental", "Blue Layered", "Gold Layered", "Armor", "Blue Suit"]
+        },
+        "images": [{
+            "path": "man/outer/10.png",
+            "order": 700
+        }]
+    }]
+},
+{
+    "name": "Hair",
+    "parts": 
+    [{
+        "name": "Black Hair",
+        "images": [{
+            "path": "man/hair/black/0.png",
+            "order": 800
+        }]
+    }, {
+        "name": "White Hair",
+        "images": [{
+            "path": "man/hair/white/0.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Half Hair",
+        "images": [{
+            "path": "man/hair/half/0.png",
+            "order": 800
+        }]
+    }, {
+        "name": "None",
+        "images": [{
+            "path": "man/hair/whole/0.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Light Dandy",
+        "images": [{
+            "path": "man/hair/whole/1.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Dark Dandy",
+        "images": [{
+            "path": "man/hair/whole/2.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Light Short Cut",
+        "images": [{
+            "path": "man/hair/whole/3.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Dark Short Cut",
+        "images": [{
+            "path": "man/hair/whole/4.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Light Shaggy",
+        "images": [{
+            "path": "man/hair/whole/5.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Dark Shaggy",
+        "images": [{
+            "path": "man/hair/whole/6.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Soldier",
+        "images": [{
+            "path": "man/hair/whole/7.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Light All Back",
+        "images": [{
+            "path": "man/hair/whole/8.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Dark All Back",
+        "images": [{
+            "path": "man/hair/whole/9.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Light Cool",
+        "images": [{
+            "path": "man/hair/whole/10.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Dark Cool",
+        "images": [{
+            "path": "man/hair/whole/11.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Light Shaved",
+        "images": [{
+            "path": "man/hair/whole/12.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Dark Shaved",
+        "images": [{
+            "path": "man/hair/whole/13.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Barcode",
+        "images": [{
+            "path": "man/hair/whole/14.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Light Layered",
+        "images": [{
+            "path": "man/hair/whole/15.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Dark Layered",
+        "images": [{
+            "path": "man/hair/whole/16.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Light Reggae",
+        "images": [{
+            "path": "man/hair/whole/17.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Dark Reggae",
+        "images": [{
+            "path": "man/hair/whole/18.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Light Punk",
+        "images": [{
+            "path": "man/hair/whole/19.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Dark Punk",
+        "images": [{
+            "path": "man/hair/whole/20.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Light Pomade",
+        "images": [{
+            "path": "man/hair/whole/21.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Dark Pomade",
+        "images": [{
+            "path": "man/hair/whole/22.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Rider",
+        "images": [{
+            "path": "man/hair/whole/23.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Light Nobility",
+        "images": [{
+            "path": "man/hair/whole/24.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Dark Nobility",
+        "images": [{
+            "path": "man/hair/whole/25.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Light Short",
+        "images": [{
+            "path": "man/hair/whole/26.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Dark Short",
+        "images": [{
+            "path": "man/hair/whole/27.png",
+            "order": 800
+        }]
+    }]
+}, 
+{
+    "name": "Back Hair",
+    "parts": 
+    [{
+        "name": "Black Back Hair",
+        "condition": {
+            "trait": "Hair",
+            "values": ["Black Hair"]
+        },
+        "images": [{
+            "path": "man/back_hair/black/0.png",
+            "order": 200
+        }]
+    }, {
+        "name": "White Back Hair",
+        "condition": {
+            "trait": "Hair",
+            "values": ["White Hair"]
+        },
+        "images": [{
+            "path": "man/back_hair/white/0.png",
+            "order": 200
+        }]
+    }, {
+        "name": "Half Back Hair",
+        "condition": {
+            "trait": "Hair",
+            "values": ["Half Hair"]
+        },
+        "images": [{
+            "path": "man/back_hair/half/0.png",
+            "order": 200
+        }]
+    }]
+}, 
+{
+    "name": "Accessory",
+    "parts": 
+    [{"name":"None", "percent": 70}, {
+        "name": "Hair Chain",
+        "images": [{
+            "path": "man/acce/0.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Helm",
+        "images": [{
+            "path": "man/acce/1.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Blue Horn",
+        "images": [{
+            "path": "man/acce/2.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Crown",
+        "images": [{
+            "path": "man/acce/3.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Gold Horn",
+        "images": [{
+            "path": "man/acce/4.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Head Band",
+        "images": [{
+            "path": "man/acce/5.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Laurel Wreath",
+        "images": [{
+            "path": "man/acce/6.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Flower Crown",
+        "images": [{
+            "path": "man/acce/7.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Glasses",
+        "images": [{
+            "path": "man/acce/8.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Wing Crown",
+        "images": [{
+            "path": "man/acce/9.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Mask",
+        "images": [{
+            "path": "man/acce/10.png",
+            "order": 750
+        }]
+    }, {
+        "name": "Moon Earrings",
+        "images": [{
+            "path": "man/acce/11.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Drop Earrings",
+        "images": [{
+            "path": "man/acce/12.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Earrings",
+        "images": [{
+            "path": "man/acce/13.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Eye Patch",
+        "images": [{
+            "path": "man/acce/14.png",
+            "order": 750
+        }]
+    }, {
+        "name": "Dancer Mask",
+        "images": [{
+            "path": "man/acce/15.png",
+            "order": 750
+        }]
+    }, {
+        "name": "Opera Mask",
+        "images": [{
+            "path": "man/acce/16.png",
+            "order": 750
+        }]
+    }, {
+        "name": "Scar",
+        "images": [{
+            "path": "man/acce/17.png",
+            "order": 750
+        }]
+    }, {
+        "name": "Wukong Ring",
+        "images": [{
+            "path": "man/acce/18.png",
+            "order": 750
+        }]
+    }]
+}]

@@ -1,0 +1,1057 @@
+[{
+    "name": "Background",
+    "parts": 
+    [{
+        "name": "BlueMarble",
+        "images": [{
+            "path": "woman/background/0.png",
+            "order": 100
+        }]
+    }, {
+        "name": "BlueMarble2",
+        "images": [{
+            "path": "woman/background/1.png",
+            "order": 100
+        }]
+    }, {
+        "name": "BlueMarble3",
+        "images": [{
+            "path": "woman/background/2.png",
+            "order": 100
+        }]
+    }, {
+        "name": "BlueMarble4",
+        "images": [{
+            "path": "woman/background/3.png",
+            "order": 100
+        }]
+    }, {
+        "name": "BlueMarble5",
+        "images": [{
+            "path": "woman/background/4.png",
+            "order": 100
+        }]
+    }, {
+        "name": "BlueMarble6",
+        "images": [{
+            "path": "woman/background/5.png",
+            "order": 100
+        }]
+    }, {
+        "name": "BlueMarble7",
+        "images": [{
+            "path": "woman/background/6.png",
+            "order": 100
+        }]
+    }, {
+        "name": "BlueMarble8",
+        "images": [{
+            "path": "woman/background/7.png",
+            "order": 100
+        }]
+    }, {
+        "name": "BlueMarble9",
+        "images": [{
+            "path": "woman/background/8.png",
+            "order": 100
+        }]
+    }, {
+        "name": "BlueMarble10",
+        "images": [{
+            "path": "woman/background/9.png",
+            "order": 100
+        }]
+    }]
+}, 
+{
+    "name": "Body",
+    "parts": 
+        [{
+        "name": "Light",
+        "images": [{
+            "path": "woman/body/0.png",
+            "order": 300
+        }]
+    }, {
+        "name": "Dark",
+        "percent": 25,
+        "images": [{
+            "path": "woman/body/1.png",
+            "order": 300
+        }]
+    }]
+},
+{
+    "name": "Mouth",
+    "parts": 
+    [{
+        "name": "Blue Grin",
+        "images": [{
+            "path": "woman/mouth/0.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Gold Chewing",
+        "images": [{
+            "path": "woman/mouth/1.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Smile",
+        "images": [{
+            "path": "woman/mouth/2.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Blue Frown",
+        "images": [{
+            "path": "woman/mouth/3.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Gold Relaxed",
+        "images": [{
+            "path": "woman/mouth/4.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Closed",
+        "images": [{
+            "path": "woman/mouth/5.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Dark Lips",
+        "images": [{
+            "path": "woman/mouth/6.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Gold Fun",
+        "images": [{
+            "path": "woman/mouth/7.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Blue Happy",
+        "images": [{
+            "path": "woman/mouth/8.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Gold Serious",
+        "images": [{
+            "path": "woman/mouth/9.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Blue Serious",
+        "images": [{
+            "path": "woman/mouth/10.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Open",
+        "images": [{
+            "path": "woman/mouth/11.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Growl",
+        "images": [{
+            "path": "woman/mouth/12.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Blue Evil",
+        "images": [{
+            "path": "woman/mouth/13.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Gold Evil",
+        "images": [{
+            "path": "woman/mouth/14.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Gold Scoff",
+        "images": [{
+            "path": "woman/mouth/15.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Blue Scoff",
+        "images": [{
+            "path": "woman/mouth/16.png",
+            "order": 400
+        }]
+    }, {
+        "name": "Boss",
+        "images": [{
+            "path": "woman/mouth/17.png",
+            "order": 400
+        }]
+    }]
+},
+{
+    "name": "Eye",
+    "parts": 
+    [{
+        "name": "Gold Chill",
+        "images": [{
+            "path": "woman/eye/0.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Blue Chill",
+        "images": [{
+            "path": "woman/eye/1.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Mysterious",
+        "images": [{
+            "path": "woman/eye/2.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Gold Striking",
+        "images": [{
+            "path": "woman/eye/3.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Blue Striking",
+        "images": [{
+            "path": "woman/eye/4.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Dark Gold",
+        "images": [{
+            "path": "woman/eye/5.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Gold Stare",
+        "images": [{
+            "path": "woman/eye/6.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Blue Stare",
+        "images": [{
+            "path": "woman/eye/7.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Gold Serious",
+        "images": [{
+            "path": "woman/eye/8.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Blue Serious",
+        "images": [{
+            "path": "woman/eye/9.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Gold Closed",
+        "images": [{
+            "path": "woman/eye/10.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Blue Closed",
+        "images": [{
+            "path": "woman/eye/11.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Gold Lady",
+        "images": [{
+            "path": "woman/eye/12.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Blue Lady",
+        "images": [{
+            "path": "woman/eye/13.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Blue Fox",
+        "images": [{
+            "path": "woman/eye/14.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Gold Fox",
+        "images": [{
+            "path": "woman/eye/15.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Closed",
+        "images": [{
+            "path": "woman/eye/16.png",
+            "order": 500
+        }]
+    }, {
+        "name": "White Closed",
+        "images": [{
+            "path": "woman/eye/17.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Blue Smile",
+        "images": [{
+            "path": "woman/eye/18.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Blue Deep",
+        "images": [{
+            "path": "woman/eye/19.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Gold Deep",
+        "images": [{
+            "path": "woman/eye/20.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Gold Wink",
+        "images": [{
+            "path": "woman/eye/21.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Blue Wink",
+        "images": [{
+            "path": "woman/eye/22.png",
+            "order": 500
+        }]
+    }, {
+        "name": "Odd Eyes",
+        "images": [{
+            "path": "woman/eye/23.png",
+            "order": 500
+        }]
+    }]
+},
+{
+    "name": "Onepiece",
+    "parts": 
+    [{
+        "name": "Gold Oriental",
+        "images": [{
+            "path": "woman/onepiece/0.png",
+            "order": 600
+        }]
+    }, {
+        "name": "White Himation",
+        "images": [{
+            "path": "woman/inner/0.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Black Himation",
+        "images": [{
+            "path": "woman/inner/1.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Black Tank Top",
+        "images": [{
+            "path": "woman/inner/2.png",
+            "order": 600
+        }]
+    }, {
+        "name": "White Tank Top",
+        "images": [{
+            "path": "woman/inner/3.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Black Holder Neck",
+        "images": [{
+            "path": "woman/inner/4.png",
+            "order": 600
+        }]
+    }, {
+        "name": "White Holder Neck",
+        "images": [{
+            "path": "woman/inner/5.png",
+            "order": 600
+        }]
+    }, {
+        "name": "White Blouse",
+        "images": [{
+            "path": "woman/inner/6.png",
+            "order": 600
+        }]
+    }, {
+        "name": "White Chiton",
+        "images": [{
+            "path": "woman/inner/7.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Black Chiton",
+        "images": [{
+            "path": "woman/inner/8.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Mixed Bra",
+        "images": [{
+            "path": "woman/inner/9.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Gold Bra",
+        "images": [{
+            "path": "woman/inner/10.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Dark Triagle",
+        "images": [{
+            "path": "woman/inner/11.png",
+            "order": 600
+        }]
+    }, {
+        "name": "White Triagle",
+        "images": [{
+            "path": "woman/inner/12.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Black Top",
+        "images": [{
+            "path": "woman/inner/13.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Wild Top",
+        "images": [{
+            "path": "woman/inner/14.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Mixed Top",
+        "images": [{
+            "path": "woman/inner/15.png",
+            "order": 600
+        }]
+    }, {
+        "name": "White Lace",
+        "images": [{
+            "path": "woman/inner/16.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Black Lace",
+        "images": [{
+            "path": "woman/inner/17.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Black Harnes",
+        "images": [{
+            "path": "woman/inner/18.png",
+            "order": 600
+        }]
+    }, {
+        "name": "Gold Harnes",
+        "images": [{
+            "path": "woman/inner/19.png",
+            "order": 600
+        }]
+    }]
+},
+{
+    "name": "Outer",
+    "parts": 
+    [{
+        "name": "None",
+        "percent": 60
+    }, {
+        "name": "Black Lich Lace",
+        "condition": {
+            "trait": "Onepiece",
+            "values": ["White Himation", "Black Himation", "Black Tank Top", "White Tank Top", "Black Holder Neck", "White Holder Neck", "White Blouse", "White Chiton", "Black Chiton", "Mixed Bra", "Gold Bra", "Dark Triagle", "White Triagle", "Black Top", "Wild Top", "Mixed Top", "White Lace", "Black Lace", "Black Harnes", "Gold Harnes"]
+        },
+        "images": [{
+            "path": "woman/outer/0.png",
+            "order": 700
+        }]
+    }, {
+        "name": "White Lich Lace",
+        "condition": {
+            "trait": "Onepiece",
+            "values": ["White Himation", "Black Himation", "Black Tank Top", "White Tank Top", "Black Holder Neck", "White Holder Neck", "White Blouse", "White Chiton", "Black Chiton", "Mixed Bra", "Gold Bra", "Dark Triagle", "White Triagle", "Black Top", "Wild Top", "Mixed Top", "White Lace", "Black Lace", "Black Harnes", "Gold Harnes"]
+        },
+        "images": [{
+            "path": "woman/outer/1.png",
+            "order": 700
+        }]
+    }, {
+        "name": "Black Cloak",
+        "condition": {
+            "trait": "Onepiece",
+            "values": ["White Himation", "Black Himation", "Black Tank Top", "White Tank Top", "Black Holder Neck", "White Holder Neck", "White Blouse", "White Chiton", "Black Chiton", "Mixed Bra", "Gold Bra", "Dark Triagle", "White Triagle", "Black Top", "Wild Top", "Mixed Top", "White Lace", "Black Lace", "Black Harnes", "Gold Harnes"]
+        },
+        "images": [{
+            "path": "woman/outer/2.png",
+            "order": 700
+        }]
+    }, {
+        "name": "White Pallium",
+        "condition": {
+            "trait": "Onepiece",
+            "values": ["White Himation", "Black Himation", "Black Tank Top", "White Tank Top", "Black Holder Neck", "White Holder Neck", "White Blouse", "White Chiton", "Black Chiton", "Mixed Bra", "Gold Bra", "Dark Triagle", "White Triagle", "Black Top", "Wild Top", "Mixed Top", "White Lace", "Black Lace", "Black Harnes", "Gold Harnes"]
+        },
+        "images": [{
+            "path": "woman/outer/3.png",
+            "order": 700
+        }]
+    }, {
+        "name": "Gold Pallium",
+        "condition": {
+            "trait": "Onepiece",
+            "values": ["White Himation", "Black Himation", "Black Tank Top", "White Tank Top", "Black Holder Neck", "White Holder Neck", "White Blouse", "White Chiton", "Black Chiton", "Mixed Bra", "Gold Bra", "Dark Triagle", "White Triagle", "Black Top", "Wild Top", "Mixed Top", "White Lace", "Black Lace", "Black Harnes", "Gold Harnes"]
+        },
+        "images": [{
+            "path": "woman/outer/4.png",
+            "order": 700
+        }]
+    }, {
+        "name": "Blue Himation",
+        "condition": {
+            "trait": "Onepiece",
+            "values": ["White Himation", "Black Himation", "Black Tank Top", "White Tank Top", "Black Holder Neck", "White Holder Neck", "White Blouse", "White Chiton", "Black Chiton", "Mixed Bra", "Gold Bra", "Dark Triagle", "White Triagle", "Black Top", "Wild Top", "Mixed Top", "White Lace", "Black Lace", "Black Harnes", "Gold Harnes"]
+        },
+        "images": [{
+            "path": "woman/outer/5.png",
+            "order": 700
+        }]
+    }, {
+        "name": "White Cloak",
+        "condition": {
+            "trait": "Onepiece",
+            "values": ["White Himation", "Black Himation", "Black Tank Top", "White Tank Top", "Black Holder Neck", "White Holder Neck", "White Blouse", "White Chiton", "Black Chiton", "Mixed Bra", "Gold Bra", "Dark Triagle", "White Triagle", "Black Top", "Wild Top", "Mixed Top", "White Lace", "Black Lace", "Black Harnes", "Gold Harnes"]
+        },
+        "images": [{
+            "path": "woman/outer/6.png",
+            "order": 700
+        }]
+    }, {
+        "name": "Black Gown",
+        "condition": {
+            "trait": "Onepiece",
+            "values": ["White Himation", "Black Himation", "Black Tank Top", "White Tank Top", "Black Holder Neck", "White Holder Neck", "White Blouse", "White Chiton", "Black Chiton", "Mixed Bra", "Gold Bra", "Dark Triagle", "White Triagle", "Black Top", "Wild Top", "Mixed Top", "White Lace", "Black Lace", "Black Harnes", "Gold Harnes"]
+        },
+        "images": [{
+            "path": "woman/outer/7.png",
+            "order": 700
+        }]
+    }, {
+        "name": "White Gown",
+        "condition": {
+            "trait": "Onepiece",
+            "values": ["White Himation", "Black Himation", "Black Tank Top", "White Tank Top", "Black Holder Neck", "White Holder Neck", "White Blouse", "White Chiton", "Black Chiton", "Mixed Bra", "Gold Bra", "Dark Triagle", "White Triagle", "Black Top", "Wild Top", "Mixed Top", "White Lace", "Black Lace", "Black Harnes", "Gold Harnes"]
+        },
+        "images": [{
+            "path": "woman/outer/8.png",
+            "order": 700
+        }]
+    }, {
+        "name": "Black Queen",
+        "condition": {
+            "trait": "Onepiece",
+            "values": ["White Himation", "Black Himation", "Black Tank Top", "White Tank Top", "Black Holder Neck", "White Holder Neck", "White Blouse", "White Chiton", "Black Chiton", "Mixed Bra", "Gold Bra", "Dark Triagle", "White Triagle", "Black Top", "Wild Top", "Mixed Top", "White Lace", "Black Lace", "Black Harnes", "Gold Harnes"]
+        },
+        "images": [{
+            "path": "woman/outer/9.png",
+            "order": 700
+        }]
+    }, {
+        "name": "White Queen",
+        "condition": {
+            "trait": "Onepiece",
+            "values": ["White Himation", "Black Himation", "Black Tank Top", "White Tank Top", "Black Holder Neck", "White Holder Neck", "White Blouse", "White Chiton", "Black Chiton", "Mixed Bra", "Gold Bra", "Dark Triagle", "White Triagle", "Black Top", "Wild Top", "Mixed Top", "White Lace", "Black Lace", "Black Harnes", "Gold Harnes"]
+        },
+        "images": [{
+            "path": "woman/outer/10.png",
+            "order": 700
+        }]
+    }]
+}, 
+{
+    "name": "Hair",
+    "parts": 
+    [{
+        "name": "Black Long",
+        "images": [{
+            "path": "woman/hair/black/0.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Black Long Wavy",
+        "images": [{
+            "path": "woman/hair/black/1.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Black Bob",
+        "images": [{
+            "path": "woman/hair/black/2.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Black Lady",
+        "images": [{
+            "path": "woman/hair/black/3.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Black Bangs",
+        "images": [{
+            "path": "woman/hair/black/4.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Black Wavy Hime",
+        "images": [{
+            "path": "woman/hair/black/5.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Black Hime",
+        "images": [{
+            "path": "woman/hair/black/6.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Black Shaggy",
+        "images": [{
+            "path": "woman/hair/black/7.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Black Water",
+        "images": [{
+            "path": "woman/hair/black/8.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Black Gyaru",
+        "images": [{
+            "path": "woman/hair/black/9.png",
+            "order": 800
+        }]
+    }, {
+        "name": "White Long",
+        "images": [{
+            "path": "woman/hair/white/0.png",
+            "order": 800
+        }]
+    }, {
+        "name": "White Long Wavy",
+        "images": [{
+            "path": "woman/hair/white/1.png",
+            "order": 800
+        }]
+    }, {
+        "name": "White Bob",
+        "images": [{
+            "path": "woman/hair/white/2.png",
+            "order": 800
+        }]
+    }, {
+        "name": "White Lady",
+        "images": [{
+            "path": "woman/hair/white/3.png",
+            "order": 800
+        }]
+    }, {
+        "name": "White Bangs",
+        "images": [{
+            "path": "woman/hair/white/4.png",
+            "order": 800
+        }]
+    }, {
+        "name": "White Wavy Hime",
+        "images": [{
+            "path": "woman/hair/white/5.png",
+            "order": 800
+        }]
+    }, {
+        "name": "White Hime",
+        "images": [{
+            "path": "woman/hair/white/6.png",
+            "order": 800
+        }]
+    }, {
+        "name": "White Shaggy",
+        "images": [{
+            "path": "woman/hair/white/7.png",
+            "order": 800
+        }]
+    }, {
+        "name": "White Water",
+        "images": [{
+            "path": "woman/hair/white/8.png",
+            "order": 800
+        }]
+    }, {
+        "name": "White Gyaru",
+        "images": [{
+            "path": "woman/hair/white/9.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Long Wavy",
+        "images": [{
+            "path": "woman/hair/half/0.png",
+            "order": 800
+        }]
+    }, {
+        "name": "White Braid",
+        "images": [{
+            "path": "woman/hair/whole/0.png",
+            "order": 800
+        }]
+    }, {
+        "name": "Black Braid",
+        "images": [{
+            "path": "woman/hair/whole/1.png",
+            "order": 800
+        }]
+    }]
+},
+{
+    "name": "Back Hair",
+    "parts": 
+    [{
+        "name": "Black Long",
+        "condition": {
+            "trait": "Hair",
+            "values": ["Black Long", "Black Long Wavy", "Black Bob", "Black Lady", "Black Bangs", "Black Wavy Hime", "Black Hime", "Black Shaggy", "Black Water", "Black Gyaru"]
+        },
+        "images": [{
+            "path": "woman/back_hair/black/0.png",
+            "order": 200
+        }]
+    }, {
+        "name": "Black Long Wavy",
+        "condition": {
+            "trait": "Hair",
+            "values": ["Black Long", "Black Long Wavy", "Black Bob", "Black Lady", "Black Bangs", "Black Wavy Hime", "Black Hime", "Black Shaggy", "Black Water", "Black Gyaru"]
+        },
+        "images": [{
+            "path": "woman/back_hair/black/1.png",
+            "order": 200
+        }]
+    }, {
+        "name": "Black Short Wavy",
+        "condition": {
+            "trait": "Hair",
+            "values": ["Black Long", "Black Long Wavy", "Black Bob", "Black Lady", "Black Bangs", "Black Wavy Hime", "Black Hime", "Black Shaggy", "Black Water", "Black Gyaru"]
+        },
+        "images": [{
+            "path": "woman/back_hair/black/2.png",
+            "order": 200
+        }]
+    }, {
+        "name": "Black Bob",
+        "condition": {
+            "trait": "Hair",
+            "values": ["Black Long", "Black Long Wavy", "Black Bob", "Black Lady", "Black Bangs", "Black Wavy Hime", "Black Hime", "Black Shaggy", "Black Water", "Black Gyaru"]
+        },
+        "images": [{
+            "path": "woman/back_hair/black/3.png",
+            "order": 200
+        }]
+    }, {
+        "name": "Black Natural",
+        "condition": {
+            "trait": "Hair",
+            "values": ["Black Long", "Black Long Wavy", "Black Bob", "Black Lady", "Black Bangs", "Black Wavy Hime", "Black Hime", "Black Shaggy", "Black Water", "Black Gyaru"]
+        },
+        "images": [{
+            "path": "woman/back_hair/black/4.png",
+            "order": 200
+        }]
+    }, {
+        "name": "Black Flowy",
+        "condition": {
+            "trait": "Hair",
+            "values": ["Black Long", "Black Long Wavy", "Black Bob", "Black Lady", "Black Bangs", "Black Wavy Hime", "Black Hime", "Black Shaggy", "Black Water", "Black Gyaru"]
+        },
+        "images": [{
+            "path": "woman/back_hair/black/5.png",
+            "order": 200
+        }]
+    }, {
+        "name": "Black Pixie",
+        "condition": {
+            "trait": "Hair",
+            "values": ["Black Long", "Black Long Wavy", "Black Bob", "Black Lady", "Black Bangs", "Black Wavy Hime", "Black Hime", "Black Shaggy", "Black Water", "Black Gyaru"]
+        },
+        "images": [{
+            "path": "woman/back_hair/black/6.png",
+            "order": 200
+        }]
+    }, {
+        "name": "Black Water",
+        "condition": {
+            "trait": "Hair",
+            "values": ["Black Long", "Black Long Wavy", "Black Bob", "Black Lady", "Black Bangs", "Black Wavy Hime", "Black Hime", "Black Shaggy", "Black Water", "Black Gyaru"]
+        },
+        "images": [{
+            "path": "woman/back_hair/black/7.png",
+            "order": 200
+        }]
+    }, {
+        "name": "Black Twin Tail",
+        "condition": {
+            "trait": "Hair",
+            "values": ["Black Long", "Black Long Wavy", "Black Bob", "Black Lady", "Black Bangs", "Black Wavy Hime", "Black Hime", "Black Shaggy", "Black Water", "Black Gyaru"]
+        },
+        "images": [{
+            "path": "woman/back_hair/black/8.png",
+            "order": 200
+        }]
+    }, {
+        "name": "White Long",
+        "condition": {
+            "trait": "Hair",
+            "values": ["White Long", "White Long Wavy", "White Bob", "White Lady", "White Bangs", "White Wavy Hime", "White Hime", "White Shaggy", "White Water", "White Gyaru"]
+        },
+        "images": [{
+            "path": "woman/back_hair/white/0.png",
+            "order": 200
+        }]
+    }, {
+        "name": "White Long Wavy",
+        "condition": {
+            "trait": "Hair",
+            "values": ["White Long", "White Long Wavy", "White Bob", "White Lady", "White Bangs", "White Wavy Hime", "White Hime", "White Shaggy", "White Water", "White Gyaru"]
+        },
+        "images": [{
+            "path": "woman/back_hair/white/1.png",
+            "order": 200
+        }]
+    }, {
+        "name": "White Short Wavy",
+        "condition": {
+            "trait": "Hair",
+            "values": ["White Long", "White Long Wavy", "White Bob", "White Lady", "White Bangs", "White Wavy Hime", "White Hime", "White Shaggy", "White Water", "White Gyaru"]
+        },
+        "images": [{
+            "path": "woman/back_hair/white/2.png",
+            "order": 200
+        }]
+    }, {
+        "name": "White Bob",
+        "condition": {
+            "trait": "Hair",
+            "values": ["White Long", "White Long Wavy", "White Bob", "White Lady", "White Bangs", "White Wavy Hime", "White Hime", "White Shaggy", "White Water", "White Gyaru"]
+        },
+        "images": [{
+            "path": "woman/back_hair/white/3.png",
+            "order": 200
+        }]
+    }, {
+        "name": "White Natural",
+        "condition": {
+            "trait": "Hair",
+            "values": ["White Long", "White Long Wavy", "White Bob", "White Lady", "White Bangs", "White Wavy Hime", "White Hime", "White Shaggy", "White Water", "White Gyaru"]
+        },
+        "images": [{
+            "path": "woman/back_hair/white/4.png",
+            "order": 200
+        }]
+    }, {
+        "name": "White Flowy",
+        "condition": {
+            "trait": "Hair",
+            "values": ["White Long", "White Long Wavy", "White Bob", "White Lady", "White Bangs", "White Wavy Hime", "White Hime", "White Shaggy", "White Water", "White Gyaru"]
+        },
+        "images": [{
+            "path": "woman/back_hair/white/5.png",
+            "order": 200
+        }]
+    }, {
+        "name": "White Pixie",
+        "condition": {
+            "trait": "Hair",
+            "values": ["White Long", "White Long Wavy", "White Bob", "White Lady", "White Bangs", "White Wavy Hime", "White Hime", "White Shaggy", "White Water", "White Gyaru"]
+        },
+        "images": [{
+            "path": "woman/back_hair/white/6.png",
+            "order": 200
+        }]
+    }, {
+        "name": "White Water",
+        "condition": {
+            "trait": "Hair",
+            "values": ["White Long", "White Long Wavy", "White Bob", "White Lady", "White Bangs", "White Wavy Hime", "White Hime", "White Shaggy", "White Water", "White Gyaru"]
+        },
+        "images": [{
+            "path": "woman/back_hair/white/7.png",
+            "order": 200
+        }]
+    }, {
+        "name": "White Twin Tail",
+        "condition": {
+            "trait": "Hair",
+            "values": ["White Long", "White Long Wavy", "White Bob", "White Lady", "White Bangs", "White Wavy Hime", "White Hime", "White Shaggy", "White Water", "White Gyaru"]
+        },
+        "images": [{
+            "path": "woman/back_hair/white/8.png",
+            "order": 200
+        }]
+    }, {
+        "name": "Long Wavy",
+        "condition": {
+            "trait": "Hair",
+            "values": ["Long Wavy"]
+        },
+        "images": [{
+            "path": "woman/back_hair/half/0.png",
+            "order": 200
+        }]
+    }]
+}, 
+{
+    "name": "Accessory",
+    "parts": 
+    [{"name":"None", "percent": 70}, {
+        "name": "Hair Chain",
+        "images": [{
+            "path": "woman/acce/0.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Helm",
+        "images": [{
+            "path": "woman/acce/1.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Blue Horn",
+        "images": [{
+            "path": "woman/acce/2.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Crown",
+        "images": [{
+            "path": "woman/acce/3.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Gold Horn",
+        "images": [{
+            "path": "woman/acce/4.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Head Band",
+        "images": [{
+            "path": "woman/acce/5.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Laurel Wreath",
+        "images": [{
+            "path": "woman/acce/6.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Flower Crown",
+        "images": [{
+            "path": "woman/acce/7.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Glasses",
+        "images": [{
+            "path": "woman/acce/8.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Wing Crown",
+        "images": [{
+            "path": "woman/acce/9.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Mask",
+        "images": [{
+            "path": "woman/acce/10.png",
+            "order": 750
+        }]
+    }, {
+        "name": "Moon Earrings",
+        "images": [{
+            "path": "woman/acce/11.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Drop Earrings",
+        "images": [{
+            "path": "woman/acce/12.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Earrings",
+        "images": [{
+            "path": "woman/acce/13.png",
+            "order": 900
+        }]
+    }, {
+        "name": "Eye Patch",
+        "images": [{
+            "path": "woman/acce/14.png",
+            "order": 750
+        }]
+    }, {
+        "name": "Dancer Mask",
+        "images": [{
+            "path": "woman/acce/15.png",
+            "order": 750
+        }]
+    }, {
+        "name": "Opera Mask",
+        "images": [{
+            "path": "woman/acce/16.png",
+            "order": 750
+        }]
+    }, {
+        "name": "Scar",
+        "images": [{
+            "path": "woman/acce/17.png",
+            "order": 750
+        }]
+    }, {
+        "name": "Cat",
+        "images": [{
+            "path": "woman/acce/18.png",
+            "order": 750
+        }]
+    }, {
+        "name": "Head Ring",
+        "images": [{
+            "path": "woman/acce/19.png",
+            "order": 750
+        }]
+    }]
+}]

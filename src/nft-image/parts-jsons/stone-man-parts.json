@@ -1,0 +1,470 @@
+[{
+        "name": "Background",
+        "parts": [{
+            "name": "Background",
+            "images": [{
+                "path": "background.png",
+                "order": 100
+            }]
+        }]
+    },
+    {
+        "name": "Background Accessory",
+        "parts": [{
+            "name": "None",
+            "percent": 60
+        }, {
+            "name": "Shine",
+            "images": [{
+                "path": "man/1-back-acce/0.png",
+                "order": 200
+            }]
+        }, {
+            "name": "Angel Ring",
+            "images": [{
+                "path": "man/1-back-acce/1.png",
+                "order": 200
+            }]
+        }, {
+            "name": "Gold Light",
+            "images": [{
+                "path": "man/1-back-acce/2.png",
+                "order": 200
+            }]
+        }, {
+            "name": "Cloth",
+            "images": [{
+                "path": "man/1-back-acce/3.png",
+                "order": 200
+            }]
+        }, {
+            "name": "Wide Wings",
+            "images": [{
+                "path": "man/1-back-acce/4.png",
+                "order": 200
+            }]
+        }, {
+            "name": "Pillar",
+            "images": [{
+                "path": "man/1-back-acce/5.png",
+                "order": 200
+            }]
+        }, {
+            "name": "Sun",
+            "images": [{
+                "path": "man/1-back-acce/6.png",
+                "order": 200
+            }]
+        }, {
+            "name": "White Circle",
+            "images": [{
+                "path": "man/1-back-acce/7.png",
+                "order": 200
+            }]
+        }, {
+            "name": "Wings",
+            "images": [{
+                "path": "man/1-back-acce/8.png",
+                "order": 200
+            }]
+        }, {
+            "name": "Gold Moon",
+            "images": [{
+                "path": "man/1-back-acce/9.png",
+                "order": 200
+            }]
+        }, {
+            "name": "Crescent Moon",
+            "images": [{
+                "path": "man/1-back-acce/10.png",
+                "order": 200
+            }]
+        }, {
+            "name": "Constellation",
+            "images": [{
+                "path": "man/1-back-acce/11.png",
+                "order": 200
+            }]
+        }]
+    },
+    {
+        "name": "Body",
+        "parts": [{
+            "name": "None",
+            "images": [{
+                "path": "man/2-outfit/0.png",
+                "order": 300
+            }]
+        }, {
+            "name": "Cloak",
+            "images": [{
+                "path": "man/2-outfit/1.png",
+                "order": 300
+            }]
+        }, {
+            "name": "Cape",
+            "images": [{
+                "path": "man/2-outfit/2.png",
+                "order": 300
+            }]
+        }, {
+            "name": "Himation",
+            "images": [{
+                "path": "man/2-outfit/3.png",
+                "order": 300
+            }]
+        }, {
+            "name": "Tunic",
+            "images": [{
+                "path": "man/2-outfit/4.png",
+                "order": 300
+            }]
+        }, {
+            "name": "Chiton",
+            "images": [{
+                "path": "man/2-outfit/5.png",
+                "order": 300
+            }]
+        }, {
+            "name": "Armor",
+            "images": [{
+                "path": "man/2-outfit/6.png",
+                "order": 300
+            }]
+        }, {
+            "name": "Pallium",
+            "images": [{
+                "path": "man/2-outfit/7.png",
+                "order": 300
+            }]
+        }, {
+            "name": "Open Shirt",
+            "images": [{
+                "path": "man/2-outfit/8.png",
+                "order": 300
+            }]
+        }, {
+            "name": "Philosopher",
+            "images": [{
+                "path": "man/2-outfit/9.png",
+                "order": 300
+            }]
+        }, {
+            "name": "Towel",
+            "images": [{
+                "path": "man/2-outfit/10.png",
+                "order": 300
+            }]
+        }, {
+            "name": "Snake",
+            "images": [{
+                "path": "man/2-outfit/11.png",
+                "order": 300
+            }]
+        }]
+    },
+    {
+        "name": "Face",
+        "parts": [{
+            "name": "Teenager",
+            "images": [{
+                "path": "man/3-face/0.png",
+                "order": 400
+            }]
+        }, {
+            "name": "David",
+            "images": [{
+                "path": "man/3-face/1.png",
+                "order": 400
+            }]
+        }, {
+            "name": "Mature",
+            "images": [{
+                "path": "man/3-face/2.png",
+                "order": 400
+            }]
+        }, {
+            "name": "Elder",
+            "images": [{
+                "path": "man/3-face/3.png",
+                "order": 400
+            }]
+        }, {
+            "name": "Wild",
+            "images": [{
+                "path": "man/3-face/4.png",
+                "order": 400
+            }]
+        }, {
+            "name": "General",
+            "images": [{
+                "path": "man/3-face/5.png",
+                "order": 400
+            }]
+        }, {
+            "name": "Serious",
+            "images": [{
+                "path": "man/3-face/6.png",
+                "order": 400
+            }]
+        }, {
+            "name": "Relaxed",
+            "images": [{
+                "path": "man/3-face/7.png",
+                "order": 400
+            }]
+        }, {
+            "name": "Gentleman",
+            "images": [{
+                "path": "man/3-face/8.png",
+                "order": 400
+            }]
+        }, {
+            "name": "Old Man",
+            "images": [{
+                "path": "man/3-face/9.png",
+                "order": 400
+            }]
+        }, {
+            "name": "Aggressive",
+            "images": [{
+                "path": "man/3-face/10.png",
+                "order": 400
+            }]
+        }, {
+            "name": "Barbarian",
+            "images": [{
+                "path": "man/3-face/11.png",
+                "order": 400
+            }]
+        }, {
+            "name": "Closed Eyes",
+            "images": [{
+                "path": "man/3-face/12.png",
+                "order": 400
+            }]
+        }, {
+            "name": "White Eyes",
+            "images": [{
+                "path": "man/3-face/13.png",
+                "order": 400
+            }]
+        }]
+    },
+    {
+        "name": "Hair",
+        "parts": [{
+            "name": "Curly",
+            "images": [{
+                "path": "man/4-hair/0.png",
+                "order": 500
+            }]
+        }, {
+            "name": "Short Curly",
+            "images": [{
+                "path": "man/4-hair/1.png",
+                "order": 500
+            }]
+        }, {
+            "name": "Classic",
+            "images": [{
+                "path": "man/4-hair/2.png",
+                "order": 500
+            }]
+        }, {
+            "name": "Wolf",
+            "images": [{
+                "path": "man/4-hair/3.png",
+                "order": 500
+            }]
+        }, {
+            "name": "Half Bald",
+            "images": [{
+                "path": "man/4-hair/4.png",
+                "order": 500
+            }]
+        }, {
+            "name": "Ancient Greek",
+            "images": [{
+                "path": "man/4-hair/5.png",
+                "order": 500
+            }]
+        }, {
+            "name": "Natural",
+            "images": [{
+                "path": "man/4-hair/6.png",
+                "order": 500
+            }]
+        }, {
+            "name": "Slick Back",
+            "images": [{
+                "path": "man/4-hair/7.png",
+                "order": 500
+            }]
+        }, {
+            "name": "Short Layered",
+            "images": [{
+                "path": "man/4-hair/8.png",
+                "order": 500
+            }]
+        }, {
+            "name": "Banding",
+            "images": [{
+                "path": "man/4-hair/9.png",
+                "order": 500
+            }]
+        }, {
+            "name": "Shaggy",
+            "images": [{
+                "path": "man/4-hair/10.png",
+                "order": 500
+            }]
+        }, {
+            "name": "Wavy",
+            "images": [{
+                "path": "man/4-hair/11.png",
+                "order": 500
+            }]
+        }]
+    },
+    {
+        "name": "Front Accessory",
+        "parts": [{
+            "name": "None",
+            "percent": 60
+        }, {
+            "name": "Crown",
+            "images": [{
+                "path": "man/5-front-acce/0.png",
+                "order": 600
+            }]
+        }, {
+            "name": "Sunglasses",
+            "images": [{
+                "path": "man/5-front-acce/1.png",
+                "order": 600
+            }]
+        }, {
+            "name": "Bluetooth Earphone",
+            "images": [{
+                "path": "man/5-front-acce/2.png",
+                "order": 600
+            }]
+        }, {
+            "name": "Laurel Wreath",
+            "images": [{
+                "path": "man/5-front-acce/3.png",
+                "order": 600
+            }]
+        }, {
+            "name": "VR",
+            "images": [{
+                "path": "man/5-front-acce/4.png",
+                "order": 600
+            }]
+        }, {
+            "name": "Glasses",
+            "images": [{
+                "path": "man/5-front-acce/5.png",
+                "order": 600
+            }]
+        }, {
+            "name": "Helm",
+            "images": [{
+                "path": "man/5-front-acce/6.png",
+                "order": 600
+            }]
+        }, {
+            "name": "White Mask",
+            "images": [{
+                "path": "man/5-front-acce/7.png",
+                "order": 600
+            }]
+        }, {
+            "name": "Flower",
+            "images": [{
+                "path": "man/5-front-acce/8.png",
+                "order": 600
+            }]
+        }, {
+            "name": "Bubble Gum",
+            "images": [{
+                "path": "man/5-front-acce/9.png",
+                "order": 600
+            }]
+        }, {
+            "name": "Blindfold",
+            "images": [{
+                "path": "man/5-front-acce/10.png",
+                "order": 600
+            }]
+        }, {
+            "name": "Flower Crown",
+            "images": [{
+                "path": "man/5-front-acce/11.png",
+                "order": 600
+            }]
+        }, {
+            "name": "Earrings",
+            "images": [{
+                "path": "man/5-front-acce/12.png",
+                "order": 600
+            }]
+        }]
+    },
+    {
+        "name": "Hand",
+        "parts": [{
+            "name": "None",
+            "percent": 60
+        }, {
+            "name": "David",
+            "images": [{
+                "path": "man/6-hand/0.png",
+                "order": 700
+            }]
+        }, {
+            "name": "Selfpic",
+            "images": [{
+                "path": "man/6-hand/1.png",
+                "order": 700
+            }]
+        }, {
+            "name": "Klaytn",
+            "images": [{
+                "path": "man/6-hand/2.png",
+                "order": 700
+            }]
+        }, {
+            "name": "Cuff",
+            "images": [{
+                "path": "man/6-hand/3.png",
+                "order": 700
+            }]
+        }, {
+            "name": "Cigar",
+            "images": [{
+                "path": "man/6-hand/4.png",
+                "order": 700
+            }]
+        }, {
+            "name": "Palm",
+            "images": [{
+                "path": "man/6-hand/5.png",
+                "order": 700
+            }]
+        }, {
+            "name": "Claw",
+            "images": [{
+                "path": "man/6-hand/6.png",
+                "order": 700
+            }]
+        }, {
+            "name": "Tongs",
+            "images": [{
+                "path": "man/6-hand/7.png",
+                "order": 700
+            }]
+        }]
+    }
+]
