@@ -1,6 +1,6 @@
-import { z } from 'zod'
-import { checkGodMode } from '../services/god-mode'
-import { verifyToken } from '../services/jwt'
+import { checkGodMode } from '@gaiaprotocol/god-mode-worker';
+import { z } from 'zod';
+import { verifyToken } from '../services/jwt';
 
 const BLACKLIST = ['gaia', 'gaiaprotocol', 'gaia_protocol']
 const MAX_NAME_LENGTH = 100
