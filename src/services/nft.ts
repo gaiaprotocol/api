@@ -68,6 +68,34 @@ function rowsToData(rows: NftRow[]) {
   return data;
 }
 
+async function getBulkNftData(env: Env, nfts: { collection: string; tokenId: number }[]) {
+  const pairs: { address: string; tokenId: number }[] = [];
+  for (const { collection, tokenId } of nfts) {
+    const address = NFT_ADDRESSES[collection];
+    if (!address) throw new Error(`Unknown collection: ${collection}`);
+    pairs.push({ address, tokenId });
+  }
+
+  if (pairs.length > 0) {
+    const placeholders = pairs.map(() => '(?, ?)').join(', ');
+    const sql =
+      `SELECT nft_address, token_id, holder, type, gender, parts, image \n` +
+      `FROM nfts \n` +
+      `WHERE (nft_address, token_id) IN (${placeholders})`;
+
+    const bindValues: (string | number)[] = [];
+    for (const { address, tokenId } of pairs) {
+      bindValues.push(address, tokenId);
+    }
+
+    const stmt = env.DB.prepare(sql).bind(...bindValues);
+    const { results } = await stmt.all<NftRow>();
+
+    return rowsToData(results);
+  }
+  return {};
+}
+
 async function fetchHeldNftData(env: Env, address: string) {
   const sql =
     `SELECT nft_address, token_id, holder, type, gender, parts, image \n` +
@@ -162,5 +190,5 @@ async function fetchNftDataByIds(env: Env, ids: string[]) {
   return filtered;
 }
 
-export { fetchHeldNftData, fetchNftDataByIds };
+export { fetchHeldNftData, fetchNftDataByIds, getBulkNftData };
 

@@ -5,6 +5,7 @@ import { mainnet } from 'viem/chains';
 import { handleGetNames } from './handlers/get-names';
 import { handleHeldNftsRequest } from './handlers/held-nfts';
 import { handleInitNftOwnership } from './handlers/init-nft-ownership';
+import { handleNftDataRequest } from './handlers/nft';
 import { handleNftDataByIds } from './handlers/nft-by-ids';
 import { handleNotices } from './handlers/notice';
 import { handleSearchNames } from './handlers/search-names';
@@ -30,6 +31,7 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
     if (url.pathname === '/get-names') return handleGetNames(request, this.env);
     if (url.pathname === '/search-names') return handleSearchNames(request, this.env);
     if (url.pathname === '/init-nft-ownership') return handleInitNftOwnership(request, this.env);
+    if (url.pathname.startsWith('/nft/')) return handleNftDataRequest(request, this.env);
     if (url.pathname.endsWith('/nfts')) return handleHeldNftsRequest(request, this.env);
     if (url.pathname === '/nfts/by-ids') return handleNftDataByIds(request, this.env);
 
