@@ -16,6 +16,7 @@
 		"@gaiaprotocol/worker-common": "^0.0.20",
 		"@tsndr/cloudflare-worker-jwt": "^3.2.0",
 		"typescript": "^5.9.2",
+		"uuid": "^11.1.0",
 		"viem": "^2.33.3",
 		"vitest": "~3.2.4",
 		"wrangler": "^4.29.1"

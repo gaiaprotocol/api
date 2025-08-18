@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 const NFT_ADDRESSES: Record<string, `0x${string}`> = {
   'gaia-protocol-gods': '0x134590ACB661Da2B318BcdE6b39eF5cF8208E372',
 };
@@ -68,7 +70,7 @@ function rowsToData(rows: NftRow[]) {
   return data;
 }
 
-async function getBulkNftData(env: Env, nfts: { collection: string; tokenId: number }[]) {
+export async function getBulkNftData(env: Env, nfts: { collection: string; tokenId: number }[]) {
   const pairs: { address: string; tokenId: number }[] = [];
   for (const { collection, tokenId } of nfts) {
     const address = NFT_ADDRESSES[collection];
@@ -96,7 +98,7 @@ async function getBulkNftData(env: Env, nfts: { collection: string; tokenId: num
   return {};
 }
 
-async function fetchHeldNftData(env: Env, address: string) {
+export async function fetchHeldNftData(env: Env, address: string) {
   const sql =
     `SELECT nft_address, token_id, holder, type, gender, parts, image \n` +
     `FROM nfts \n` +
@@ -146,7 +148,7 @@ function parseIdsOrThrow(rawIds: string[]): Pair[] {
   return pairs;
 }
 
-async function fetchNftDataByIds(env: Env, ids: string[]) {
+export async function fetchNftDataByIds(env: Env, ids: string[]) {
   const pairs = parseIdsOrThrow(ids);
   if (pairs.length === 0) return {};
 
@@ -190,5 +192,84 @@ async function fetchNftDataByIds(env: Env, ids: string[]) {
   return filtered;
 }
 
-export { fetchHeldNftData, fetchNftDataByIds, getBulkNftData };
+type RenderInput = {
+  collection: string;
+  tokenId: number;
+  type?: string;
+  gender?: string;
+  parts?: Record<string, string | number>;
+};
 
+export async function upsertNftWithImage(
+  env: Env,
+  nftAddr: `0x${string}`,
+  tokenId: number,
+  holder: string,
+  meta: { type?: string; gender?: string; parts?: Record<string, string | number> },
+  render: (input: RenderInput) => Promise<ArrayBuffer>,
+  ext: 'png' | 'jpg' | 'webp' = 'png'
+) {
+  // 1) collection 확인
+  const collection = Object.keys(NFT_ADDRESSES).find(
+    (k) => NFT_ADDRESSES[k] === nftAddr
+  );
+  if (!collection) {
+    throw new Error(`Unknown collection address: ${nftAddr}`);
+  }
+
+  // 2) 이미지 생성 (DI: 주입한 render 사용)
+  const imageBytes = await render({
+    collection,
+    tokenId,
+    type: meta.type,
+    gender: meta.gender,
+    parts: meta.parts,
+  });
+
+  // 3) r1(R2)에 업로드할 키 경로 결정
+  // rowsToData에서는 gaia-protocol-gods의 경우 image를 "https://god-images.gaia.cc/${row.image}"로 붙여 쓰므로
+  // DB에는 "images/<collection>/<tokenId>.<ext>" 같은 상대경로만 넣어둡니다.
+  const imageKey = `${tokenId}/${uuidv4()}.${ext}`;
+
+  // 4) r1(R2)에 업로드
+  await env.GOD_IMAGES_BUCKET.put(imageKey, imageBytes, {
+    httpMetadata: { contentType: ext === 'png' ? 'image/png' : ext === 'jpg' ? 'image/jpeg' : 'image/webp' },
+  });
+
+  // 5) DB upsert (SQLite 문법; D1 지원)
+  // - parts는 JSON 문자열로 저장
+  // - image 컬럼에는 위에서 만든 imageKey를 저장
+  const partsJson = meta.parts ? JSON.stringify(meta.parts) : null;
+
+  // upsert: (nft_address, token_id) unique 가정
+  const sql = `
+    INSERT INTO nfts (nft_address, token_id, holder, type, gender, parts, image)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(nft_address, token_id) DO UPDATE SET
+      holder = excluded.holder,
+      type   = excluded.type,
+      gender = excluded.gender,
+      parts  = excluded.parts,
+      image  = excluded.image
+  `;
+
+  const stmt = env.DB.prepare(sql).bind(
+    nftAddr,
+    tokenId,
+    holder,
+    meta.type ?? null,
+    meta.gender ?? null,
+    partsJson,
+    imageKey
+  );
+
+  const res = await stmt.run();
+
+  return {
+    ok: true as const,
+    collection,
+    tokenId,
+    imageKey, // rowsToData에서 최종 URL은 "https://god-images.gaia.cc/" + imageKey 로 조합됨
+    db: res
+  };
+}

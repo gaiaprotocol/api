@@ -22,6 +22,12 @@
 			"database_id": "28a4c1f5-8959-4444-b4a3-9143cd465339"
 		}
 	],
+	"r2_buckets": [
+		{
+			"binding": "GOD_IMAGES_BUCKET",
+			"bucket_name": "god-images"
+		}
+	],
 	"env": {
 		"development": {
 			"d1_databases": [
@@ -30,7 +36,13 @@
 					"database_name": "gaiaprotocol",
 					"database_id": "28a4c1f5-8959-4444-b4a3-9143cd465339"
 				}
-			]
+			],
+			"r2_buckets": [
+				{
+					"binding": "GOD_IMAGES_BUCKET",
+					"bucket_name": "god-images"
+				}
+			],
 		}
 	}
 }
