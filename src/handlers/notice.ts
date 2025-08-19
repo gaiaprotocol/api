@@ -1,4 +1,4 @@
-import { jsonWithCors } from "../services/cors";
+import { jsonWithCors } from "@gaiaprotocol/worker-common";
 
 export async function handleNotices(env: Env): Promise<Response> {
   try {

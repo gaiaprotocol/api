@@ -1,5 +1,5 @@
+import { jsonWithCors } from '@gaiaprotocol/worker-common'
 import { z } from 'zod'
-import { jsonWithCors } from '../services/cors'
 
 const TABLE_NAME = 'gaia_names'
 

@@ -1,4 +1,4 @@
-import { syncNftOwnershipFromEvents } from '@gaiaprotocol/worker-common';
+import { preflightResponse, syncNftOwnershipFromEvents } from '@gaiaprotocol/worker-common';
 import { WorkerEntrypoint } from 'cloudflare:workers';
 import { createPublicClient, http } from 'viem';
 import { mainnet } from 'viem/chains';
@@ -8,9 +8,9 @@ import { handleInitNftOwnership } from './handlers/init-nft-ownership';
 import { handleNftDataRequest } from './handlers/nft';
 import { handleNftDataByIds } from './handlers/nft-by-ids';
 import { handleNotices } from './handlers/notice';
+import { handleSaveMetadata } from './handlers/save-metadata';
 import { handleSearchNames } from './handlers/search-names';
 import { handleSetName } from './handlers/set-name';
-import { preflightResponse } from './services/cors';
 import { fetchNftDataByIds } from './services/nft';
 
 const CLIENT = createPublicClient({ chain: mainnet, transport: http() });
@@ -34,6 +34,7 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
     if (url.pathname.startsWith('/nft/')) return handleNftDataRequest(request, this.env);
     if (url.pathname.endsWith('/nfts')) return handleHeldNftsRequest(request, this.env);
     if (url.pathname === '/nfts/by-ids') return handleNftDataByIds(request, this.env);
+    if (url.pathname === '/save-metadata') return handleSaveMetadata(request, this.env);
 
     return new Response('Not Found', { status: 404 });
   }

@@ -10,16 +10,16 @@
 		"cf-typegen": "wrangler types"
 	},
 	"devDependencies": {
-		"@cloudflare/vitest-pool-workers": "^0.8.63",
-		"@gaiaprotocol/god-mode-shared": "^0.0.2",
-		"@gaiaprotocol/god-mode-worker": "^0.0.4",
+		"@cloudflare/vitest-pool-workers": "^0.8.65",
+		"@gaiaprotocol/god-mode-shared": "^0.0.4",
+		"@gaiaprotocol/god-mode-worker": "^0.0.9",
 		"@gaiaprotocol/worker-common": "^0.0.20",
 		"@tsndr/cloudflare-worker-jwt": "^3.2.0",
 		"typescript": "^5.9.2",
 		"uuid": "^11.1.0",
-		"viem": "^2.33.3",
+		"viem": "^2.34.0",
 		"vitest": "~3.2.4",
-		"wrangler": "^4.29.1"
+		"wrangler": "^4.31.0"
 	},
 	"packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

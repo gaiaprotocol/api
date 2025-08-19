@@ -1,8 +1,7 @@
-import { fetchAndStoreNftOwnershipRange } from '@gaiaprotocol/worker-common';
+import { fetchAndStoreNftOwnershipRange, jsonWithCors } from '@gaiaprotocol/worker-common';
 import { createPublicClient, http } from 'viem';
 import { mainnet } from 'viem/chains';
 import { z } from 'zod';
-import { jsonWithCors } from '../services/cors';
 
 const client = createPublicClient({ chain: mainnet, transport: http() });
 
