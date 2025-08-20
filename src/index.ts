@@ -11,7 +11,10 @@ import { handleNotices } from './handlers/notice';
 import { handleSaveMetadata } from './handlers/save-metadata';
 import { handleSearchNames } from './handlers/search-names';
 import { handleSetName } from './handlers/set-name';
+import { fetchGaiaName } from './services/gaia-names';
 import { fetchNftDataByIds } from './services/nft';
+import { fetchProfileByAddress } from './services/profile';
+import { Profile } from './types/profile';
 
 const CLIENT = createPublicClient({ chain: mainnet, transport: http() });
 const NFT_ADDRESS = '0x134590ACB661Da2B318BcdE6b39eF5cF8208E372';
@@ -45,5 +48,13 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
 
   fetchNftDataByIds(ids: string[]): Promise<Record<string, any>> {
     return fetchNftDataByIds(this.env, ids)
+  }
+
+  fetchGaiaName(name: string): Promise<{ account: string, name: string } | undefined> {
+    return fetchGaiaName(this.env, name)
+  }
+
+  fetchProfileByAddress(address: string): Promise<Profile | undefined> {
+    return fetchProfileByAddress(this.env, address)
   }
 };
