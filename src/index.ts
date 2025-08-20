@@ -6,6 +6,7 @@ import { handleGetName } from './handlers/get-name';
 import { handleGetNames } from './handlers/get-names';
 import { handleHeldNftsRequest } from './handlers/held-nfts';
 import { handleInitNftOwnership } from './handlers/init-nft-ownership';
+import { handleMyName } from './handlers/my-name';
 import { handleNftDataRequest } from './handlers/nft';
 import { handleNftDataByIds } from './handlers/nft-by-ids';
 import { handleNotices } from './handlers/notice';
@@ -33,6 +34,7 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
     if (url.pathname === '/notices') return handleNotices(this.env);
     if (url.pathname === '/set-name') return handleSetName(request, this.env);
     if (url.pathname === '/get-name') return handleGetName(request, this.env);
+    if (url.pathname === '/my-name') return handleMyName(request, this.env);
     if (url.pathname === '/get-names') return handleGetNames(request, this.env);
     if (url.pathname === '/search-names') return handleSearchNames(request, this.env);
     if (url.pathname === '/init-nft-ownership') return handleInitNftOwnership(request, this.env);
