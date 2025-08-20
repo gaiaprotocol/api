@@ -67,11 +67,12 @@ export async function handleSetName(request: Request, env: Env) {
       return jsonWithCors({ error: `The name "${name}" is already taken. Please choose another.` }, 409);
     }
 
+    // 핵심만 발췌
     await env.DB.prepare(`
       INSERT INTO ${TABLE_NAME} (account, name, created_at, updated_at)
       VALUES (?, ?, datetime('now'), NULL)
-      ON CONFLICT(name) DO UPDATE SET
-        account = excluded.account,
+      ON CONFLICT(account) DO UPDATE SET
+        name       = excluded.name,
         updated_at = datetime('now')
     `).bind(payload.sub, name).run();
 
