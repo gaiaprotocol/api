@@ -2,9 +2,9 @@ import type { GodMetadata } from '@gaiaprotocol/god-mode-shared';
 import { client, GOD_NFT_ADDRESS, WHITELIST } from '@gaiaprotocol/god-mode-worker';
 import { jsonWithCors, verifyToken } from '@gaiaprotocol/worker-common';
 import { v4 as uuidv4 } from 'uuid';
+import { getAddress } from 'viem';
 import { z } from 'zod';
 import { generateGodImage } from '../services/god-image';
-import { getAddress } from 'viem';
 
 // GodMetadata에 맞춘 입력 스키마
 const ElementEnum = z.enum(['Stone', 'Fire', 'Water']);
@@ -121,6 +121,26 @@ export async function handleSaveMetadata(request: Request, env: Env) {
       // 업로드 롤백은 선택 사항 (여기선 유지)
       return jsonWithCors({ error: 'Failed to save metadata' }, 500);
     }
+
+    /*try {
+      const refreshUrl =
+        `https://api.opensea.io/api/v2/chain/ethereum/contract/${GOD_NFT_ADDRESS}/nfts/${metadata.id}/refresh`;
+
+      const res = await fetch(refreshUrl, {
+        method: 'POST',
+        headers: {
+          'x-api-key': env.OPENSEA_API_KEY,
+          'accept': 'application/json',
+        },
+      });
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        console.warn('OpenSea refresh failed', res.status, text);
+      }
+    } catch (e) {
+      console.warn('OpenSea refresh error', e);
+    }*/
 
     return jsonWithCors({ status: 'ok' }, 200);
   } catch (err) {
