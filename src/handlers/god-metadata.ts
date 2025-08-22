@@ -32,6 +32,7 @@ export async function handleGodMetadata(
 
     const metadata = metadataTransformer.toOpenSeaFormat(nft);
     metadata.description = `A membership NFT collection of Gaia Protocol consisting of 3,333 NFTs\n\nDownload Image: https://god-images.gaia.cc/${tokenId}/${nft.image}`;
+    metadata.animation_url = `https://gods.gaia.cc/god-viewer/${tokenId}`;
 
     return jsonWithCors(metadata);
   } catch (err) {
