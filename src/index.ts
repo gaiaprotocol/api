@@ -15,7 +15,7 @@ import { handleSearchNames } from './handlers/search-names';
 import { handleSetName } from './handlers/set-name';
 import { fetchGaiaName } from './services/gaia-names';
 import { fetchNftDataByIds } from './services/nft';
-import { fetchNotices } from './services/notice';
+import { fetchNotice, fetchNotices } from './services/notice';
 import { fetchProfileByAddress } from './services/profile';
 import { Notice } from './types/notice';
 import { Profile } from './types/profile';
@@ -54,6 +54,10 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
 
   fetchNotices(): Promise<Notice[]> {
     return fetchNotices(this.env);
+  }
+
+  fetchNotice(id: number): Promise<Notice | undefined> {
+    return fetchNotice(this.env, id);
   }
 
   fetchNftDataByIds(ids: string[]): Promise<Record<string, any>> {

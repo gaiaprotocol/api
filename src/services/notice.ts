@@ -29,3 +29,17 @@ export async function fetchNotices(env: Env) {
 
   return rows.results.map(rowToNotice);
 }
+
+export async function fetchNotice(env: Env, id: number) {
+  const sql = `
+    SELECT id, title, content, created_at
+    FROM notices
+    WHERE id = ?
+    LIMIT 1
+  `;
+
+  const stmt = env.DB.prepare(sql).bind(id);
+  const row = await stmt.first<NoticeRow>();
+
+  return row ? rowToNotice(row) : undefined;
+}
