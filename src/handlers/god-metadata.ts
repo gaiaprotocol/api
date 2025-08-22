@@ -10,7 +10,7 @@ export async function handleGodMetadata(
     const url = new URL(request.url);
     const segments = url.pathname.split('/');
 
-    const tokenIdStr = segments[3];
+    const tokenIdStr = segments[2];
 
     if (!tokenIdStr) {
       return jsonWithCors({ error: 'Invalid request' }, 400);
