@@ -1,17 +1,13 @@
 import { jsonWithCors } from "@gaiaprotocol/worker-common";
+import { fetchNotices } from "../services/notice";
 
 export async function handleNotices(env: Env): Promise<Response> {
   try {
-    const { results } = await env.DB.prepare(`
-      SELECT id, title, content, created_at
-      FROM notices
-      ORDER BY id DESC
-      LIMIT 10
-    `).all();
+    const notices = await fetchNotices(env);
 
     return jsonWithCors({
       success: true,
-      data: results
+      data: notices
     });
   } catch (err) {
     console.error(err);

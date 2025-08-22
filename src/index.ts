@@ -15,7 +15,9 @@ import { handleSearchNames } from './handlers/search-names';
 import { handleSetName } from './handlers/set-name';
 import { fetchGaiaName } from './services/gaia-names';
 import { fetchNftDataByIds } from './services/nft';
+import { fetchNotices } from './services/notice';
 import { fetchProfileByAddress } from './services/profile';
+import { Notice } from './types/notice';
 import { Profile } from './types/profile';
 
 const CLIENT = createPublicClient({ chain: mainnet, transport: http() });
@@ -48,6 +50,10 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
 
   async scheduled(controller: ScheduledController) {
     await syncNftOwnershipFromEvents(this.env, CLIENT, { [NFT_ADDRESS]: TOKEN_RANGE }, BLOCK_STEP);
+  }
+
+  fetchNotices(): Promise<Notice[]> {
+    return fetchNotices(this.env);
   }
 
   fetchNftDataByIds(ids: string[]): Promise<Record<string, any>> {
