@@ -4,6 +4,7 @@ import { createPublicClient, http } from 'viem';
 import { mainnet } from 'viem/chains';
 import { handleGetName } from './handlers/get-name';
 import { handleGetNames } from './handlers/get-names';
+import { handleGodMetadata } from './handlers/god-metadata';
 import { handleHeldNftsRequest } from './handlers/held-nfts';
 import { handleInitNftOwnership } from './handlers/init-nft-ownership';
 import { handleMyName } from './handlers/my-name';
@@ -41,6 +42,7 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
     if (url.pathname === '/search-names') return handleSearchNames(request, this.env);
     if (url.pathname === '/init-nft-ownership') return handleInitNftOwnership(request, this.env);
     if (url.pathname.startsWith('/nft/')) return handleNftDataRequest(request, this.env);
+    if (url.pathname.startsWith('/god-metadata/')) return handleGodMetadata(request, this.env);
     if (url.pathname.endsWith('/nfts')) return handleHeldNftsRequest(request, this.env);
     if (url.pathname === '/nfts/by-ids') return handleNftDataByIds(request, this.env);
     if (url.pathname === '/save-metadata') return handleSaveMetadata(request, this.env);
