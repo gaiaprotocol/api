@@ -10,10 +10,9 @@ export async function handleGodMetadata(
     const url = new URL(request.url);
     const segments = url.pathname.split('/');
 
-    const collection = segments[2];
     const tokenIdStr = segments[3];
 
-    if (!collection || !tokenIdStr) {
+    if (!tokenIdStr) {
       return jsonWithCors({ error: 'Invalid request' }, 400);
     }
 
@@ -22,9 +21,9 @@ export async function handleGodMetadata(
       return jsonWithCors({ error: 'Invalid token ID' }, 400);
     }
 
-    const data = await getBulkNftData(env, [{ collection, tokenId }]);
+    const data = await getBulkNftData(env, [{ collection: 'gaia-protocol-gods', tokenId }]);
 
-    const key = `${collection}:${tokenId}`;
+    const key = `gaia-protocol-gods:${tokenId}`;
     const nft = data[key];
 
     if (!nft) {
