@@ -122,7 +122,7 @@ export async function handleSaveMetadata(request: Request, env: Env) {
       return jsonWithCors({ error: 'Failed to save metadata' }, 500);
     }
 
-    /*try {
+    try {
       const refreshUrl =
         `https://api.opensea.io/api/v2/chain/ethereum/contract/${GOD_NFT_ADDRESS}/nfts/${metadata.id}/refresh`;
 
@@ -140,7 +140,7 @@ export async function handleSaveMetadata(request: Request, env: Env) {
       }
     } catch (e) {
       console.warn('OpenSea refresh error', e);
-    }*/
+    }
 
     return jsonWithCors({ status: 'ok' }, 200);
   } catch (err) {
