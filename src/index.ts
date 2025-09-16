@@ -8,12 +8,14 @@ import { handleGodMetadata } from './handlers/god-metadata';
 import { handleHeldNftsRequest } from './handlers/held-nfts';
 import { handleInitNftOwnership } from './handlers/init-nft-ownership';
 import { handleMyName } from './handlers/my-name';
+import { handleMyProfile } from './handlers/my-profile';
 import { handleNftDataRequest } from './handlers/nft';
 import { handleNftDataByIds } from './handlers/nft-by-ids';
 import { handleNotices } from './handlers/notice';
 import { handleSaveMetadata } from './handlers/save-metadata';
 import { handleSearchNames } from './handlers/search-names';
 import { handleSetName } from './handlers/set-name';
+import { handleSetProfile } from './handlers/set-profile';
 import { fetchGaiaName } from './services/gaia-names';
 import { fetchNftDataByIds } from './services/nft';
 import { fetchNotice, fetchNotices } from './services/notice';
@@ -35,11 +37,19 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
     const url = new URL(request.url);
 
     if (url.pathname === '/notices') return handleNotices(this.env);
+
+    // 이름 관련
     if (url.pathname === '/set-name') return handleSetName(request, this.env);
     if (url.pathname === '/get-name') return handleGetName(request, this.env);
     if (url.pathname === '/my-name') return handleMyName(request, this.env);
     if (url.pathname === '/get-names') return handleGetNames(request, this.env);
     if (url.pathname === '/search-names') return handleSearchNames(request, this.env);
+
+    // 프로필 관련
+    if (url.pathname === '/set-profile') return handleSetProfile(request, this.env);
+    if (url.pathname === '/my-profile') return handleMyProfile(request, this.env);
+
+    // NFT 관련
     if (url.pathname === '/init-nft-ownership') return handleInitNftOwnership(request, this.env);
     if (url.pathname.startsWith('/nft/')) return handleNftDataRequest(request, this.env);
     if (url.pathname.startsWith('/god-metadata/')) return handleGodMetadata(request, this.env);
