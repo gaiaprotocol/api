@@ -4,6 +4,7 @@ wrangler d1 execute gaiaprotocol --local --file=./schema/contract_event_sync_sta
 wrangler d1 execute gaiaprotocol --local --file=./schema/notices.sql
 wrangler d1 execute gaiaprotocol --local --file=./schema/gaia_names.sql
 wrangler d1 execute gaiaprotocol --local --file=./schema/profiles.sql
+wrangler d1 execute gaiaprotocol --local --file=./schema/gods_stats.sql
 ```
 
 ## insert

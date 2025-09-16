@@ -18,6 +18,7 @@ import { handleSearchNames } from './handlers/search-names';
 import { handleSetName } from './handlers/set-name';
 import { handleSetProfile } from './handlers/set-profile';
 import { fetchGaiaName } from './services/gaia-names';
+import { fetchAndStoreGodsStats } from './services/gods-stats';
 import { fetchNftDataByIds } from './services/nft';
 import { fetchNotice, fetchNotices } from './services/notice';
 import { fetchProfileByAddress } from './services/profile';
@@ -63,7 +64,10 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
   }
 
   async scheduled(controller: ScheduledController) {
-    await syncNftOwnershipFromEvents(this.env, CLIENT, { [NFT_ADDRESS]: TOKEN_RANGE }, BLOCK_STEP);
+    await Promise.all([
+      syncNftOwnershipFromEvents(this.env, CLIENT, { [NFT_ADDRESS]: TOKEN_RANGE }, BLOCK_STEP),
+      fetchAndStoreGodsStats(this.env),
+    ]);
   }
 
   fetchNotices(): Promise<Notice[]> {
