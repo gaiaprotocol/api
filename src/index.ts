@@ -4,6 +4,7 @@ import { createPublicClient, http } from 'viem';
 import { mainnet } from 'viem/chains';
 import { handleGetName } from './handlers/get-name';
 import { handleGetNames } from './handlers/get-names';
+import { handleGetProfile } from './handlers/get-profile';
 import { handleGodMetadata } from './handlers/god-metadata';
 import { handleHeldNftsRequest } from './handlers/held-nfts';
 import { handleInitNftOwnership } from './handlers/init-nft-ownership';
@@ -47,6 +48,7 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
 
     // 프로필 관련
     if (url.pathname === '/set-profile') return handleSetProfile(request, this.env);
+    if (url.pathname === '/get-profile') return handleGetProfile(request, this.env);
     if (url.pathname === '/my-profile') return handleMyProfile(request, this.env);
 
     // NFT 관련
