@@ -64,10 +64,15 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
   }
 
   async scheduled(controller: ScheduledController) {
-    await Promise.all([
-      syncNftOwnershipFromEvents(this.env, CLIENT, { [NFT_ADDRESS]: TOKEN_RANGE }, BLOCK_STEP),
-      fetchAndStoreGodsStats(this.env),
-    ]);
+    if (controller.cron === "*/1 * * * *") {
+      // 매 분마다 실행할 작업
+      await syncNftOwnershipFromEvents(this.env, CLIENT, { [NFT_ADDRESS]: TOKEN_RANGE }, BLOCK_STEP);
+    }
+
+    if (controller.cron === "0 * * * *") {
+      // 매시 정각마다 실행할 작업
+      await fetchAndStoreGodsStats(this.env);
+    }
   }
 
   fetchNotices(): Promise<Notice[]> {
