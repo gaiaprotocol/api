@@ -24,6 +24,7 @@ import { fetchNotice, fetchNotices } from './services/notice';
 import { fetchProfileByAddress } from './services/profile';
 import { Notice } from './types/notice';
 import { Profile } from './types/profile';
+import { handleGodsStats } from './handlers/gods-stats';
 
 const CLIENT = createPublicClient({ chain: mainnet, transport: http() });
 const NFT_ADDRESS = '0x134590ACB661Da2B318BcdE6b39eF5cF8208E372';
@@ -59,6 +60,7 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
     if (url.pathname.endsWith('/nfts')) return handleHeldNftsRequest(request, this.env);
     if (url.pathname === '/nfts/by-ids') return handleNftDataByIds(request, this.env);
     if (url.pathname === '/save-metadata') return handleSaveMetadata(request, this.env);
+    if (url.pathname === '/gods-stats') return handleGodsStats(request, this.env);
 
     return new Response('Not Found', { status: 404 });
   }
