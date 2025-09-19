@@ -3,5 +3,5 @@ export interface Notice {
   title: string;
   content: string;
   createdAt: number;
-  translations?: Record<string, string>;
+  translations?: Record<string, Record<string, string>>;
 }
