@@ -5,20 +5,31 @@ type NoticeRow = {
   title: string;
   content: string;
   created_at: number;
+  translations?: string;
 };
 
 function rowToNotice(row: NoticeRow): Notice {
-  return {
+  const notice: Notice = {
     id: row.id,
     title: row.title,
     content: row.content,
     createdAt: row.created_at,
   };
+
+  if (row.translations) {
+    try {
+      notice.translations = JSON.parse(row.translations);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  return notice;
 }
 
 export async function fetchNotices(env: Env) {
   const sql = `
-    SELECT id, title, content, created_at
+    SELECT id, title, content, created_at, translations
     FROM notices
     ORDER BY id DESC
     LIMIT 10
