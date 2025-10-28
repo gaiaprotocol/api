@@ -2,6 +2,7 @@ import { Notice } from "../types/notice";
 
 type NoticeRow = {
   id: number;
+  type?: string;
   title: string;
   content: string;
   created_at: number;
@@ -11,6 +12,7 @@ type NoticeRow = {
 function rowToNotice(row: NoticeRow): Notice {
   const notice: Notice = {
     id: row.id,
+    type: row.type,
     title: row.title,
     content: row.content,
     createdAt: row.created_at,
@@ -29,7 +31,7 @@ function rowToNotice(row: NoticeRow): Notice {
 
 export async function fetchNotices(env: Env) {
   const sql = `
-    SELECT id, title, content, created_at, translations
+    SELECT id, type, title, content, created_at, translations
     FROM notices
     ORDER BY id DESC
     LIMIT 10
