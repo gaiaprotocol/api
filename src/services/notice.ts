@@ -45,7 +45,7 @@ export async function fetchNotices(env: Env) {
 
 export async function fetchNotice(env: Env, id: number) {
   const sql = `
-    SELECT id, title, content, created_at
+    SELECT id, type, title, content, created_at
     FROM notices
     WHERE id = ?
     LIMIT 1
