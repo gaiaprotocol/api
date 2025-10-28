@@ -1,3 +1,4 @@
+import { ens_normalize } from '@adraffy/ens-normalize';
 import { checkGodMode } from '@gaiaprotocol/god-mode-worker';
 import { jsonWithCors, verifyToken } from '@gaiaprotocol/worker-common';
 import { z } from 'zod';
@@ -6,13 +7,23 @@ const BLACKLIST = ['gaia', 'gaiaprotocol', 'gaia_protocol'];
 const MAX_NAME_LENGTH = 100;
 const TABLE_NAME = 'gaia_names';
 
-function isValidName(name: string): boolean {
-  if (!name) return false;
-  if (!/^[a-z0-9-]+$/.test(name)) return false;
-  if (name.startsWith('-') || name.endsWith('-')) return false;
-  if (name.includes('--')) return false;
-  if (name !== name.normalize('NFC')) return false;
-  return true;
+/** ENS 규격으로 유효 여부만 확인 (정규화 가능하면 true) */
+export function isValidENSName(name: string): boolean {
+  try {
+    ens_normalize(name); // 정규화 시도. 불가하면 에러 throw
+    return true;         // ENS 기준 “정상화 가능 = 유효”
+  } catch {
+    return false;
+  }
+}
+
+/** 입력이 이미 정규화된 형태인지까지 강제하고 싶다면 */
+export function isNormalizedENSName(name: string): boolean {
+  try {
+    return ens_normalize(name) === name;
+  } catch {
+    return false;
+  }
 }
 
 export async function handleSetName(request: Request, env: Env) {
@@ -40,14 +51,15 @@ export async function handleSetName(request: Request, env: Env) {
     const schema = z.object({ name: z.string() });
     const { name: rawName } = schema.parse(body);
 
-    const name = rawName.toLowerCase().trim();
+    let name = rawName.toLowerCase().trim();
+
+    if (!isValidENSName(name)) {
+      return jsonWithCors({ error: 'The provided name contains invalid characters or format.' }, 400);
+    }
+    name = ens_normalize(name);
 
     if (name.length > MAX_NAME_LENGTH) {
       return jsonWithCors({ error: `The provided name exceeds the maximum length of ${MAX_NAME_LENGTH} characters.` }, 400);
-    }
-
-    if (!isValidName(name)) {
-      return jsonWithCors({ error: 'The provided name contains invalid characters or format.' }, 400);
     }
 
     if (BLACKLIST.includes(name)) {
