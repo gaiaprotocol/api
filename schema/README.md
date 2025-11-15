@@ -23,7 +23,19 @@ wrangler d1 execute gaiaprotocol --local --file=./schema/insert/insert_nft_test.
 wrangler d1 execute gaiaprotocol --local --file=./schema/insert/insert_gods_stats.sql
 ```
 
+## testnet insert
+```
+wrangler d1 execute gaiaprotocol_testnet --remote --file=./schema/insert/notices_insert.sql
+wrangler d1 execute gaiaprotocol_testnet --remote --file=./schema/insert/insert_nft_test.sql
+wrangler d1 execute gaiaprotocol_testnet --remote --file=./schema/insert/insert_gods_stats.sql
+```
+
 ## dump and restore
 ```
-wrangler d1 execute gaiaprotocol --local --file=./schema/supabase_dump.sql
+wrangler d1 execute gaiaprotocol --local --file=./schema/dump-and-restore/supabase_dump.sql
+```
+
+## testnet dump and restore
+```
+wrangler d1 execute gaiaprotocol_testnet --remote --file=./schema/dump-and-restore/supabase_dump.sql
 ```
