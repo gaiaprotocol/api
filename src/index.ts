@@ -39,6 +39,7 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
 
     const url = new URL(request.url);
 
+    if (url.pathname === '/envtype') return new Response(this.env.ENV_TYPE);
     if (url.pathname === '/notices') return handleNotices(this.env);
 
     // 이름 관련

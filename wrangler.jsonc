@@ -29,6 +29,9 @@
 			"bucket_name": "god-images"
 		}
 	],
+	"vars": {
+		"ENV_TYPE": "prod"
+	},
 	"env": {
 		"development": {
 			"d1_databases": [
@@ -44,6 +47,27 @@
 					"bucket_name": "god-images"
 				}
 			],
+			"vars": {
+				"ENV_TYPE": "dev"
+			}
+		},
+		"testnet": {
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "gaiaprotocol_testnet",
+					"database_id": "477deb84-a0d5-41c5-911e-c4d71d46ee80"
+				}
+			],
+			"r2_buckets": [
+				{
+					"binding": "GOD_IMAGES_BUCKET",
+					"bucket_name": "god-images-testnet"
+				}
+			],
+			"vars": {
+				"ENV_TYPE": "testnet"
+			}
 		}
 	}
 }

@@ -7,6 +7,15 @@ wrangler d1 execute gaiaprotocol --local --file=./schema/profiles.sql
 wrangler d1 execute gaiaprotocol --local --file=./schema/gods_stats.sql
 ```
 
+```
+wrangler d1 execute gaiaprotocol_testnet --remote --file=./schema/nfts.sql
+wrangler d1 execute gaiaprotocol_testnet --remote --file=./schema/contract_event_sync_status.sql
+wrangler d1 execute gaiaprotocol_testnet --remote --file=./schema/notices.sql
+wrangler d1 execute gaiaprotocol_testnet --remote --file=./schema/gaia_names.sql
+wrangler d1 execute gaiaprotocol_testnet --remote --file=./schema/profiles.sql
+wrangler d1 execute gaiaprotocol_testnet --remote --file=./schema/gods_stats.sql
+```
+
 ## insert
 ```
 wrangler d1 execute gaiaprotocol --local --file=./schema/insert/notices_insert.sql
