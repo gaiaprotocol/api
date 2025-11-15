@@ -67,6 +67,8 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
   }
 
   async scheduled(controller: ScheduledController) {
+    if (this.env.ENV_TYPE === 'dev' || this.env.ENV_TYPE === 'testnet') return;
+
     if (controller.cron === "*/1 * * * *") {
       // 매 분마다 실행할 작업
       await syncNftOwnershipFromEvents(this.env, CLIENT, { [NFT_ADDRESS]: TOKEN_RANGE }, BLOCK_STEP);
