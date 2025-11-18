@@ -29,8 +29,28 @@
 			"bucket_name": "god-images"
 		}
 	],
+	"kv_namespaces": [
+		{
+			"binding": "SIWE_NONCES",
+			"id": "d2b5e7eb744247eb8c4d556877c4f265",
+			"preview_id": "b779dc1cfda041a5973570a66db1b42d"
+		},
+		{
+			"binding": "TXNS",
+			"id": "d202505fbc5c463ea6eb203193070139",
+			"preview_id": "f8d7ff68ac8c440e96f3967ebe116d01"
+		},
+		{
+			"binding": "SESSIONS",
+			"id": "8d4e7e62da644a89ad5f6f953586d7bb",
+			"preview_id": "f04d45e0593c4c4890013a16ff957af8"
+		}
+	],
 	"vars": {
-		"ENV_TYPE": "prod"
+		"ENV_TYPE": "prod",
+		"GOOGLE_CLIENT_ID": "1022416961836-0drpshie7r2l2lomksa31uerf2h2lipu.apps.googleusercontent.com",
+		"VALHALLA_GOOGLE_REDIRECT_URI": "http://localhost:8080/oauth2/callback/valhalla/google",
+		"VALHALLA_REDIRECT_TO": "http://localhost:8080",
 	},
 	"env": {
 		"development": {
@@ -47,8 +67,26 @@
 					"bucket_name": "god-images"
 				}
 			],
+			"kv_namespaces": [
+				{
+					"binding": "SIWE_NONCES",
+					"id": "d2b5e7eb744247eb8c4d556877c4f265",
+					"preview_id": "b779dc1cfda041a5973570a66db1b42d"
+				},
+				{
+					"binding": "TXNS",
+					"id": "d202505fbc5c463ea6eb203193070139",
+					"preview_id": "f8d7ff68ac8c440e96f3967ebe116d01"
+				},
+				{
+					"binding": "SESSIONS",
+					"id": "8d4e7e62da644a89ad5f6f953586d7bb",
+					"preview_id": "f04d45e0593c4c4890013a16ff957af8"
+				}
+			],
 			"vars": {
-				"ENV_TYPE": "dev"
+				"ENV_TYPE": "dev",
+				"GOOGLE_CLIENT_ID": "1022416961836-0drpshie7r2l2lomksa31uerf2h2lipu.apps.googleusercontent.com"
 			}
 		},
 		"testnet": {
@@ -65,8 +103,25 @@
 					"bucket_name": "god-images-testnet"
 				}
 			],
+			"kv_namespaces": [
+				{
+					"binding": "SIWE_NONCES",
+					"id": "fd175184e88b4562a10ea4a58e75e140",
+				},
+				{
+					"binding": "TXNS",
+					"id": "11ebc3c04d284171937048b4ced9fa04",
+				},
+				{
+					"binding": "SESSIONS",
+					"id": "2954be2b1f6247f9aea6ac59b8016a66",
+				}
+			],
 			"vars": {
-				"ENV_TYPE": "testnet"
+				"ENV_TYPE": "testnet",
+				"GOOGLE_CLIENT_ID": "1022416961836-0drpshie7r2l2lomksa31uerf2h2lipu.apps.googleusercontent.com",
+				"VALHALLA_GOOGLE_REDIRECT_URI": "https://testnet.api.gaia.cc/oauth2/callback/valhalla/google",
+				"VALHALLA_REDIRECT_TO": "https://testnet.valhalla.gaia.cc",
 			}
 		}
 	}
