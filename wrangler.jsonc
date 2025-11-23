@@ -20,7 +20,7 @@
 		{
 			"binding": "DB",
 			"database_name": "gaiaprotocol",
-			"database_id": "28a4c1f5-8959-4444-b4a3-9143cd465339"
+			"database_id": "63a6e619-98ad-482d-8ae5-448510ed9eb5"
 		}
 	],
 	"r2_buckets": [
@@ -58,7 +58,7 @@
 				{
 					"binding": "DB",
 					"database_name": "gaiaprotocol",
-					"database_id": "28a4c1f5-8959-4444-b4a3-9143cd465339"
+					"database_id": "63a6e619-98ad-482d-8ae5-448510ed9eb5"
 				}
 			],
 			"r2_buckets": [
