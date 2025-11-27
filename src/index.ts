@@ -1,4 +1,4 @@
-import { preflightResponse, syncNftOwnershipFromEvents } from '@gaiaprotocol/worker-common';
+import { handleLogin, handleNonce, handleValidateToken, preflightResponse, syncNftOwnershipFromEvents } from '@gaiaprotocol/worker-common';
 import { oauth2Callback, oauth2Logout, oauth2Start } from 'cf-oauth';
 import { WorkerEntrypoint } from 'cloudflare:workers';
 import { createPublicClient, http } from 'viem';
@@ -49,6 +49,14 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
     if (url.pathname === '/envtype') return new Response(this.env.ENV_TYPE);
     if (url.pathname === '/notices') return handleNotices(this.env);
 
+    // 로그인 관련
+    if (url.pathname === '/nonce' && request.method === 'POST') return handleNonce(request, this.env);
+
+    if (url.pathname === '/login/valhalla' && request.method === 'POST') return handleLogin(request, 1, this.env, this.env.VALHALLA_DOMAIN, this.env.VALHALLA_URI);
+    if (url.pathname === '/login/personas' && request.method === 'POST') return handleLogin(request, 1, this.env, this.env.PERSONAS_DOMAIN, this.env.PERSONAS_URI);
+
+    if (url.pathname === '/validate-token' && request.method === 'GET') return handleValidateToken(request, this.env);
+
     // 이름 관련
     if (url.pathname === '/set-name') return handleSetName(request, this.env);
     if (url.pathname === '/get-name') return handleGetName(request, this.env);
@@ -88,9 +96,9 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
     }
 
     if (url.pathname === '/oauth2/start/valhalla/google') return oauth2Start(request, this.env, 'google', oauth2Providers, this.env.VALHALLA_GOOGLE_REDIRECT_URI);
-    if (url.pathname === '/oauth2/callback/valhalla/google') return oauth2Callback(request, this.env, 'google', oauth2Providers, this.env.VALHALLA_GOOGLE_REDIRECT_URI, this.env.VALHALLA_REDIRECT_TO);
+    if (url.pathname === '/oauth2/callback/valhalla/google') return oauth2Callback(request, this.env, 'google', oauth2Providers, this.env.VALHALLA_GOOGLE_REDIRECT_URI, this.env.VALHALLA_URI);
     if (url.pathname === '/oauth2/start/personas/google') return oauth2Start(request, this.env, 'google', oauth2Providers, this.env.PERSONAS_GOOGLE_REDIRECT_URI);
-    if (url.pathname === '/oauth2/callback/personas/google') return oauth2Callback(request, this.env, 'google', oauth2Providers, this.env.PERSONAS_GOOGLE_REDIRECT_URI, this.env.PERSONAS_REDIRECT_TO);
+    if (url.pathname === '/oauth2/callback/personas/google') return oauth2Callback(request, this.env, 'google', oauth2Providers, this.env.PERSONAS_GOOGLE_REDIRECT_URI, this.env.PERSONAS_URI);
 
     if (url.pathname === '/oauth2/login-with-idtoken/google') return oauth2LoginWithIdToken(request, this.env, oauth2Providers, 'google')
     if (url.pathname === '/oauth2/me-by-token/google') return oauth2MeByToken(request, this.env, 'google')
