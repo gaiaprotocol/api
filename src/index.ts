@@ -89,6 +89,9 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
 
     if (url.pathname === '/oauth2/start/valhalla/google') return oauth2Start(request, this.env, 'google', oauth2Providers, this.env.VALHALLA_GOOGLE_REDIRECT_URI);
     if (url.pathname === '/oauth2/callback/valhalla/google') return oauth2Callback(request, this.env, 'google', oauth2Providers, this.env.VALHALLA_GOOGLE_REDIRECT_URI, this.env.VALHALLA_REDIRECT_TO);
+    if (url.pathname === '/oauth2/start/personas/google') return oauth2Start(request, this.env, 'google', oauth2Providers, this.env.PERSONAS_GOOGLE_REDIRECT_URI);
+    if (url.pathname === '/oauth2/callback/personas/google') return oauth2Callback(request, this.env, 'google', oauth2Providers, this.env.PERSONAS_GOOGLE_REDIRECT_URI, this.env.PERSONAS_REDIRECT_TO);
+
     if (url.pathname === '/oauth2/login-with-idtoken/google') return oauth2LoginWithIdToken(request, this.env, oauth2Providers, 'google')
     if (url.pathname === '/oauth2/me-by-token/google') return oauth2MeByToken(request, this.env, 'google')
 
