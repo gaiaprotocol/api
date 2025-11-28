@@ -1,5 +1,5 @@
 import { jsonWithCors } from "@gaiaprotocol/worker-common";
-import { fetchNotices } from "../services/notice";
+import { fetchNotices } from "../db/notice";
 
 export async function handleNotices(env: Env): Promise<Response> {
   try {

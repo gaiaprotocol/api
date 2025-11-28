@@ -1,5 +1,5 @@
 import { jsonWithCors } from '@gaiaprotocol/worker-common';
-import { getBulkNftData } from '../services/nft';
+import { getBulkNftData } from '../db/nft';
 
 export async function handleNftDataRequest(
   request: Request,

@@ -14,7 +14,7 @@ export async function handleGetProfile(request: Request, env: Env) {
 
     // 2) 프로필 조회
     const stmt = `
-      SELECT account, nickname, bio, profile_image, created_at, updated_at
+      SELECT account, nickname, bio, avatar_url, banner_url, created_at, updated_at
       FROM ${TABLE_NAME}
       WHERE account = ?
     `
@@ -36,9 +36,10 @@ export async function handleGetProfile(request: Request, env: Env) {
       account: row.account,
       nickname: row.nickname ?? null,
       bio: row.bio ?? null,
-      profile_image: row.profile_image ?? null,
-      created_at: Number.isFinite(createdAt) ? createdAt : null,
-      updated_at: Number.isFinite(updatedAt as number) ? updatedAt : null,
+      avatarUrl: row.avatar_url ?? null,
+      bannerUrl: row.banner_url ?? null,
+      createdAt: Number.isFinite(createdAt) ? createdAt : null,
+      updatedAt: Number.isFinite(updatedAt as number) ? updatedAt : null,
     })
   } catch (err) {
     console.error(err)

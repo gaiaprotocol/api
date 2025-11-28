@@ -1,0 +1,55 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "api",
+	"main": "src/index.ts",
+	"compatibility_date": "2025-07-12",
+	"observability": {
+		"enabled": true
+	},
+	"assets": {
+		"directory": "./assets/",
+		"binding": "ASSETS"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "gaiaprotocol",
+			"database_id": "63a6e619-98ad-482d-8ae5-448510ed9eb5"
+		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "GOD_IMAGES_BUCKET",
+			"bucket_name": "god-images"
+		}
+	],
+	"kv_namespaces": [
+		{
+			"binding": "SIWE_NONCES",
+			"id": "d2b5e7eb744247eb8c4d556877c4f265",
+			"preview_id": "b779dc1cfda041a5973570a66db1b42d"
+		},
+		{
+			"binding": "TXNS",
+			"id": "d202505fbc5c463ea6eb203193070139",
+			"preview_id": "f8d7ff68ac8c440e96f3967ebe116d01"
+		},
+		{
+			"binding": "SESSIONS",
+			"id": "8d4e7e62da644a89ad5f6f953586d7bb",
+			"preview_id": "f04d45e0593c4c4890013a16ff957af8"
+		}
+	],
+	"vars": {
+		"ENV_TYPE": "dev",
+		"MESSAGE_FOR_WALLET_LOGIN": "Please sign this message to log in to Gaia Protocol.",
+		"GOOGLE_CLIENT_ID": "1022416961836-0drpshie7r2l2lomksa31uerf2h2lipu.apps.googleusercontent.com",
+		"VALHALLA_GOOGLE_REDIRECT_URI": "http://localhost:8080/oauth2/callback/valhalla/google",
+		"VALHALLA_DOMAIN": "localhost:8081",
+		"VALHALLA_URI": "http://localhost:8081",
+		"PERSONAS_GOOGLE_REDIRECT_URI": "http://localhost:8080/oauth2/callback/personas/google",
+		"PERSONAS_DOMAIN": "localhost:8081",
+		"PERSONAS_URI": "http://localhost:8081",
+		"HOLDING_VERIFIER_PUBLIC_KEY": "0x67e81DE7802A5f7efEF66b156F2d06a526Bd5BD6"
+	}
+}

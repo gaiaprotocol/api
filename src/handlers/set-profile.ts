@@ -44,10 +44,11 @@ export async function handleSetProfile(request: Request, env: Env) {
     const schema = z.object({
       nickname: z.string().trim().min(1, 'nickname is empty').max(MAX_NICKNAME_LEN).optional(),
       bio: z.string().trim().max(MAX_BIO_LEN).optional(),
-      profile_image: z.string().trim().url().max(MAX_URL_LEN).optional(),
+      avatar_url: z.string().trim().url().max(MAX_URL_LEN).optional(),
+      banner_url: z.string().trim().url().max(MAX_URL_LEN).optional(),
     }).refine(
-      (v) => v.nickname !== undefined || v.bio !== undefined || v.profile_image !== undefined,
-      { message: 'At least one of nickname, bio, or profile_image must be provided.' }
+      (v) => v.nickname !== undefined || v.bio !== undefined || v.avatar_url !== undefined || v.banner_url !== undefined,
+      { message: 'At least one of nickname, bio, avatar_url, or banner_url must be provided.' }
     );
 
     const parsed = schema.parse(body);
@@ -59,32 +60,40 @@ export async function handleSetProfile(request: Request, env: Env) {
     if (parsed.bio !== undefined && parsed.bio !== parsed.bio.normalize('NFC')) {
       return jsonWithCors({ error: 'The provided bio has invalid normalization (NFC required).' }, 400);
     }
-    if (parsed.profile_image !== undefined) {
+    if (parsed.avatar_url !== undefined) {
       // http/https만 허용하고, data: 등은 거부 (원하면 완화 가능)
-      if (!/^https?:\/\//i.test(parsed.profile_image)) {
-        return jsonWithCors({ error: 'Only http(s) URLs are allowed for profile_image.' }, 400);
+      if (!/^https?:\/\//i.test(parsed.avatar_url)) {
+        return jsonWithCors({ error: 'Only http(s) URLs are allowed for avatar_url.' }, 400);
+      }
+    }
+    if (parsed.banner_url !== undefined) {
+      // http/https만 허용하고, data: 등은 거부 (원하면 완화 가능)
+      if (!/^https?:\/\//i.test(parsed.banner_url)) {
+        return jsonWithCors({ error: 'Only http(s) URLs are allowed for banner_url.' }, 400);
       }
     }
 
     const account = payload.sub;
     const nickname = parsed.nickname ?? null;
     const bio = parsed.bio ?? null;
-    const profileImage = parsed.profile_image ?? null;
+    const avatarUrl = parsed.avatar_url ?? null;
+    const bannerUrl = parsed.banner_url ?? null;
 
     // 3) UPSERT (부분 업데이트: 전달된 필드만 갱신, 나머지는 보존)
     // - 새 레코드: created_at은 테이블 디폴트 사용
     // - 기존 레코드: COALESCE로 전달된 값이 없으면 기존 값을 유지
     await env.DB.prepare(
       `
-      INSERT INTO ${PROFILE_TABLE} (account, nickname, bio, profile_image)
-      VALUES (?, ?, ?, ?)
+      INSERT INTO ${PROFILE_TABLE} (account, nickname, bio, avatar_url, banner_url)
+      VALUES (?, ?, ?, ?, ?)
       ON CONFLICT(account) DO UPDATE SET
         nickname      = COALESCE(excluded.nickname, ${PROFILE_TABLE}.nickname),
         bio           = COALESCE(excluded.bio, ${PROFILE_TABLE}.bio),
-        profile_image = COALESCE(excluded.profile_image, ${PROFILE_TABLE}.profile_image),
+        avatar_url    = COALESCE(excluded.avatar_url, ${PROFILE_TABLE}.avatar_url),
+        banner_url    = COALESCE(excluded.banner_url, ${PROFILE_TABLE}.banner_url),
         updated_at    = strftime('%s','now')
       `
-    ).bind(account, nickname, bio, profileImage).run();
+    ).bind(account, nickname, bio, avatarUrl, bannerUrl).run();
 
     return jsonWithCors({ ok: true });
   } catch (err) {

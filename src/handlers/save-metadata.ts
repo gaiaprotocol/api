@@ -4,7 +4,7 @@ import { jsonWithCors, verifyToken } from '@gaiaprotocol/worker-common';
 import { v4 as uuidv4 } from 'uuid';
 import { getAddress } from 'viem';
 import { z } from 'zod';
-import { generateGodImage } from '../services/god-image';
+import { generateGodImage } from '../db/god-image';
 
 // GodMetadata에 맞춘 입력 스키마
 const ElementEnum = z.enum(['Stone', 'Fire', 'Water']);

@@ -1,5 +1,5 @@
 import { jsonWithCors } from "@gaiaprotocol/worker-common";
-import { fetchHeldNftData } from "../services/nft";
+import { fetchHeldNftData } from "../db/nft";
 import { getAddress } from "viem";
 
 export async function handleHeldNftsRequest(

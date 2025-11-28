@@ -1,6 +1,6 @@
 import { jsonWithCors } from "@gaiaprotocol/worker-common";
 import { z } from 'zod';
-import { fetchNftDataByIds } from '../services/nft';
+import { fetchNftDataByIds } from '../db/nft';
 
 const requestSchema = z.object({
   ids: z.array(z.string().min(1)).nonempty("ids must not be empty").max(500),

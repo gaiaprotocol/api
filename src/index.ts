@@ -3,6 +3,12 @@ import { oauth2Callback, oauth2Logout, oauth2Start } from 'cf-oauth';
 import { WorkerEntrypoint } from 'cloudflare:workers';
 import { createPublicClient, http } from 'viem';
 import { mainnet } from 'viem/chains';
+import { fetchGaiaName } from './db/gaia-names';
+import { fetchAndStoreGodsStats } from './db/gods-stats';
+import { fetchNftDataByIds } from './db/nft';
+import { fetchNotice, fetchNotices } from './db/notice';
+import { getPostWithReplies } from './db/post';
+import { fetchProfileByAddress, getProfileWithPosts } from './db/profile';
 import { handleGetName } from './handlers/get-name';
 import { handleGetNames } from './handlers/get-names';
 import { handleGetProfile } from './handlers/get-profile';
@@ -21,17 +27,12 @@ import { oauth2Me } from './handlers/oauth2/me';
 import { oauth2MeByToken } from './handlers/oauth2/me-by-token';
 import { oauth2UnlinkWalletBySession } from './handlers/oauth2/unlink-wallet-by-session';
 import { oauth2UnlinkWalletByToken } from './handlers/oauth2/unlink-wallet-by-token';
+import { handlePostWithReplies } from './handlers/post-with-replies';
+import { handleProfileWithPosts } from './handlers/profile-with-posts';
 import { handleSaveMetadata } from './handlers/save-metadata';
 import { handleSearchNames } from './handlers/search-names';
 import { handleSetName } from './handlers/set-name';
 import { handleSetProfile } from './handlers/set-profile';
-import { fetchGaiaName } from './services/gaia-names';
-import { fetchAndStoreGodsStats } from './services/gods-stats';
-import { fetchNftDataByIds } from './services/nft';
-import { fetchNotice, fetchNotices } from './services/notice';
-import { fetchProfileByAddress } from './services/profile';
-import { Notice } from './types/notice';
-import { Profile } from './types/profile';
 
 const CLIENT = createPublicClient({ chain: mainnet, transport: http() });
 const NFT_ADDRESS = '0x134590ACB661Da2B318BcdE6b39eF5cF8208E372';
@@ -77,6 +78,16 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
     if (url.pathname === '/nfts/by-ids') return handleNftDataByIds(request, this.env);
     if (url.pathname === '/save-metadata') return handleSaveMetadata(request, this.env);
     if (url.pathname === '/gods-stats') return handleGodsStats(request, this.env);
+
+    // 🔹 프로필 + 포스트
+    if (url.pathname === '/profile-with-posts') {
+      return handleProfileWithPosts(request, this.env);
+    }
+
+    // 🔹 포스트 + 댓글
+    if (url.pathname === '/post-with-replies') {
+      return handlePostWithReplies(request, this.env);
+    }
 
     // OAuth2
     const oauth2Providers = {
@@ -126,23 +137,12 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
     }
   }
 
-  fetchNotices(): Promise<Notice[]> {
-    return fetchNotices(this.env);
-  }
-
-  fetchNotice(id: number): Promise<Notice | undefined> {
-    return fetchNotice(this.env, id);
-  }
-
-  fetchNftDataByIds(ids: string[]): Promise<Record<string, any>> {
-    return fetchNftDataByIds(this.env, ids)
-  }
-
-  fetchGaiaName(name: string): Promise<{ account: string, name: string } | undefined> {
-    return fetchGaiaName(this.env, name)
-  }
-
-  fetchProfileByAddress(address: string): Promise<Profile | undefined> {
-    return fetchProfileByAddress(this.env, address)
-  }
+  // export functions
+  fetchNotices() { return fetchNotices(this.env); }
+  fetchNotice(id: number) { return fetchNotice(this.env, id); }
+  fetchNftDataByIds(ids: string[]) { return fetchNftDataByIds(this.env, ids) }
+  fetchGaiaName(name: string) { return fetchGaiaName(this.env, name) }
+  fetchProfileByAddress(address: string) { return fetchProfileByAddress(this.env, address) }
+  getProfileWithPosts(address: string) { return getProfileWithPosts(this.env, address) }
+  getPostWithReplies(id: number) { return getPostWithReplies(this.env, id) }
 };
