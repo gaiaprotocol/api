@@ -9,3 +9,6 @@ CREATE TABLE IF NOT EXISTS oauth2_web3_accounts (
   linked_at INTEGER NOT NULL,
   PRIMARY KEY (provider, sub)
 );
+
+CREATE INDEX IF NOT EXISTS idx_oauth2_wallet_address
+  ON oauth2_web3_accounts(wallet_address);

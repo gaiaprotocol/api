@@ -3,6 +3,7 @@ CREATE TABLE profiles (
   nickname TEXT,
   bio TEXT,
   profile_image TEXT,
+  social_links TEXT,
   created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
   updated_at INTEGER
 );
