@@ -1,11 +1,10 @@
 CREATE TABLE persona_post_likes (
   post_id INTEGER NOT NULL,
-  account TEXT NOT NULL,                     -- profile.account (wallet address)
+  account TEXT NOT NULL,                     -- wallet address
   created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
 
   PRIMARY KEY (post_id, account),
-  FOREIGN KEY (post_id) REFERENCES persona_posts(id),
-  FOREIGN KEY (account) REFERENCES profiles(account)
+  FOREIGN KEY (post_id) REFERENCES persona_posts(id)
 );
 
 -- Query: list of likes per post

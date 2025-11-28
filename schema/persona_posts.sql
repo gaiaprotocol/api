@@ -1,6 +1,6 @@
 CREATE TABLE persona_posts (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  author TEXT NOT NULL,                      -- profiles.account (wallet address)
+  author TEXT NOT NULL,                      -- wallet address
 
   content TEXT NOT NULL,                     -- text content of the post
   attachments TEXT,                          -- JSON list: attached files
@@ -21,7 +21,6 @@ CREATE TABLE persona_posts (
   created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
   updated_at INTEGER,
 
-  FOREIGN KEY (author)         REFERENCES profiles(account),
   FOREIGN KEY (parent_post_id) REFERENCES persona_posts(id),
   FOREIGN KEY (repost_of_id)   REFERENCES persona_posts(id),
   FOREIGN KEY (quote_of_id)    REFERENCES persona_posts(id)

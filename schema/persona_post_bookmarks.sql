@@ -1,12 +1,10 @@
 CREATE TABLE IF NOT EXISTS persona_post_bookmarks (
   post_id INTEGER NOT NULL,                     -- same type as persona_posts.id (INTEGER)
-  account TEXT NOT NULL,                        -- profiles.account (wallet address)
+  account TEXT NOT NULL,                        -- wallet address
   created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
 
   PRIMARY KEY (post_id, account),
-
-  FOREIGN KEY (post_id) REFERENCES persona_posts(id),
-  FOREIGN KEY (account) REFERENCES profiles(account)
+  FOREIGN KEY (post_id) REFERENCES persona_posts(id)
 );
 
 -- Query: users who bookmarked a post

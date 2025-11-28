@@ -1,5 +1,5 @@
 CREATE TABLE profiles (
-  account TEXT PRIMARY KEY,
+  account TEXT PRIMARY KEY, -- wallet address
   nickname TEXT,
   bio TEXT,
   profile_image TEXT,
