@@ -1,5 +1,5 @@
 -- ======================================
--- View table for topic posts
+-- View table for topic posts (posts only)
 -- ======================================
 CREATE TABLE topic_post_views (
   post_id INTEGER NOT NULL,                  -- FK to topic_posts.id

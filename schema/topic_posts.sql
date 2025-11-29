@@ -11,21 +11,19 @@ CREATE TABLE topic_posts (
   attachments TEXT,                          -- JSON list of attached files
 
   -- Aggregated counters
-  view_count      INTEGER NOT NULL DEFAULT 0,
-  upvote_count    INTEGER NOT NULL DEFAULT 0,  -- upvote
-  downvote_count  INTEGER NOT NULL DEFAULT 0,  -- downvote
-  comment_count   INTEGER NOT NULL DEFAULT 0,
-  bookmark_count  INTEGER NOT NULL DEFAULT 0,
+  view_count      INTEGER NOT NULL DEFAULT 0,  -- number of views
+  upvote_count    INTEGER NOT NULL DEFAULT 0,  -- upvotes on this post
+  downvote_count  INTEGER NOT NULL DEFAULT 0,  -- downvotes on this post
+  comment_count   INTEGER NOT NULL DEFAULT 0,  -- number of direct comments
+  bookmark_count  INTEGER NOT NULL DEFAULT 0,  -- number of bookmarks
 
   created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
   updated_at INTEGER,
-  is_deleted INTEGER DEFAULT 0,
-  deleted_at INTEGER
+  is_deleted INTEGER DEFAULT 0,              -- soft delete flag (0 = active, 1 = deleted)
+  deleted_at INTEGER                         -- deletion timestamp (UNIX epoch seconds)
 );
 
--- ======================================
 -- Indexes for topic_posts
--- ======================================
 
 -- Posts by a specific author (profile feed)
 -- Only non-deleted posts, sorted by newest first
