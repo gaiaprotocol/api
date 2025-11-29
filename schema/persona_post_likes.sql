@@ -10,10 +10,6 @@ CREATE TABLE persona_post_likes (
   FOREIGN KEY (post_id) REFERENCES persona_posts(id)
 );
 
--- List of likes per post
-CREATE INDEX IF NOT EXISTS idx_persona_post_likes_post_id
-  ON persona_post_likes(post_id);
-
 -- Posts liked by a specific user
-CREATE INDEX IF NOT EXISTS idx_persona_post_likes_account
-  ON persona_post_likes(account);
+CREATE INDEX IF NOT EXISTS idx_persona_post_likes_account_created_at
+  ON persona_post_likes(account, created_at DESC);

@@ -10,10 +10,6 @@ CREATE TABLE topic_content_bookmarks (
   PRIMARY KEY (content_type, content_id, account)
 );
 
--- Bookmarks for a specific target
-CREATE INDEX IF NOT EXISTS idx_topic_content_bookmarks_target
-  ON topic_content_bookmarks(content_type, content_id);
-
 -- Targets bookmarked by a specific user (for "My bookmarks" screen)
 CREATE INDEX IF NOT EXISTS idx_topic_content_bookmarks_account_created_at
   ON topic_content_bookmarks(account, created_at DESC);

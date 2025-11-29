@@ -27,6 +27,11 @@ CREATE TABLE topic_post_comments (
 
 -- Indexes for topic_post_comments
 
+-- Comments by a specific author (non-deleted)
+CREATE INDEX IF NOT EXISTS idx_topic_post_comments_author_not_deleted_created_at
+  ON topic_post_comments(author, created_at DESC)
+  WHERE is_deleted = 0;
+
 -- Comments of a post (non-deleted), sorted by creation time
 CREATE INDEX IF NOT EXISTS idx_topic_post_comments_post_id_not_deleted_created_at
   ON topic_post_comments(post_id, created_at)
@@ -35,9 +40,4 @@ CREATE INDEX IF NOT EXISTS idx_topic_post_comments_post_id_not_deleted_created_a
 -- Replies under a specific parent comment (non-deleted)
 CREATE INDEX IF NOT EXISTS idx_topic_post_comments_parent_not_deleted_created_at
   ON topic_post_comments(parent_comment_id, created_at)
-  WHERE is_deleted = 0;
-
--- Comments by a specific author (non-deleted)
-CREATE INDEX IF NOT EXISTS idx_topic_post_comments_author_not_deleted_created_at
-  ON topic_post_comments(author, created_at)
   WHERE is_deleted = 0;

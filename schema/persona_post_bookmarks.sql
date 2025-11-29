@@ -10,10 +10,6 @@ CREATE TABLE IF NOT EXISTS persona_post_bookmarks (
   FOREIGN KEY (post_id) REFERENCES persona_posts(id)
 );
 
--- Users who bookmarked a post
-CREATE INDEX IF NOT EXISTS idx_persona_post_bookmarks_post_id
-  ON persona_post_bookmarks(post_id);
-
 -- Posts bookmarked by a specific user
-CREATE INDEX IF NOT EXISTS idx_persona_post_bookmarks_account
-  ON persona_post_bookmarks(account);
+CREATE INDEX IF NOT EXISTS idx_persona_post_bookmarks_account_created_at
+  ON persona_post_bookmarks(account, created_at DESC);
