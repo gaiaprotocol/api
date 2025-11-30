@@ -7,7 +7,7 @@ import { fetchGaiaName } from './db/gaia-names';
 import { fetchAndStoreGodsStats } from './db/gods-stats';
 import { fetchNftDataByIds } from './db/nft';
 import { fetchNotice, fetchNotices } from './db/notice';
-import { getPostWithReplies } from './db/post';
+import { getPersonaPostWithReplies } from './db/persona/post';
 import { fetchProfileByAddress, getProfileWithPosts } from './db/profile';
 import { handleGetName } from './handlers/get-name';
 import { handleGetNames } from './handlers/get-names';
@@ -27,7 +27,13 @@ import { oauth2Me } from './handlers/oauth2/me';
 import { oauth2MeByToken } from './handlers/oauth2/me-by-token';
 import { oauth2UnlinkWalletBySession } from './handlers/oauth2/unlink-wallet-by-session';
 import { oauth2UnlinkWalletByToken } from './handlers/oauth2/unlink-wallet-by-token';
-import { handlePostWithReplies } from './handlers/post-with-replies';
+import { handleBookmarkPersonaPost, handleUnbookmarkPersonaPost } from './handlers/persona/bookmark-post';
+import { handleCreatePersonaPost } from './handlers/persona/create-post';
+import { handleDeletePersonaPost } from './handlers/persona/delete-post';
+import { handleLikePersonaPost, handleUnlikePersonaPost } from './handlers/persona/like-post';
+import { handleListPersonaPosts } from './handlers/persona/list-posts';
+import { handlePersonaPostWithReplies } from './handlers/persona/post-with-replies';
+import { handleUpdatePersonaPost } from './handlers/persona/update-post';
 import { handleProfileWithPosts } from './handlers/profile-with-posts';
 import { handleSaveMetadata } from './handlers/save-metadata';
 import { handleSearchNames } from './handlers/search-names';
@@ -79,15 +85,21 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
     if (url.pathname === '/save-metadata') return handleSaveMetadata(request, this.env);
     if (url.pathname === '/gods-stats') return handleGodsStats(request, this.env);
 
-    // 🔹 프로필 + 포스트
+    // Profile + Posts
     if (url.pathname === '/profile-with-posts') {
       return handleProfileWithPosts(request, this.env);
     }
 
-    // 🔹 포스트 + 댓글
-    if (url.pathname === '/post-with-replies') {
-      return handlePostWithReplies(request, this.env);
-    }
+    // Persona posts API
+    if (url.pathname === '/persona/posts' && request.method === 'GET') return handleListPersonaPosts(request, this.env);
+    if (url.pathname === '/persona/posts' && request.method === 'POST') return handleCreatePersonaPost(request, this.env);
+    if (url.pathname === '/persona/posts/update' && request.method === 'POST') return handleUpdatePersonaPost(request, this.env);
+    if (url.pathname === '/persona/posts/delete' && request.method === 'POST') return handleDeletePersonaPost(request, this.env);
+    if (url.pathname === '/persona/post-with-replies' && request.method === 'GET') return handlePersonaPostWithReplies(request, this.env);
+    if (url.pathname === '/persona/posts/like' && request.method === 'POST') return handleLikePersonaPost(request, this.env);
+    if (url.pathname === '/persona/posts/unlike' && request.method === 'POST') return handleUnlikePersonaPost(request, this.env);
+    if (url.pathname === '/persona/posts/bookmark' && request.method === 'POST') return handleBookmarkPersonaPost(request, this.env);
+    if (url.pathname === '/persona/posts/unbookmark' && request.method === 'POST') return handleUnbookmarkPersonaPost(request, this.env);
 
     // OAuth2
     const oauth2Providers = {
@@ -144,5 +156,5 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
   fetchGaiaName(name: string) { return fetchGaiaName(this.env, name) }
   fetchProfileByAddress(address: string) { return fetchProfileByAddress(this.env, address) }
   getProfileWithPosts(address: string) { return getProfileWithPosts(this.env, address) }
-  getPostWithReplies(id: number) { return getPostWithReplies(this.env, id) }
+  getPersonaPostWithReplies(postId: number) { return getPersonaPostWithReplies(this.env, postId) }
 };
