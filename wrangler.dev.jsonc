@@ -6,6 +6,12 @@
 	"observability": {
 		"enabled": true
 	},
+	"triggers": {
+		"crons": [
+			"*/1 * * * *", // 매분
+			"0 * * * *" // 매시 정각
+		]
+	},
 	"assets": {
 		"directory": "./assets/",
 		"binding": "ASSETS"
@@ -50,6 +56,7 @@
 		"PERSONAS_GOOGLE_REDIRECT_URI": "http://localhost:8080/oauth2/callback/personas/google",
 		"PERSONAS_DOMAIN": "localhost:8081",
 		"PERSONAS_URI": "http://localhost:8081",
-		"HOLDING_VERIFIER_PUBLIC_KEY": "0x67e81DE7802A5f7efEF66b156F2d06a526Bd5BD6"
+		"HOLDING_VERIFIER_PUBLIC_KEY": "0x67e81DE7802A5f7efEF66b156F2d06a526Bd5BD6",
+		"PERSONA_FRAGMENTS_ADDRESS": "0x5db776c722bc38ebd2a7354a7b51dd734c09d9fa"
 	}
 }

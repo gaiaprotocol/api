@@ -7,6 +7,8 @@ wrangler d1 execute gaiaprotocol --local --file=./schema/profiles.sql
 wrangler d1 execute gaiaprotocol --local --file=./schema/gods_stats.sql
 wrangler d1 execute gaiaprotocol --local --file=./schema/oauth2_web3_accounts.sql
 
+wrangler d1 execute gaiaprotocol --local --file=./schema/persona_fragments.sql
+wrangler d1 execute gaiaprotocol --local --file=./schema/persona_fragment_trades.sql
 wrangler d1 execute gaiaprotocol --local --file=./schema/persona_posts.sql
 wrangler d1 execute gaiaprotocol --local --file=./schema/persona_post_views.sql
 wrangler d1 execute gaiaprotocol --local --file=./schema/persona_post_likes.sql
@@ -22,6 +24,8 @@ wrangler d1 execute gaiaprotocol_testnet --remote --file=./schema/profiles.sql
 wrangler d1 execute gaiaprotocol_testnet --remote --file=./schema/gods_stats.sql
 wrangler d1 execute gaiaprotocol_testnet --remote --file=./schema/oauth2_web3_accounts.sql
 
+wrangler d1 execute gaiaprotocol_testnet --remote --file=./schema/persona_fragments.sql
+wrangler d1 execute gaiaprotocol_testnet --remote --file=./schema/persona_fragment_trades.sql
 wrangler d1 execute gaiaprotocol_testnet --remote --file=./schema/persona_posts.sql
 wrangler d1 execute gaiaprotocol_testnet --remote --file=./schema/persona_post_views.sql
 wrangler d1 execute gaiaprotocol_testnet --remote --file=./schema/persona_post_likes.sql

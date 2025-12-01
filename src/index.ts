@@ -39,11 +39,12 @@ import { handleSaveMetadata } from './handlers/save-metadata';
 import { handleSearchNames } from './handlers/search-names';
 import { handleSetName } from './handlers/set-name';
 import { handleSetProfile } from './handlers/set-profile';
+import { syncPersonaFragmentTrades } from './sync/persona-fragment-trades';
 
-const CLIENT = createPublicClient({ chain: mainnet, transport: http() });
-const NFT_ADDRESS = '0x134590ACB661Da2B318BcdE6b39eF5cF8208E372';
-const TOKEN_RANGE = { start: 0, end: 3332 };
-const BLOCK_STEP = 500;
+const MAINNET_CLIENT = createPublicClient({ chain: mainnet, transport: http() });
+const GODS_ADDRESS = '0x134590ACB661Da2B318BcdE6b39eF5cF8208E372';
+const GODS_TOKEN_RANGE = { start: 0, end: 3332 };
+const NFT_OWNERSHIP_SYNC_BLOCK_STEP = 500;
 
 export default class ApiWorker extends WorkerEntrypoint<Env> {
   async fetch(request: Request): Promise<Response> {
@@ -136,16 +137,20 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
   }
 
   async scheduled(controller: ScheduledController) {
-    if (this.env.ENV_TYPE === 'dev' || this.env.ENV_TYPE === 'testnet') return;
+    const envType: string = this.env.ENV_TYPE;
 
     if (controller.cron === "*/1 * * * *") {
       // 매 분마다 실행할 작업
-      await syncNftOwnershipFromEvents(this.env, CLIENT, { [NFT_ADDRESS]: TOKEN_RANGE }, BLOCK_STEP);
+      if (envType === 'prod') await syncNftOwnershipFromEvents(this.env, MAINNET_CLIENT, { [GODS_ADDRESS]: GODS_TOKEN_RANGE }, NFT_OWNERSHIP_SYNC_BLOCK_STEP);
+
+      if (envType === 'dev' || envType === 'testnet') {
+        await Promise.all([syncPersonaFragmentTrades(this.env)])
+      }
     }
 
     if (controller.cron === "0 * * * *") {
       // 매시 정각마다 실행할 작업
-      await fetchAndStoreGodsStats(this.env);
+      if (envType === 'prod') await fetchAndStoreGodsStats(this.env);
     }
   }
 
