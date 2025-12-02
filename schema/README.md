@@ -14,6 +14,8 @@ wrangler d1 execute gaiaprotocol --local --file=./schema/persona_posts.sql
 wrangler d1 execute gaiaprotocol --local --file=./schema/persona_post_views.sql
 wrangler d1 execute gaiaprotocol --local --file=./schema/persona_post_likes.sql
 wrangler d1 execute gaiaprotocol --local --file=./schema/persona_post_bookmarks.sql
+wrangler d1 execute gaiaprotocol --local --file=./schema/persona_chat_messages.sql
+wrangler d1 execute gaiaprotocol --local --file=./schema/persona_chat_reactions.sql
 ```
 
 ```
@@ -32,6 +34,8 @@ wrangler d1 execute gaiaprotocol_testnet --remote --file=./schema/persona_posts.
 wrangler d1 execute gaiaprotocol_testnet --remote --file=./schema/persona_post_views.sql
 wrangler d1 execute gaiaprotocol_testnet --remote --file=./schema/persona_post_likes.sql
 wrangler d1 execute gaiaprotocol_testnet --remote --file=./schema/persona_post_bookmarks.sql
+wrangler d1 execute gaiaprotocol_testnet --remote --file=./schema/persona_chat_messages.sql
+wrangler d1 execute gaiaprotocol_testnet --remote --file=./schema/persona_chat_reactions.sql
 ```
 
 ## insert
