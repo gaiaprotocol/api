@@ -31,6 +31,7 @@ import { getPersonaProfile, handlePersonaProfile } from './handlers/persona-prof
 import { handleBookmarkPersonaPost, handleUnbookmarkPersonaPost } from './handlers/persona/bookmark-post';
 import { handleCreatePersonaPost } from './handlers/persona/create-post';
 import { handleDeletePersonaPost } from './handlers/persona/delete-post';
+import { handlePersonaHoldingReward } from './handlers/persona/holding-reward';
 import { handleLikePersonaPost, handleUnlikePersonaPost } from './handlers/persona/like-post';
 import { handleListPersonaPosts } from './handlers/persona/list-posts';
 import { handlePersonaPostWithReplies } from './handlers/persona/post-with-replies';
@@ -101,6 +102,7 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
     if (url.pathname === '/persona/posts/unlike' && request.method === 'POST') return handleUnlikePersonaPost(request, this.env);
     if (url.pathname === '/persona/posts/bookmark' && request.method === 'POST') return handleBookmarkPersonaPost(request, this.env);
     if (url.pathname === '/persona/posts/unbookmark' && request.method === 'POST') return handleUnbookmarkPersonaPost(request, this.env);
+    if (url.pathname === '/persona/holding-reward' && request.method === 'GET') return handlePersonaHoldingReward(request, this.env);
 
     // OAuth2
     const oauth2Providers = {
