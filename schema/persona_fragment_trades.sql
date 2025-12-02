@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS persona_fragment_trades (
   persona_fee    TEXT NOT NULL,         -- persona owner fee in wei (uint256 as string)
   holding_reward TEXT NOT NULL,         -- holding reward in wei (uint256 as string)
   supply_after   TEXT NOT NULL,         -- total supply after this trade (uint256 as string)
+  trader_balance_after TEXT NOT NULL,   -- trader balance after this trade (uint256 as string)
 
   -- Local insertion timestamp
   created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
