@@ -1,19 +1,17 @@
-// src/handlers/holding-reward.ts
 import { jsonWithCors } from '@gaiaprotocol/worker-common';
 import {
   createPublicClient,
-  encodeAbiParameters,
+  encodePacked,
   Hex,
   http,
   keccak256,
-  parseAbiParameters,
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { base, baseSepolia } from 'viem/chains';
 import { z } from 'zod';
 
-// PersonaFragments 컨트랙트에서 사용하는 nonces(address) 뷰 함수 ABI
-const PERSONA_FRAGMENTS_ABI = [
+// PersonaFragments (또는 HoldingRewardsBase 상속 컨트랙트) 에서 사용하는 nonces(address) 뷰 함수 ABI
+const NONCES_ABI = [
   {
     type: 'function',
     name: 'nonces',
@@ -23,29 +21,6 @@ const PERSONA_FRAGMENTS_ABI = [
   },
 ] as const;
 
-// Solidity 쪽과 동일해야 하는 해시 스키마 (예시)
-//
-// bytes32 messageHash = keccak256(
-//   abi.encode(
-//     persona,      // address
-//     trader,       // address
-//     amount,       // uint256
-//     rewardRatio,  // uint256 (1e18 기준 비율)
-//     nonce         // uint256
-//   )
-// );
-//
-// bytes32 ethSignedMessageHash = ECDSA.toEthSignedMessageHash(messageHash);
-//
-// recover(ethSignedMessageHash, signature) == signer;
-//
-// 컨트랙트 구현과 반드시 맞춰야 한다는 점 유의 ⚠️
-const HOLDING_REWARD_ENCODE_TYPES = parseAbiParameters(
-  'address persona, address trader, uint256 amount, uint256 rewardRatio, uint256 nonce',
-);
-
-// side 값은 현재 서명 데이터에는 포함하지 않았지만,
-// 필요하다면 위 인자 목록에 함께 넣고 컨트랙트도 맞추면 됩니다.
 const querySchema = z.object({
   persona: z
     .string()
@@ -73,10 +48,14 @@ const querySchema = z.object({
 
 type HoldingRewardSide = 'buy' | 'sell';
 
-export async function handlePersonaHoldingReward(request: Request, env: Env): Promise<Response> {
+export async function handlePersonaHoldingReward(
+  request: Request,
+  env: Env,
+): Promise<Response> {
   try {
     const url = new URL(request.url);
 
+    // ===== 1. 쿼리 파라미터 검증 =====
     const parsed = querySchema.safeParse({
       persona: url.searchParams.get('persona'),
       trader: url.searchParams.get('trader'),
@@ -95,27 +74,25 @@ export async function handlePersonaHoldingReward(request: Request, env: Env): Pr
     }
 
     const { persona, trader, amount, side } = parsed.data;
+    const amountBigInt = BigInt(amount); // 현재 해시에는 포함하지 않지만, 필요하면 응답 등에 활용 가능
 
-    const amountBigInt = BigInt(amount);
-
-    // ===== 체인 & 컨트랙트 설정 =====
-    // 이미 Env 타입에 정의되어 있다고 가정하고 사용합니다.
-    // (실제 env 이름은 프로젝트 상황에 맞게 조정해 주세요)
-    //
-    // 예시:
-    // - env.PERSONA_FRAGMENTS_ADDRESS
-    // - env.HOLDING_VERIFIER_PRIVATE_KEY
+    // ===== 2. 체인 & 컨트랙트 설정 =====
     const chain = env.ENV_TYPE === 'prod' ? base : baseSepolia;
-    const personaFragmentsAddress = env.PERSONA_FRAGMENTS_ADDRESS as `0x${string}`;
+
+    // HoldingRewardsBase 를 상속한 컨트랙트 주소
+    // (PersonaFragments 컨트랙트가 그대로 상속하고 있다면 같은 주소 사용)
+    const holdingRewardsAddress = env.PERSONA_FRAGMENTS_ADDRESS as `0x${string}`;
     const signerKey = env.HOLDING_VERIFIER_PRIVATE_KEY as `0x${string}`;
+
+    // 기본 리워드 비율 (1e18 = 100%)
     const defaultRewardRatioStr = '0';
 
-    if (!personaFragmentsAddress || !signerKey) {
+    if (!holdingRewardsAddress || !signerKey) {
       return jsonWithCors(
         {
           ok: false,
           error:
-            'Missing chain or signer configuration in environment variables.',
+            'Missing holding rewards contract address or signer private key in environment variables.',
         },
         500,
       );
@@ -134,51 +111,78 @@ export async function handlePersonaHoldingReward(request: Request, env: Env): Pr
       );
     }
 
-    // side 에 따라 보상 비율을 다르게 주고 싶다면 여기서 분기
-    // (예: buy 에만 리워드, sell 은 0 등)
+    // side 에 따라 비율을 다르게 주고 싶으면 여기에서 분기
     const _side: HoldingRewardSide = side;
     if (_side === 'sell') {
-      // 예시: 판매 때는 리워드 0
+      // 예시: sell 에서는 리워드 0
       // rewardRatio = 0n;
-      // 필요 없다면 주석 유지 또는 삭제
     }
 
-    // ===== public client 생성 =====
+    // ===== 3. public client 생성 =====
     const publicClient = createPublicClient({
       chain,
       transport: http(),
     });
 
-    // ===== on-chain nonces(trader) 조회 =====
+    // ===== 4. on-chain nonces(trader) 조회 =====
+    // Solidity: mapping(address => uint256) public nonces;
     const nonce = (await publicClient.readContract({
-      address: personaFragmentsAddress,
-      abi: PERSONA_FRAGMENTS_ABI,
+      address: holdingRewardsAddress,
+      abi: NONCES_ABI,
       functionName: 'nonces',
       args: [trader as `0x${string}`],
     })) as bigint;
 
-    // ===== 서명자 계정 생성 =====
+    // ===== 5. 서명자 계정 생성 (holdingVerifier) =====
     const signerAccount = privateKeyToAccount(signerKey as Hex);
 
-    // ===== message hash 생성 (컨트랙트와 동일한 형식) =====
-    const encoded = encodeAbiParameters(HOLDING_REWARD_ENCODE_TYPES, [
-      persona as `0x${string}`,
-      trader as `0x${string}`,
-      amountBigInt,
-      rewardRatio,
-      nonce,
-    ]);
+    // ===== 6. Solidity와 완전히 동일한 해시 생성 =====
+    //
+    // Solidity 쪽:
+    //
+    // bytes32 hash = keccak256(
+    //   abi.encodePacked(
+    //     address(this),
+    //     block.chainid,
+    //     msg.sender,
+    //     rewardRatio,
+    //     nonce
+    //   )
+    // );
+    //
+    // bytes32 ethSignedHash = ECDSA.toEthSignedMessageHash(hash);
+    // recover(ethSignedHash, signature) == holdingVerifier;
+    //
+    // 여기서 msg.sender 는 실제로 calculateHoldingReward 를 호출하는 trader 라고 가정합니다.
+    //
+    const chainId = BigInt(chain.id);
 
-    const messageHash = keccak256(encoded);
+    const packed = encodePacked(
+      ['address', 'uint256', 'address', 'uint256', 'uint256'],
+      [
+        holdingRewardsAddress,        // address(this)
+        chainId,                      // block.chainid
+        trader as `0x${string}`,      // msg.sender (프론트에서 이 주소로 트랜잭션 보내야 함)
+        rewardRatio,                  // uint256
+        nonce,                        // uint256
+      ],
+    );
 
-    // EIP-191 스타일 서명 (Solidity: ECDSA.toEthSignedMessageHash 기준)
+    const messageHash = keccak256(packed);
+
+    // viem 의 signMessage({ message: { raw } }) 는
+    // ECDSA.toEthSignedMessageHash(hash) 와 동일한 EIP-191 prefix 를 적용합니다.
     const signature = await signerAccount.signMessage({
       message: { raw: messageHash },
     });
 
+    // ===== 7. 응답 반환 =====
     return jsonWithCors(
       {
         ok: true,
+        persona,
+        trader,
+        amount: amountBigInt.toString(),
         rewardRatio: rewardRatio.toString(),
         nonce: nonce.toString(),
         signature: signature as `0x${string}`,
@@ -186,7 +190,7 @@ export async function handlePersonaHoldingReward(request: Request, env: Env): Pr
       200,
     );
   } catch (err: any) {
-    console.error('[handleHoldingReward] unexpected error', err);
+    console.error('[handlePersonaHoldingReward] unexpected error', err);
     const message = err?.message || 'Internal server error.';
     return jsonWithCors({ ok: false, error: message }, 500);
   }
