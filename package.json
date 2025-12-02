@@ -13,7 +13,7 @@
 		"@cloudflare/vitest-pool-workers": "^0.10.11",
 		"@gaiaprotocol/god-mode-shared": "^0.0.4",
 		"@gaiaprotocol/god-mode-worker": "^0.0.11",
-		"@gaiaprotocol/worker-common": "^0.1.20",
+		"@gaiaprotocol/worker-common": "^0.1.21",
 		"@tsndr/cloudflare-worker-jwt": "^3.2.0",
 		"cf-oauth": "^0.0.12",
 		"typescript": "^5.9.3",

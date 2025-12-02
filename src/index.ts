@@ -8,7 +8,7 @@ import { fetchAndStoreGodsStats } from './db/gods-stats';
 import { fetchNftDataByIds } from './db/nft';
 import { fetchNotice, fetchNotices } from './db/notice';
 import { getPersonaPostWithReplies } from './db/persona/post';
-import { fetchProfileByAddress, getProfileWithPosts } from './db/profile';
+import { fetchProfileByAddress } from './db/profile';
 import { handleGetName } from './handlers/get-name';
 import { handleGetNames } from './handlers/get-names';
 import { handleGetProfile } from './handlers/get-profile';
@@ -27,6 +27,7 @@ import { oauth2Me } from './handlers/oauth2/me';
 import { oauth2MeByToken } from './handlers/oauth2/me-by-token';
 import { oauth2UnlinkWalletBySession } from './handlers/oauth2/unlink-wallet-by-session';
 import { oauth2UnlinkWalletByToken } from './handlers/oauth2/unlink-wallet-by-token';
+import { getPersonaProfile, handlePersonaProfile } from './handlers/persona-profile';
 import { handleBookmarkPersonaPost, handleUnbookmarkPersonaPost } from './handlers/persona/bookmark-post';
 import { handleCreatePersonaPost } from './handlers/persona/create-post';
 import { handleDeletePersonaPost } from './handlers/persona/delete-post';
@@ -34,7 +35,6 @@ import { handleLikePersonaPost, handleUnlikePersonaPost } from './handlers/perso
 import { handleListPersonaPosts } from './handlers/persona/list-posts';
 import { handlePersonaPostWithReplies } from './handlers/persona/post-with-replies';
 import { handleUpdatePersonaPost } from './handlers/persona/update-post';
-import { handleProfileWithPosts } from './handlers/profile-with-posts';
 import { handleSaveMetadata } from './handlers/save-metadata';
 import { handleSearchNames } from './handlers/search-names';
 import { handleSetName } from './handlers/set-name';
@@ -86,9 +86,9 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
     if (url.pathname === '/save-metadata') return handleSaveMetadata(request, this.env);
     if (url.pathname === '/gods-stats') return handleGodsStats(request, this.env);
 
-    // Profile + Posts
-    if (url.pathname === '/profile-with-posts') {
-      return handleProfileWithPosts(request, this.env);
+    // Profile + Posts + Fragments
+    if (url.pathname === '/persona-profile') {
+      return handlePersonaProfile(request, this.env);
     }
 
     // Persona posts API
@@ -160,6 +160,6 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
   fetchNftDataByIds(ids: string[]) { return fetchNftDataByIds(this.env, ids) }
   fetchGaiaName(name: string) { return fetchGaiaName(this.env, name) }
   fetchProfileByAddress(address: string) { return fetchProfileByAddress(this.env, address) }
-  getProfileWithPosts(address: string) { return getProfileWithPosts(this.env, address) }
+  getPersonaProfile(address: string) { return getPersonaProfile(this.env, address) }
   getPersonaPostWithReplies(postId: number) { return getPersonaPostWithReplies(this.env, postId) }
 };
