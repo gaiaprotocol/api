@@ -4,6 +4,7 @@
 CREATE TABLE persona_posts (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   author TEXT NOT NULL,                      -- wallet address
+  author_ip TEXT,                            -- IP address at post creation
 
   content TEXT NOT NULL,                     -- text content of the post
   attachments TEXT,                          -- JSON list of attached files

@@ -5,6 +5,7 @@ CREATE TABLE topic_posts (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   topic TEXT NOT NULL,
   author TEXT NOT NULL,                      -- wallet address
+  author_ip TEXT,                            -- IP address at post creation
 
   title TEXT NOT NULL,
   content TEXT,                              -- text content of the post
