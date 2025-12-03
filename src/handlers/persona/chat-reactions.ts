@@ -56,11 +56,11 @@ export async function handleTogglePersonaChatReaction(request: Request, env: Env
       reactionType,
     });
 
-    // broadcast
     try {
       const id = env.PERSONA_CHAT_ROOM.idFromName(personaAddr.toLowerCase());
       const stub = env.PERSONA_CHAT_ROOM.get(id);
-      stub.fetch('https://dummy/broadcast', {
+
+      const res = await stub.fetch('https://persona-chat-room/broadcast', {
         method: 'POST',
         body: JSON.stringify({
           type: status === 'added' ? 'reaction_added' : 'reaction_removed',
@@ -69,7 +69,18 @@ export async function handleTogglePersonaChatReaction(request: Request, env: Env
           reactionType,
         }),
       });
-    } catch (_) { }
+
+      if (!res.ok) {
+        console.error(
+          '[persona-chat] reaction broadcast failed',
+          personaAddr,
+          res.status,
+          await res.text().catch(() => '<no body>'),
+        );
+      }
+    } catch (err) {
+      console.error('[persona-chat] reaction broadcast stub.fetch error', err);
+    }
 
     return jsonWithCors({ status });
   } catch (err) {

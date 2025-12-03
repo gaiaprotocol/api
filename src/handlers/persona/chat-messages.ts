@@ -58,15 +58,27 @@ export async function handleCreatePersonaChatMessage(request: Request, env: Env)
       parentMessageId: parentMessageId ?? null,
     });
 
-    // DO 브로드캐스트 (실패해도 무시)
+    // DO 브로드캐스트 (실패해도 응답은 보내되, 최소한 로그는 남기기)
     try {
       const id = env.PERSONA_CHAT_ROOM.idFromName(personaAddr.toLowerCase());
       const stub = env.PERSONA_CHAT_ROOM.get(id);
-      stub.fetch('https://dummy/broadcast', {
+
+      const res = await stub.fetch('https://persona-chat-room/broadcast', {
         method: 'POST',
         body: JSON.stringify({ type: 'message', message }),
       });
-    } catch (_) { }
+
+      if (!res.ok) {
+        console.error(
+          '[persona-chat] broadcast failed',
+          personaAddr,
+          res.status,
+          await res.text().catch(() => '<no body>'),
+        );
+      }
+    } catch (err) {
+      console.error('[persona-chat] broadcast stub.fetch error', err);
+    }
 
     return jsonWithCors(message, 201);
   } catch (err) {

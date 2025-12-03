@@ -65,6 +65,14 @@ export class PersonaChatRoomDO {
     const personaParam = url.searchParams.get('persona');
     const token = url.searchParams.get('token');
 
+    console.log(
+      '[PersonaChatRoomDO] WS upgrade request',
+      'url =',
+      url.toString(),
+      'persona =',
+      personaParam,
+    );
+
     // 1) persona 형식 검증
     if (!isValidEvmAddress(personaParam)) {
       return new Response('Invalid persona', {
@@ -129,6 +137,16 @@ export class PersonaChatRoomDO {
     server.accept();
     this.registerSocket(server);
 
+    console.log(
+      '[PersonaChatRoomDO] WS connected',
+      'persona =',
+      persona,
+      'addr =',
+      addr,
+      'sockets now =',
+      this.sockets.size,
+    );
+
     // 최초 hello 이벤트 전송
     server.send(
       JSON.stringify({
@@ -181,12 +199,19 @@ export class PersonaChatRoomDO {
     try {
       payload = await request.text();
     } catch (err) {
-      console.error(
-        '[PersonaChatRoomDO] Failed to read broadcast body',
-        err,
-      );
+      console.error('[PersonaChatRoomDO] Failed to read broadcast body', err);
       return jsonWithCors('Bad Request', 400);
     }
+
+    console.log(
+      '[PersonaChatRoomDO] broadcast received',
+      'id =',
+      this.state.id.toString(),
+      'sockets =',
+      this.sockets.size,
+      'payload =',
+      payload,
+    );
 
     for (const ws of this.sockets) {
       try {
