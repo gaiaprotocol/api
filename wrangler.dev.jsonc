@@ -46,6 +46,14 @@
 			"preview_id": "f04d45e0593c4c4890013a16ff957af8"
 		}
 	],
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "PERSONA_CHAT_ROOM",
+				"class_name": "PersonaChatRoomDO"
+			}
+		]
+	},
 	"vars": {
 		"ENV_TYPE": "dev",
 		"MESSAGE_FOR_WALLET_LOGIN": "Please sign this message to log in to Gaia Protocol.",
