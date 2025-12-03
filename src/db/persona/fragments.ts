@@ -69,3 +69,47 @@ export async function fetchHeldPersonaFragmentsForHolder(
   return rows.map(rowToPersonaFragmentHolding);
 }
 
+export async function listTrendingPersonaFragments(
+  env: Env,
+  limit: number,
+): Promise<
+  Array<{
+    personaAddress: `0x${string}`;
+    currentSupply: string;
+    holderCount: number;
+    lastPrice: string;
+    lastBlockNumber: number;
+  }>
+> {
+  const stmt = env.DB
+    .prepare(
+      `
+      SELECT
+        persona_address,
+        current_supply,
+        holder_count,
+        last_price,
+        last_block_number
+      FROM persona_fragments
+      ORDER BY last_block_number DESC
+      LIMIT ?
+    `,
+    )
+    .bind(limit);
+
+  const { results } = await stmt.all<{
+    persona_address: string;
+    current_supply: string;
+    holder_count: number;
+    last_price: string;
+    last_block_number: number;
+  }>();
+
+  return (results ?? []).map((row) => ({
+    personaAddress: row.persona_address as `0x${string}`,
+    currentSupply: row.current_supply,
+    holderCount: row.holder_count,
+    lastPrice: row.last_price,
+    lastBlockNumber: row.last_block_number,
+  }));
+}

@@ -82,3 +82,16 @@ export function rowToPersonaFragmentHolding(
     holderUpdatedAt: row.holder_updated_at,
   };
 }
+
+export interface TrendingPersonaFragment {
+  personaAddress: string;     // 0x...
+  name: string;               // profile nickname or shortened address
+  currentSupply: string;      // uint256 as string
+  holderCount: number;
+  lastPrice: string;          // wei as string
+  lastBlockNumber: number;
+}
+
+export interface TrendingPersonaFragmentsResponse {
+  personas: TrendingPersonaFragment[];
+}

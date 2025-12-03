@@ -62,6 +62,7 @@ import { handleUpdatePersonaPost } from './handlers/persona/update-post';
 
 // Persona fragment handler
 import { handleHeldPersonaFragments } from './handlers/persona/held-fragments';
+import { handleTrendingPersonaFragments } from './handlers/persona/trending-fragments';
 
 // Persona chat & Durable Object
 import { handlePersonaChatWebSocket } from './do/persona-chat-room';
@@ -172,6 +173,9 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
 
     if (url.pathname === '/persona/held-fragments' && request.method === 'GET')
       return handleHeldPersonaFragments(request, this.env);
+
+    if (url.pathname === '/persona/trending-fragments' && request.method === 'GET')
+      return handleTrendingPersonaFragments(request, this.env);
 
     // Persona posts
     if (url.pathname === '/persona/posts' && request.method === 'GET')
