@@ -24,6 +24,8 @@ type PersonaSnapshot = {
 
 type HolderState = {
   finalBalance: bigint;
+  lastTradePrice: bigint;
+  lastTradeIsBuy: 0 | 1;
   lastBlockNumber: bigint;
   lastLogIndex: number;
 };
@@ -47,7 +49,8 @@ type HolderState = {
  *       in this batch (by blockNumber + logIndex).
  *     - Use the event's traderBalance as the final balance:
  *         finalBalance == 0  → DELETE
- *         finalBalance > 0   → INSERT ... ON CONFLICT DO UPDATE balance
+ *         finalBalance > 0   → INSERT ... ON CONFLICT DO UPDATE
+ *           balance, last_trade_price, last_trade_is_buy
  *
  * - For persona_fragments:
  *     - Keep only the latest trade per persona (by blockNumber + logIndex).
@@ -111,7 +114,6 @@ export async function syncPersonaFragmentTrades(env: Env): Promise<void> {
 
   if (logs.length === 0) {
     // Nothing in this range; still advance the checkpoint.
-    // Use the shared helper; no need for a batch here.
     await upsertSyncStatus(env, CONTRACT_TYPE, Number(toBlock));
     return;
   }
@@ -123,7 +125,6 @@ export async function syncPersonaFragmentTrades(env: Env): Promise<void> {
   // Block timestamp cache: blockNumber -> timestamp
   const blockTimestampCache = new Map<bigint, number>();
 
-  // Per persona, per holder final state (only the latest event in this batch wins):
   // personaAddress -> (holderAddress -> HolderState)
   const personaHolderFinalState = new Map<string, Map<string, HolderState>>();
 
@@ -205,7 +206,7 @@ export async function syncPersonaFragmentTrades(env: Env): Promise<void> {
       )
     );
 
-    // 4-2. Track latest holder balance per (persona, trader)
+    // 4-2. Track latest holder state per (persona, trader)
     let holderMap = personaHolderFinalState.get(personaAddress);
     if (!holderMap) {
       holderMap = new Map<string, HolderState>();
@@ -215,8 +216,10 @@ export async function syncPersonaFragmentTrades(env: Env): Promise<void> {
     const existingHolderState = holderMap.get(traderAddress);
     const newState: HolderState = {
       finalBalance: traderBalance as bigint,
+      lastTradePrice: price as bigint,
+      lastTradeIsBuy: isBuy ? 1 : 0,
       lastBlockNumber: blockNumber,
-      lastLogIndex: logIndex,
+      lastLogIndex: numericLogIndex,
     };
 
     if (!existingHolderState) {
@@ -224,7 +227,7 @@ export async function syncPersonaFragmentTrades(env: Env): Promise<void> {
     } else if (
       blockNumber > existingHolderState.lastBlockNumber ||
       (blockNumber === existingHolderState.lastBlockNumber &&
-        logIndex > existingHolderState.lastLogIndex)
+        numericLogIndex > existingHolderState.lastLogIndex)
     ) {
       holderMap.set(traderAddress, newState);
     }
@@ -260,7 +263,7 @@ export async function syncPersonaFragmentTrades(env: Env): Promise<void> {
   }
 
   // ------------------------------------------------------------------
-  // 5. Build holder mutations using ONLY final balances from events
+  // 5. Build holder mutations using ONLY final states from events
   // ------------------------------------------------------------------
   const holderStatements: D1PreparedStatement[] = [];
   for (const [personaAddress, holderMap] of personaHolderFinalState.entries()) {
@@ -276,16 +279,25 @@ export async function syncPersonaFragmentTrades(env: Env): Promise<void> {
           ).bind(personaAddress, holderAddress)
         );
       } else {
-        // Upsert holder balance to the final value from the event
+        // Upsert holder balance + last_trade_price + last_trade_is_buy
         holderStatements.push(
           env.DB.prepare(
             `INSERT INTO persona_fragment_holders (
-               persona_address, holder_address, balance
-             ) VALUES (?, ?, ?)
+               persona_address, holder_address, balance,
+               last_trade_price, last_trade_is_buy
+             ) VALUES (?, ?, ?, ?, ?)
              ON CONFLICT(persona_address, holder_address) DO UPDATE SET
-               balance    = excluded.balance,
-               updated_at = strftime('%s','now')`
-          ).bind(personaAddress, holderAddress, finalBalance.toString())
+               balance          = excluded.balance,
+               last_trade_price = excluded.last_trade_price,
+               last_trade_is_buy = excluded.last_trade_is_buy,
+               updated_at       = strftime('%s','now')`
+          ).bind(
+            personaAddress,
+            holderAddress,
+            finalBalance.toString(),
+            state.lastTradePrice.toString(),
+            state.lastTradeIsBuy
+          )
         );
       }
     }
@@ -350,7 +362,7 @@ export async function syncPersonaFragmentTrades(env: Env): Promise<void> {
   // ------------------------------------------------------------------
   // 8. Execute all mutations in a single batch/transaction:
   //     - trades
-  //     - holder balances
+  //     - holder balances (incl. last_trade_price/is_buy)
   //     - persona snapshots
   //     - sync checkpoint
   // ------------------------------------------------------------------
