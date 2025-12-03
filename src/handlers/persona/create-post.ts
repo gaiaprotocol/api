@@ -44,8 +44,15 @@ export async function handleCreatePersonaPost(request: Request, env: Env) {
 
     const parsed = schema.parse(body);
 
+    // 클라이언트 IP 가져오기
+    const authorIp =
+      request.headers.get("cf-connecting-ip") ||
+      request.headers.get("x-forwarded-for") ||
+      null;
+
     const post = await createPersonaPost(env, {
       author: payload.sub,
+      authorIp,
       content: parsed.content,
       attachments: parsed.attachments ?? null,
       parentPostId: parsed.parentPostId ?? null,

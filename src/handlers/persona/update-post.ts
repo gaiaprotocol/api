@@ -37,9 +37,15 @@ export async function handleUpdatePersonaPost(request: Request, env: Env) {
 
     const parsed = schema.parse(body);
 
+    const authorIp =
+      request.headers.get("cf-connecting-ip") ||
+      request.headers.get("x-forwarded-for") ||
+      null;
+
     const updated = await updatePersonaPost(env, {
       postId: parsed.id,
       author: payload.sub,
+      authorIp,
       content: parsed.content,
       attachments: parsed.attachments ?? undefined,
     });

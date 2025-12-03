@@ -10,6 +10,7 @@ import {
  */
 export interface CreatePersonaPostInput {
   author: string;
+  authorIp?: string | null;
   content: string;
   attachments?: PersonaPostAttachments | null;
   parentPostId?: number | null;
@@ -23,6 +24,7 @@ export async function createPersonaPost(
 ): Promise<PersonaPost> {
   const {
     author,
+    authorIp = null,
     content,
     attachments = null,
     parentPostId = null,
@@ -39,6 +41,7 @@ export async function createPersonaPost(
     `
     INSERT INTO persona_posts (
       author,
+      author_ip,
       content,
       attachments,
       parent_post_id,
@@ -46,11 +49,12 @@ export async function createPersonaPost(
       quote_of_id,
       created_at
     )
-    VALUES (?, ?, ?, ?, ?, ?, strftime('%s','now'))
+    VALUES (?, ?, ?, ?, ?, ?, ?, strftime('%s','now'))
     `
   )
     .bind(
       author,
+      authorIp,
       content,
       attachmentsJson,
       parentPostId,
@@ -117,6 +121,7 @@ export async function createPersonaPost(
 export interface UpdatePersonaPostInput {
   postId: number;
   author: string;
+  authorIp?: string | null;
   content?: string;
   attachments?: PersonaPostAttachments | null;
 }
@@ -125,10 +130,15 @@ export async function updatePersonaPost(
   env: Env,
   input: UpdatePersonaPostInput
 ): Promise<PersonaPost | null> {
-  const { postId, author, content, attachments } = input;
+  const { postId, author, authorIp, content, attachments } = input;
 
   const sets: string[] = [];
   const params: any[] = [];
+
+  if (authorIp !== undefined) {
+    sets.push("author_ip = ?");
+    params.push(authorIp);
+  }
 
   if (content !== undefined) {
     sets.push("content = ?");
