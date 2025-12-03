@@ -1,5 +1,5 @@
 import { getAddress } from "viem";
-import { PersonaFragments, PersonaFragmentsRow, rowToPersonaFragments } from "../../types/persona-fragments";
+import { PersonaFragmentHolding, PersonaFragmentHoldingRow, PersonaFragments, PersonaFragmentsRow, rowToPersonaFragmentHolding, rowToPersonaFragments } from "../../types/persona-fragments";
 
 /**
  * 지갑 주소(페르소나 주소)로 persona_fragments 조회
@@ -33,3 +33,39 @@ export async function fetchPersonaFragmentsByAddress(
 
   return rowToPersonaFragments(row);
 }
+
+export async function fetchHeldPersonaFragmentsForHolder(
+  env: Env,
+  holderAddress: string,
+): Promise<PersonaFragmentHolding[]> {
+  const stmt = `
+    SELECT
+      ph.persona_address,
+      ph.balance,
+      ph.last_trade_price,
+      ph.last_trade_is_buy,
+      ph.updated_at       AS holder_updated_at,
+      pf.current_supply,
+      pf.holder_count,
+      pf.last_price,
+      pf.last_is_buy,
+      pf.last_block_number,
+      pf.last_tx_hash,
+      pf.last_updated_at
+    FROM persona_fragment_holders ph
+    JOIN persona_fragments pf
+      ON pf.persona_address = ph.persona_address
+    WHERE ph.holder_address = ?
+      AND ph.balance != '0'
+    ORDER BY pf.last_block_number DESC
+  `;
+
+  const { results } = await env.DB.prepare(stmt)
+    .bind(holderAddress)
+    .all<PersonaFragmentHoldingRow>();
+
+  const rows = results ?? [];
+
+  return rows.map(rowToPersonaFragmentHolding);
+}
+

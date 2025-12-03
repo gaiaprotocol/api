@@ -64,9 +64,17 @@ import { handleUpdatePersonaPost } from './handlers/persona/update-post';
 import { handleHeldPersonaFragments } from './handlers/persona/held-fragments';
 
 // Persona chat & Durable Object
+import { handlePersonaChatWebSocket } from './do/persona-chat-room';
+
+// ✅ Persona chat REST handlers
 import {
-  handlePersonaChatWebSocket
-} from './do/persona-chat-room';
+  handleCreatePersonaChatMessage,
+  handleListPersonaChatMessages,
+} from './handlers/persona/chat-messages';
+import {
+  handleListPersonaChatReactions,
+  handleTogglePersonaChatReaction,
+} from './handlers/persona/chat-reactions';
 
 // Sync workers
 import { syncPersonaFragmentTrades } from './sync/persona-fragment-trades';
@@ -102,10 +110,22 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
       return handleNonce(request, this.env);
 
     if (url.pathname === '/login/valhalla' && request.method === 'POST')
-      return handleLogin(request, 1, this.env, this.env.VALHALLA_DOMAIN, this.env.VALHALLA_URI);
+      return handleLogin(
+        request,
+        1,
+        this.env,
+        this.env.VALHALLA_DOMAIN,
+        this.env.VALHALLA_URI,
+      );
 
     if (url.pathname === '/login/personas' && request.method === 'POST')
-      return handleLogin(request, 1, this.env, this.env.PERSONAS_DOMAIN, this.env.PERSONAS_URI);
+      return handleLogin(
+        request,
+        1,
+        this.env,
+        this.env.PERSONAS_DOMAIN,
+        this.env.PERSONAS_URI,
+      );
 
     if (url.pathname === '/validate-token' && request.method === 'GET')
       return handleValidateToken(request, this.env);
@@ -129,18 +149,26 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
     // --------------------------------------------------
     // NFT API
     // --------------------------------------------------
-    if (url.pathname === '/init-nft-ownership') return handleInitNftOwnership(request, this.env);
-    if (url.pathname.startsWith('/nft/')) return handleNftDataRequest(request, this.env);
-    if (url.pathname.startsWith('/god-metadata/')) return handleGodMetadata(request, this.env);
-    if (url.pathname.endsWith('/nfts')) return handleHeldNftsRequest(request, this.env);
-    if (url.pathname === '/nfts/by-ids') return handleNftDataByIds(request, this.env);
-    if (url.pathname === '/save-metadata') return handleSaveMetadata(request, this.env);
-    if (url.pathname === '/gods-stats') return handleGodsStats(request, this.env);
+    if (url.pathname === '/init-nft-ownership')
+      return handleInitNftOwnership(request, this.env);
+    if (url.pathname.startsWith('/nft/'))
+      return handleNftDataRequest(request, this.env);
+    if (url.pathname.startsWith('/god-metadata/'))
+      return handleGodMetadata(request, this.env);
+    if (url.pathname.endsWith('/nfts'))
+      return handleHeldNftsRequest(request, this.env);
+    if (url.pathname === '/nfts/by-ids')
+      return handleNftDataByIds(request, this.env);
+    if (url.pathname === '/save-metadata')
+      return handleSaveMetadata(request, this.env);
+    if (url.pathname === '/gods-stats')
+      return handleGodsStats(request, this.env);
 
     // --------------------------------------------------
     // Persona Profile / Posts / Fragment Ownership
     // --------------------------------------------------
-    if (url.pathname === '/persona-profile') return handlePersonaProfile(request, this.env);
+    if (url.pathname === '/persona-profile')
+      return handlePersonaProfile(request, this.env);
 
     if (url.pathname === '/persona/held-fragments' && request.method === 'GET')
       return handleHeldPersonaFragments(request, this.env);
@@ -177,6 +205,26 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
       return handlePersonaHoldingReward(request, this.env);
 
     // --------------------------------------------------
+    // Persona Chat REST API
+    //   These paths are used by the frontend:
+    //     GET  /persona/chat/messages
+    //     POST /persona/chat/messages
+    //     GET  /persona/chat/reactions
+    //     POST /persona/chat/reactions/toggle
+    // --------------------------------------------------
+    if (url.pathname === '/persona/chat/messages' && request.method === 'GET')
+      return handleListPersonaChatMessages(request, this.env);
+
+    if (url.pathname === '/persona/chat/messages' && request.method === 'POST')
+      return handleCreatePersonaChatMessage(request, this.env);
+
+    if (url.pathname === '/persona/chat/reactions' && request.method === 'GET')
+      return handleListPersonaChatReactions(request, this.env);
+
+    if (url.pathname === '/persona/chat/reactions/toggle' && request.method === 'POST')
+      return handleTogglePersonaChatReaction(request, this.env);
+
+    // --------------------------------------------------
     // Persona Chat WebSocket (Durable Object)
     // --------------------------------------------------
     if (url.pathname === '/persona/chat/ws' && request.method === 'GET') {
@@ -203,16 +251,42 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
     };
 
     if (url.pathname === '/oauth2/start/valhalla/google')
-      return oauth2Start(request, this.env, 'google', oauth2Providers, this.env.VALHALLA_GOOGLE_REDIRECT_URI);
+      return oauth2Start(
+        request,
+        this.env,
+        'google',
+        oauth2Providers,
+        this.env.VALHALLA_GOOGLE_REDIRECT_URI,
+      );
 
     if (url.pathname === '/oauth2/callback/valhalla/google')
-      return oauth2Callback(request, this.env, 'google', oauth2Providers, this.env.VALHALLA_GOOGLE_REDIRECT_URI, this.env.VALHALLA_URI);
+      return oauth2Callback(
+        request,
+        this.env,
+        'google',
+        oauth2Providers,
+        this.env.VALHALLA_GOOGLE_REDIRECT_URI,
+        this.env.VALHALLA_URI,
+      );
 
     if (url.pathname === '/oauth2/start/personas/google')
-      return oauth2Start(request, this.env, 'google', oauth2Providers, this.env.PERSONAS_GOOGLE_REDIRECT_URI);
+      return oauth2Start(
+        request,
+        this.env,
+        'google',
+        oauth2Providers,
+        this.env.PERSONAS_GOOGLE_REDIRECT_URI,
+      );
 
     if (url.pathname === '/oauth2/callback/personas/google')
-      return oauth2Callback(request, this.env, 'google', oauth2Providers, this.env.PERSONAS_GOOGLE_REDIRECT_URI, this.env.PERSONAS_URI);
+      return oauth2Callback(
+        request,
+        this.env,
+        'google',
+        oauth2Providers,
+        this.env.PERSONAS_GOOGLE_REDIRECT_URI,
+        this.env.PERSONAS_URI,
+      );
 
     if (url.pathname === '/oauth2/login-with-idtoken/google')
       return oauth2LoginWithIdToken(request, this.env, oauth2Providers, 'google');
@@ -267,13 +341,27 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
   }
 
   // Internal helper functions for cross-worker usage
-  fetchNotices() { return fetchNotices(this.env); }
-  fetchNotice(id: number) { return fetchNotice(this.env, id); }
-  fetchNftDataByIds(ids: string[]) { return fetchNftDataByIds(this.env, ids); }
-  fetchGaiaName(name: string) { return fetchGaiaName(this.env, name); }
-  fetchProfileByAddress(address: string) { return fetchProfileByAddress(this.env, address); }
-  getPersonaProfile(address: string) { return getPersonaProfile(this.env, address); }
-  getPersonaPostWithReplies(postId: number) { return getPersonaPostWithReplies(this.env, postId); }
+  fetchNotices() {
+    return fetchNotices(this.env);
+  }
+  fetchNotice(id: number) {
+    return fetchNotice(this.env, id);
+  }
+  fetchNftDataByIds(ids: string[]) {
+    return fetchNftDataByIds(this.env, ids);
+  }
+  fetchGaiaName(name: string) {
+    return fetchGaiaName(this.env, name);
+  }
+  fetchProfileByAddress(address: string) {
+    return fetchProfileByAddress(this.env, address);
+  }
+  getPersonaProfile(address: string) {
+    return getPersonaProfile(this.env, address);
+  }
+  getPersonaPostWithReplies(postId: number) {
+    return getPersonaPostWithReplies(this.env, postId);
+  }
 }
 
 // ----------------------------------------------------------------------------------------------------

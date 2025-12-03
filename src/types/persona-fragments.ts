@@ -49,3 +49,36 @@ export function rowToPersonaFragments(
     lastUpdatedAt: row.last_updated_at,
   };
 }
+
+export type PersonaFragmentHolding = PersonaFragments & {
+  balance: string;
+  lastTradePrice: string | null;
+  lastTradeIsBuy: 0 | 1 | null;
+  holderUpdatedAt: number;
+};
+
+/**
+ * holdings용 DB row 타입
+ * (persona_fragments JOIN persona_fragment_holders 등에서 나오는 형태라고 가정)
+ */
+export interface PersonaFragmentHoldingRow extends PersonaFragmentsRow {
+  balance: string;
+  last_trade_price: string | null;
+  last_trade_is_buy: 0 | 1 | null;
+  holder_updated_at: number;
+}
+
+export function rowToPersonaFragmentHolding(
+  row: PersonaFragmentHoldingRow,
+): PersonaFragmentHolding {
+  // 공통 fragments 부분은 기존 rowToPersonaFragments 재사용
+  const fragments: PersonaFragments = rowToPersonaFragments(row);
+
+  return {
+    ...fragments,
+    balance: row.balance,
+    lastTradePrice: row.last_trade_price,
+    lastTradeIsBuy: row.last_trade_is_buy,
+    holderUpdatedAt: row.holder_updated_at,
+  };
+}
