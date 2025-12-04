@@ -1,5 +1,5 @@
 import { jsonWithCors, verifyToken } from '@gaiaprotocol/worker-common';
-import { fetchHeldPersonaFragmentsForHolder } from '../../db/persona/fragments';
+import { fetchHeldPersonaFragmentsForHolderService } from '../../services/persona/fragments';
 
 export async function handleHeldPersonaFragments(
   request: Request,
@@ -31,12 +31,11 @@ export async function handleHeldPersonaFragments(
       return jsonWithCors({ error: 'Invalid token payload.' }, 401);
     }
 
-    const holdings = await fetchHeldPersonaFragmentsForHolder(
+    const holdings = await fetchHeldPersonaFragmentsForHolderService(
       env,
       holderAddress,
     );
 
-    // holdings: PersonaFragmentHolding[] (camelCase)
     return jsonWithCors({ holdings });
   } catch (err) {
     console.error('[handleHeldPersonaFragments] error', err);

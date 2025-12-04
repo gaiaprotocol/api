@@ -1,6 +1,9 @@
 import { jsonWithCors, verifyToken } from '@gaiaprotocol/worker-common';
 import { z } from 'zod';
-import { createPersonaChatMessage, listPersonaChatMessages } from '../../db/persona/chat';
+import {
+  listPersonaChatMessagesService,
+  sendPersonaChatMessage,
+} from '../../services/persona/chat';
 import { hasPersonaAccess } from '../../utils/persona-access';
 
 const MAX_CONTENT_LEN = 10_000;
@@ -49,7 +52,7 @@ export async function handleCreatePersonaChatMessage(request: Request, env: Env)
       request.headers.get('x-forwarded-for') ||
       null;
 
-    const message = await createPersonaChatMessage(env, {
+    const message = await sendPersonaChatMessage(env, {
       persona: personaAddr,
       sender: account,
       senderIp: ip,
@@ -58,7 +61,7 @@ export async function handleCreatePersonaChatMessage(request: Request, env: Env)
       parentMessageId: parentMessageId ?? null,
     });
 
-    // DO 브로드캐스트 (실패해도 응답은 보내되, 최소한 로그는 남기기)
+    // Broadcast via DO (fire and forget)
     try {
       const id = env.PERSONA_CHAT_ROOM.idFromName(personaAddr.toLowerCase());
       const stub = env.PERSONA_CHAT_ROOM.get(id);
@@ -98,7 +101,7 @@ export async function handleListPersonaChatMessages(request: Request, env: Env) 
     const limit = Math.min(Number(url.searchParams.get('limit') || 50), 200);
     const cursor = Number(url.searchParams.get('cursor') || 0);
 
-    const messages = await listPersonaChatMessages(env, {
+    const messages = await listPersonaChatMessagesService(env, {
       persona,
       limit,
       offset: cursor,

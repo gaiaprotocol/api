@@ -2,9 +2,13 @@ import { jsonWithCors } from '@gaiaprotocol/worker-common';
 import { getAddress } from 'viem';
 import { z } from 'zod';
 
-import { fetchPersonaFragmentsByAddress } from '../db/persona/fragments';
-import { listPersonaPosts } from '../db/persona/post';
 import { fetchProfileByAddress } from '../db/profile';
+import {
+  fetchPersonaFragmentsByAddressService,
+} from '../services/persona/fragments';
+import {
+  listPersonaPostsService,
+} from '../services/persona/post';
 import type { Profile } from '../types/profile';
 
 /**
@@ -19,13 +23,16 @@ import type { Profile } from '../types/profile';
  */
 export async function getPersonaProfile(env: Env, walletAddress: string) {
   const [profileRow, posts, personaFragments] = await Promise.all([
+    // profile 은 아직 service 분리 안 했으니 db 그대로 사용
     fetchProfileByAddress(env, walletAddress),
-    listPersonaPosts(env, {
+    // posts 는 service 통해 조회
+    listPersonaPostsService(env, {
       author: walletAddress,
       limit: 50,
       offset: 0,
     }),
-    fetchPersonaFragmentsByAddress(env, walletAddress),
+    // fragments 도 service 통해 조회
+    fetchPersonaFragmentsByAddressService(env, walletAddress),
   ]);
 
   const profile: Profile =

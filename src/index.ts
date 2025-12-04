@@ -1,7 +1,3 @@
-// src/index.ts
-// Entry point router for the API Worker.
-// Every request is dispatched here and routed to the correct handler.
-
 import {
   handleLogin,
   handleNonce,
@@ -15,12 +11,11 @@ import { WorkerEntrypoint } from 'cloudflare:workers';
 import { createPublicClient, http } from 'viem';
 import { mainnet } from 'viem/chains';
 
-// DB fetchers
+// DB fetchers (used by internal helpers)
 import { fetchGaiaName } from './db/gaia-names';
 import { fetchAndStoreGodsStats } from './db/gods-stats';
 import { fetchNftDataByIds } from './db/nft';
 import { fetchNotice, fetchNotices } from './db/notice';
-import { getPersonaPostWithReplies } from './db/persona/post';
 import { fetchProfileByAddress } from './db/profile';
 
 // Core handlers
@@ -49,25 +44,33 @@ import { oauth2MeByToken } from './handlers/oauth2/me-by-token';
 import { oauth2UnlinkWalletBySession } from './handlers/oauth2/unlink-wallet-by-session';
 import { oauth2UnlinkWalletByToken } from './handlers/oauth2/unlink-wallet-by-token';
 
-// Persona-specific handlers
-import { getPersonaProfile, handlePersonaProfile } from './handlers/persona-profile';
-import { handleBookmarkPersonaPost, handleUnbookmarkPersonaPost } from './handlers/persona/bookmark-post';
+// Persona profile handler
+import {
+  getPersonaProfile,
+  handlePersonaProfile,
+} from './handlers/persona-profile';
+
+// Persona post handlers
+import {
+  handleBookmarkPersonaPost,
+  handleUnbookmarkPersonaPost,
+} from './handlers/persona/bookmark-post';
 import { handleCreatePersonaPost } from './handlers/persona/create-post';
 import { handleDeletePersonaPost } from './handlers/persona/delete-post';
-import { handlePersonaHoldingReward } from './handlers/persona/holding-reward';
 import { handleLikePersonaPost, handleUnlikePersonaPost } from './handlers/persona/like-post';
 import { handleListPersonaPosts } from './handlers/persona/list-posts';
 import { handlePersonaPostWithReplies } from './handlers/persona/post-with-replies';
 import { handleUpdatePersonaPost } from './handlers/persona/update-post';
 
-// Persona fragment handler
+// Persona fragments handlers
 import { handleHeldPersonaFragments } from './handlers/persona/held-fragments';
+import { handlePersonaHoldingReward } from './handlers/persona/holding-reward';
 import { handleTrendingPersonaFragments } from './handlers/persona/trending-fragments';
 
 // Persona chat & Durable Object
 import { handlePersonaChatWebSocket } from './do/persona-chat-room';
 
-// ✅ Persona chat REST handlers
+// Persona chat REST handlers
 import {
   handleCreatePersonaChatMessage,
   handleListPersonaChatMessages,
@@ -77,8 +80,19 @@ import {
   handleTogglePersonaChatReaction,
 } from './handlers/persona/chat-reactions';
 
+// Notifications handlers
+import {
+  handleListNotifications,
+  handleMarkAllNotificationsRead,
+  handleMarkNotificationRead,
+  handleUnreadNotificationCount,
+} from './handlers/notifications';
+
 // Sync workers
 import { syncPersonaFragmentTrades } from './sync/persona-fragment-trades';
+
+// Service helpers used by internal methods
+import { getPersonaPostWithRepliesService } from './services/persona/post';
 
 const MAINNET_CLIENT = createPublicClient({ chain: mainnet, transport: http() });
 const GODS_ADDRESS = '0x134590ACB661Da2B318BcdE6b39eF5cF8208E372';
@@ -152,18 +166,48 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
     // --------------------------------------------------
     if (url.pathname === '/init-nft-ownership')
       return handleInitNftOwnership(request, this.env);
+
     if (url.pathname.startsWith('/nft/'))
       return handleNftDataRequest(request, this.env);
+
     if (url.pathname.startsWith('/god-metadata/'))
       return handleGodMetadata(request, this.env);
+
     if (url.pathname.endsWith('/nfts'))
       return handleHeldNftsRequest(request, this.env);
+
     if (url.pathname === '/nfts/by-ids')
       return handleNftDataByIds(request, this.env);
+
     if (url.pathname === '/save-metadata')
       return handleSaveMetadata(request, this.env);
+
     if (url.pathname === '/gods-stats')
       return handleGodsStats(request, this.env);
+
+    // --------------------------------------------------
+    // Notifications API
+    // --------------------------------------------------
+    if (url.pathname === '/notifications' && request.method === 'GET')
+      return handleListNotifications(request, this.env);
+
+    if (
+      url.pathname === '/notifications/unread-count' &&
+      request.method === 'GET'
+    )
+      return handleUnreadNotificationCount(request, this.env);
+
+    if (
+      url.pathname === '/notifications/mark-read' &&
+      request.method === 'POST'
+    )
+      return handleMarkNotificationRead(request, this.env);
+
+    if (
+      url.pathname === '/notifications/mark-all-read' &&
+      request.method === 'POST'
+    )
+      return handleMarkAllNotificationsRead(request, this.env);
 
     // --------------------------------------------------
     // Persona Profile / Posts / Fragment Ownership
@@ -210,11 +254,6 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
 
     // --------------------------------------------------
     // Persona Chat REST API
-    //   These paths are used by the frontend:
-    //     GET  /persona/chat/messages
-    //     POST /persona/chat/messages
-    //     GET  /persona/chat/reactions
-    //     POST /persona/chat/reactions/toggle
     // --------------------------------------------------
     if (url.pathname === '/persona/chat/messages' && request.method === 'GET')
       return handleListPersonaChatMessages(request, this.env);
@@ -225,7 +264,10 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
     if (url.pathname === '/persona/chat/reactions' && request.method === 'GET')
       return handleListPersonaChatReactions(request, this.env);
 
-    if (url.pathname === '/persona/chat/reactions/toggle' && request.method === 'POST')
+    if (
+      url.pathname === '/persona/chat/reactions/toggle' &&
+      request.method === 'POST'
+    )
       return handleTogglePersonaChatReaction(request, this.env);
 
     // --------------------------------------------------
@@ -248,7 +290,8 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
         scope: 'openid email profile',
         oidc: {
           issuer: 'https://accounts.google.com',
-          discovery: 'https://accounts.google.com/.well-known/openid-configuration',
+          discovery:
+            'https://accounts.google.com/.well-known/openid-configuration',
           require_email_verified: false,
         },
       },
@@ -344,27 +387,35 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
     }
   }
 
+  // ------------------------------------------------------------------
   // Internal helper functions for cross-worker usage
+  // ------------------------------------------------------------------
   fetchNotices() {
     return fetchNotices(this.env);
   }
+
   fetchNotice(id: number) {
     return fetchNotice(this.env, id);
   }
+
   fetchNftDataByIds(ids: string[]) {
     return fetchNftDataByIds(this.env, ids);
   }
+
   fetchGaiaName(name: string) {
     return fetchGaiaName(this.env, name);
   }
+
   fetchProfileByAddress(address: string) {
     return fetchProfileByAddress(this.env, address);
   }
+
   getPersonaProfile(address: string) {
     return getPersonaProfile(this.env, address);
   }
+
   getPersonaPostWithReplies(postId: number) {
-    return getPersonaPostWithReplies(this.env, postId);
+    return getPersonaPostWithRepliesService(this.env, postId);
   }
 }
 

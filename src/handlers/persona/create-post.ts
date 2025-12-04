@@ -1,6 +1,6 @@
 import { jsonWithCors, verifyToken } from '@gaiaprotocol/worker-common';
 import { z } from 'zod';
-import { createPersonaPost } from '../../db/persona/post';
+import { createPersonaPostService } from '../../services/persona/post';
 
 const MAX_CONTENT_LEN = 10_000;
 
@@ -35,22 +35,21 @@ export async function handleCreatePersonaPost(request: Request, env: Env) {
     }).refine(
       (v) => {
         const flags = [v.parentPostId, v.repostOfId, v.quoteOfId].filter(
-          (x) => x !== undefined
+          (x) => x !== undefined,
         );
         return flags.length <= 1;
       },
-      { message: 'Only one of parentPostId, repostOfId, quoteOfId can be provided.' }
+      { message: 'Only one of parentPostId, repostOfId, quoteOfId can be provided.' },
     );
 
     const parsed = schema.parse(body);
 
-    // 클라이언트 IP 가져오기
     const authorIp =
-      request.headers.get("cf-connecting-ip") ||
-      request.headers.get("x-forwarded-for") ||
+      request.headers.get('cf-connecting-ip') ||
+      request.headers.get('x-forwarded-for') ||
       null;
 
-    const post = await createPersonaPost(env, {
+    const post = await createPersonaPostService(env, {
       author: payload.sub,
       authorIp,
       content: parsed.content,

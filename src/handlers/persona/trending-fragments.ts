@@ -1,5 +1,5 @@
 import { jsonWithCors } from '@gaiaprotocol/worker-common';
-import { listTrendingPersonaFragments } from '../../db/persona/fragments';
+import { listTrendingPersonaFragmentsService } from '../../services/persona/fragments';
 import { TrendingPersonaFragment } from '../../types/persona-fragments';
 import { getPersonaProfile } from '../persona-profile';
 
@@ -12,11 +12,10 @@ export async function handleTrendingPersonaFragments(
     const limitParam = url.searchParams.get('limit');
     const limit = Math.min(Math.max(Number(limitParam) || 6, 1), 24);
 
-    const base = await listTrendingPersonaFragments(env, limit);
+    const base = await listTrendingPersonaFragmentsService(env, limit);
 
     const enriched: TrendingPersonaFragment[] = await Promise.all(
       base.map(async (row) => {
-        // Try to fetch persona profile for nice display name
         let displayName: string = row.personaAddress;
         try {
           const result = await getPersonaProfile(env, row.personaAddress);

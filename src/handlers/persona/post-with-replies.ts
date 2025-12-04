@@ -1,6 +1,6 @@
 import { jsonWithCors } from '@gaiaprotocol/worker-common';
 import { z } from 'zod';
-import { getPersonaPostWithReplies } from '../../db/persona/post';
+import { getPersonaPostWithRepliesService } from '../../services/persona/post';
 
 export async function handlePersonaPostWithReplies(request: Request, env: Env) {
   try {
@@ -14,7 +14,7 @@ export async function handlePersonaPostWithReplies(request: Request, env: Env) {
       id: url.searchParams.get('id'),
     });
 
-    const result = await getPersonaPostWithReplies(env, parsed.id);
+    const result = await getPersonaPostWithRepliesService(env, parsed.id);
 
     if (!result) {
       return jsonWithCors({ error: 'Post not found' }, 404);

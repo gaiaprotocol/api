@@ -1,6 +1,9 @@
 import { jsonWithCors, verifyToken } from '@gaiaprotocol/worker-common';
 import { z } from 'zod';
-import { likePersonaPost, unlikePersonaPost } from '../../db/persona/post';
+import {
+  likePersonaPostService,
+  unlikePersonaPostService,
+} from '../../services/persona/post';
 
 export async function handleLikePersonaPost(request: Request, env: Env) {
   try {
@@ -29,7 +32,7 @@ export async function handleLikePersonaPost(request: Request, env: Env) {
 
     const { postId } = schema.parse(body);
 
-    await likePersonaPost(env, postId, payload.sub);
+    await likePersonaPostService(env, postId, payload.sub);
 
     return jsonWithCors({ ok: true }, 200);
   } catch (err) {
@@ -65,7 +68,7 @@ export async function handleUnlikePersonaPost(request: Request, env: Env) {
 
     const { postId } = schema.parse(body);
 
-    await unlikePersonaPost(env, postId, payload.sub);
+    await unlikePersonaPostService(env, postId, payload.sub);
 
     return jsonWithCors({ ok: true }, 200);
   } catch (err) {

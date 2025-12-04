@@ -1,9 +1,19 @@
-import { PersonaChatMessage, PersonaChatMessageRow, PersonaChatReaction, PersonaChatReactionRow, rowToPersonaChatMessage, rowToPersonaChatReaction } from "../../types/chat";
+import {
+  PersonaChatMessage,
+  PersonaChatMessageRow,
+  PersonaChatReaction,
+  PersonaChatReactionRow,
+  rowToPersonaChatMessage,
+  rowToPersonaChatReaction,
+} from "../../types/chat";
 
-export const CHAT_MESSAGES_TABLE = 'persona_chat_messages';
-export const CHAT_REACTIONS_TABLE = 'persona_chat_reactions';
+export const CHAT_MESSAGES_TABLE = "persona_chat_messages";
+export const CHAT_REACTIONS_TABLE = "persona_chat_reactions";
 
-export async function createPersonaChatMessage(
+/**
+ * Insert a new persona chat message.
+ */
+export async function insertPersonaChatMessage(
   env: Env,
   params: {
     persona: string;
@@ -32,17 +42,18 @@ export async function createPersonaChatMessage(
     )
     .first<PersonaChatMessageRow | null>();
 
-  if (!row) throw new Error('Failed to insert chat message');
+  if (!row) throw new Error("Failed to insert chat message");
 
-  // 여기서 바로 도메인 객체로 변환해서 반환
   return rowToPersonaChatMessage(row);
 }
 
-export async function listPersonaChatMessages(env: Env, params: {
-  persona: string;
-  limit: number;
-  offset: number;
-}): Promise<PersonaChatMessage[]> {
+/**
+ * List chat messages in a persona room.
+ */
+export async function queryPersonaChatMessages(
+  env: Env,
+  params: { persona: string; limit: number; offset: number },
+): Promise<PersonaChatMessage[]> {
   const res = await env.DB.prepare(
     `
     SELECT *
@@ -57,15 +68,17 @@ export async function listPersonaChatMessages(env: Env, params: {
     .all<PersonaChatMessageRow>();
 
   const rows = res.results ?? [];
-
   return rows.map(rowToPersonaChatMessage);
 }
 
-export async function togglePersonaChatReaction(env: Env, params: {
-  messageId: number;
-  reactor: string;
-  reactionType: string;
-}) {
+/**
+ * Toggle a reaction row for a chat message.
+ * Returns 'added' or 'removed'.
+ */
+export async function togglePersonaChatReactionRow(
+  env: Env,
+  params: { messageId: number; reactor: string; reactionType: string },
+): Promise<"added" | "removed"> {
   const existing = await env.DB.prepare(
     `
     SELECT 1
@@ -86,7 +99,7 @@ export async function togglePersonaChatReaction(env: Env, params: {
       .bind(params.messageId, params.reactor, params.reactionType)
       .run();
 
-    return 'removed' as const;
+    return "removed";
   }
 
   await env.DB.prepare(
@@ -98,10 +111,16 @@ export async function togglePersonaChatReaction(env: Env, params: {
     .bind(params.messageId, params.reactor, params.reactionType)
     .run();
 
-  return 'added' as const;
+  return "added";
 }
 
-export async function listPersonaChatReactions(env: Env, messageId: number) {
+/**
+ * List reactions of a message and aggregated counts.
+ */
+export async function queryPersonaChatReactions(
+  env: Env,
+  messageId: number,
+): Promise<{ reactions: PersonaChatReaction[]; counts: Record<string, number> }> {
   const res = await env.DB.prepare(
     `
     SELECT message_id, reactor, reaction_type, created_at

@@ -1,6 +1,6 @@
 import { jsonWithCors, verifyToken } from '@gaiaprotocol/worker-common';
 import { z } from 'zod';
-import { softDeletePersonaPost } from '../../db/persona/post';
+import { softDeletePersonaPostService } from '../../services/persona/post';
 
 export async function handleDeletePersonaPost(request: Request, env: Env) {
   try {
@@ -29,7 +29,7 @@ export async function handleDeletePersonaPost(request: Request, env: Env) {
 
     const { id } = schema.parse(body);
 
-    const ok = await softDeletePersonaPost(env, id, payload.sub);
+    const ok = await softDeletePersonaPostService(env, id, payload.sub);
 
     if (!ok) {
       return jsonWithCors({ error: 'Post not found or you are not the author.' }, 404);

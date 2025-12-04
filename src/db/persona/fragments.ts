@@ -1,14 +1,20 @@
 import { getAddress } from "viem";
-import { PersonaFragmentHolding, PersonaFragmentHoldingRow, PersonaFragments, PersonaFragmentsRow, rowToPersonaFragmentHolding, rowToPersonaFragments } from "../../types/persona-fragments";
+import {
+  PersonaFragmentHolding,
+  PersonaFragmentHoldingRow,
+  PersonaFragments,
+  PersonaFragmentsRow,
+  rowToPersonaFragmentHolding,
+  rowToPersonaFragments,
+} from "../../types/persona-fragments";
 
 /**
- * 지갑 주소(페르소나 주소)로 persona_fragments 조회
+ * Fetch persona_fragments by persona (wallet) address.
  */
-export async function fetchPersonaFragmentsByAddress(
+export async function queryPersonaFragmentsByAddress(
   env: Env,
-  account: string
+  account: string,
 ): Promise<PersonaFragments | null> {
-  // 주소 checksum 정규화
   const flatAddress = getAddress(account);
 
   const sql = `
@@ -34,7 +40,10 @@ export async function fetchPersonaFragmentsByAddress(
   return rowToPersonaFragments(row);
 }
 
-export async function fetchHeldPersonaFragmentsForHolder(
+/**
+ * Fetch all persona fragments held by a holder.
+ */
+export async function queryHeldPersonaFragmentsForHolder(
   env: Env,
   holderAddress: string,
 ): Promise<PersonaFragmentHolding[]> {
@@ -65,11 +74,13 @@ export async function fetchHeldPersonaFragmentsForHolder(
     .all<PersonaFragmentHoldingRow>();
 
   const rows = results ?? [];
-
   return rows.map(rowToPersonaFragmentHolding);
 }
 
-export async function listTrendingPersonaFragments(
+/**
+ * List trending persona fragments by last activity.
+ */
+export async function queryTrendingPersonaFragments(
   env: Env,
   limit: number,
 ): Promise<
@@ -81,21 +92,19 @@ export async function listTrendingPersonaFragments(
     lastBlockNumber: number;
   }>
 > {
-  const stmt = env.DB
-    .prepare(
-      `
-      SELECT
-        persona_address,
-        current_supply,
-        holder_count,
-        last_price,
-        last_block_number
-      FROM persona_fragments
-      ORDER BY last_block_number DESC
-      LIMIT ?
+  const stmt = env.DB.prepare(
+    `
+    SELECT
+      persona_address,
+      current_supply,
+      holder_count,
+      last_price,
+      last_block_number
+    FROM persona_fragments
+    ORDER BY last_block_number DESC
+    LIMIT ?
     `,
-    )
-    .bind(limit);
+  ).bind(limit);
 
   const { results } = await stmt.all<{
     persona_address: string;

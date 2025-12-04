@@ -24,12 +24,6 @@ CREATE TABLE IF NOT EXISTS notifications (
   -- Could be a post ID, persona address, transaction hash, etc.
   target_id             TEXT,
 
-  -- Human-readable title text shown in the notification list.
-  title                 TEXT,
-
-  -- Optional body text for additional detail.
-  body                  TEXT,
-
   -- JSON metadata for any extra structured fields (e.g., amounts, prices,
   -- target_type, navigate_path, etc.).
   metadata              TEXT,

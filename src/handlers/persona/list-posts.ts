@@ -1,6 +1,6 @@
 import { jsonWithCors } from '@gaiaprotocol/worker-common';
 import { z } from 'zod';
-import { listPersonaPosts } from '../../db/persona/post';
+import { listPersonaPostsService } from '../../services/persona/post';
 
 export async function handleListPersonaPosts(request: Request, env: Env) {
   try {
@@ -20,7 +20,7 @@ export async function handleListPersonaPosts(request: Request, env: Env) {
       offset: url.searchParams.get('offset') ?? undefined,
     });
 
-    const posts = await listPersonaPosts(env, {
+    const posts = await listPersonaPostsService(env, {
       author: parsed.author,
       parentPostId: parsed.parentPostId,
       limit: parsed.limit,

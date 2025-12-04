@@ -1,6 +1,10 @@
 import { jsonWithCors, verifyToken } from '@gaiaprotocol/worker-common';
 import { z } from 'zod';
-import { listPersonaChatReactions, togglePersonaChatReaction } from '../../db/persona/chat';
+import {
+  getPersonaAddressForChatMessage,
+  listPersonaChatReactionsService,
+  togglePersonaChatReaction,
+} from '../../services/persona/chat';
 import { hasPersonaAccess } from '../../utils/persona-access';
 
 const toggleSchema = z.object({
@@ -34,17 +38,12 @@ export async function handleTogglePersonaChatReaction(request: Request, env: Env
 
     const { messageId, reactionType } = parsed.data;
 
-    const msg = await env.DB.prepare(
-      `SELECT persona_address FROM persona_chat_messages WHERE id = ? AND is_deleted = 0`,
-    )
-      .bind(messageId)
-      .first<{ persona_address: string } | null>();
-
-    if (!msg) {
+    // Resolve persona of the message via service, then check access.
+    const personaAddr = await getPersonaAddressForChatMessage(env, messageId);
+    if (!personaAddr) {
       return jsonWithCors({ error: 'Message not found.' }, 404);
     }
 
-    const personaAddr = msg.persona_address as `0x${string}`;
     const allowed = await hasPersonaAccess(env, personaAddr, account);
     if (!allowed) {
       return jsonWithCors({ error: 'Forbidden: not a holder or persona owner.' }, 403);
@@ -56,6 +55,7 @@ export async function handleTogglePersonaChatReaction(request: Request, env: Env
       reactionType,
     });
 
+    // Broadcast reaction event via DO
     try {
       const id = env.PERSONA_CHAT_ROOM.idFromName(personaAddr.toLowerCase());
       const stub = env.PERSONA_CHAT_ROOM.get(id);
@@ -99,7 +99,7 @@ export async function handleListPersonaChatReactions(request: Request, env: Env)
       return jsonWithCors({ error: 'messageId query param is required.' }, 400);
     }
 
-    const data = await listPersonaChatReactions(env, messageId);
+    const data = await listPersonaChatReactionsService(env, messageId);
     return jsonWithCors(data);
   } catch (err) {
     console.error('[handleListPersonaChatReactions]', err);

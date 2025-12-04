@@ -1,6 +1,9 @@
 import { jsonWithCors, verifyToken } from '@gaiaprotocol/worker-common';
 import { z } from 'zod';
-import { bookmarkPersonaPost, unbookmarkPersonaPost } from '../../db/persona/post';
+import {
+  bookmarkPersonaPostService,
+  unbookmarkPersonaPostService,
+} from '../../services/persona/post';
 
 export async function handleBookmarkPersonaPost(request: Request, env: Env) {
   try {
@@ -29,7 +32,7 @@ export async function handleBookmarkPersonaPost(request: Request, env: Env) {
 
     const { postId } = schema.parse(body);
 
-    await bookmarkPersonaPost(env, postId, payload.sub);
+    await bookmarkPersonaPostService(env, postId, payload.sub);
 
     return jsonWithCors({ ok: true }, 200);
   } catch (err) {
@@ -65,7 +68,7 @@ export async function handleUnbookmarkPersonaPost(request: Request, env: Env) {
 
     const { postId } = schema.parse(body);
 
-    await unbookmarkPersonaPost(env, postId, payload.sub);
+    await unbookmarkPersonaPostService(env, postId, payload.sub);
 
     return jsonWithCors({ ok: true }, 200);
   } catch (err) {

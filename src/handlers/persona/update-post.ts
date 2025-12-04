@@ -1,6 +1,6 @@
 import { jsonWithCors, verifyToken } from '@gaiaprotocol/worker-common';
 import { z } from 'zod';
-import { updatePersonaPost } from '../../db/persona/post';
+import { updatePersonaPostService } from '../../services/persona/post';
 
 const MAX_CONTENT_LEN = 10_000;
 
@@ -32,17 +32,17 @@ export async function handleUpdatePersonaPost(request: Request, env: Env) {
       attachments: z.record(z.unknown()).nullable().optional(),
     }).refine(
       (v) => v.content !== undefined || v.attachments !== undefined,
-      { message: 'At least one of content or attachments must be provided.' }
+      { message: 'At least one of content or attachments must be provided.' },
     );
 
     const parsed = schema.parse(body);
 
     const authorIp =
-      request.headers.get("cf-connecting-ip") ||
-      request.headers.get("x-forwarded-for") ||
+      request.headers.get('cf-connecting-ip') ||
+      request.headers.get('x-forwarded-for') ||
       null;
 
-    const updated = await updatePersonaPost(env, {
+    const updated = await updatePersonaPostService(env, {
       postId: parsed.id,
       author: payload.sub,
       authorIp,

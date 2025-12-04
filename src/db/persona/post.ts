@@ -6,7 +6,7 @@ import {
 } from "../../types/post";
 
 /**
- * 새 포스트 생성 (일반 글 / 댓글 / 리포스트 / 인용 모두 포함)
+ * Create a new persona post (root / comment / repost / quote).
  */
 export interface CreatePersonaPostInput {
   author: string;
@@ -18,9 +18,9 @@ export interface CreatePersonaPostInput {
   quoteOfId?: number | null;
 }
 
-export async function createPersonaPost(
+export async function insertPersonaPost(
   env: Env,
-  input: CreatePersonaPostInput
+  input: CreatePersonaPostInput,
 ): Promise<PersonaPost> {
   const {
     author,
@@ -50,7 +50,7 @@ export async function createPersonaPost(
       created_at
     )
     VALUES (?, ?, ?, ?, ?, ?, ?, strftime('%s','now'))
-    `
+    `,
   )
     .bind(
       author,
@@ -59,42 +59,47 @@ export async function createPersonaPost(
       attachmentsJson,
       parentPostId,
       repostOfId,
-      quoteOfId
+      quoteOfId,
     )
     .run();
 
   const postId = Number(result.meta.last_row_id);
 
-  // 집계 카운트 갱신
   const batch: D1PreparedStatement[] = [];
 
   if (parentPostId != null) {
     batch.push(
       env.DB.prepare(
-        `UPDATE persona_posts
-         SET comment_count = comment_count + 1
-         WHERE id = ?`
-      ).bind(parentPostId)
+        `
+        UPDATE persona_posts
+        SET comment_count = comment_count + 1
+        WHERE id = ?
+        `,
+      ).bind(parentPostId),
     );
   }
 
   if (repostOfId != null) {
     batch.push(
       env.DB.prepare(
-        `UPDATE persona_posts
-         SET repost_count = repost_count + 1
-         WHERE id = ?`
-      ).bind(repostOfId)
+        `
+        UPDATE persona_posts
+        SET repost_count = repost_count + 1
+        WHERE id = ?
+        `,
+      ).bind(repostOfId),
     );
   }
 
   if (quoteOfId != null) {
     batch.push(
       env.DB.prepare(
-        `UPDATE persona_posts
-         SET quote_count = quote_count + 1
-         WHERE id = ?`
-      ).bind(quoteOfId)
+        `
+        UPDATE persona_posts
+        SET quote_count = quote_count + 1
+        WHERE id = ?
+        `,
+      ).bind(quoteOfId),
     );
   }
 
@@ -103,7 +108,7 @@ export async function createPersonaPost(
   }
 
   const row = await env.DB.prepare(
-    `SELECT * FROM persona_posts WHERE id = ?`
+    `SELECT * FROM persona_posts WHERE id = ?`,
   )
     .bind(postId)
     .first<PersonaPostRow>();
@@ -116,7 +121,7 @@ export async function createPersonaPost(
 }
 
 /**
- * 포스트 수정 – 작성자 본인만, 소프트 삭제된 글은 수정 불가
+ * Update a post – only author can update, soft-deleted posts cannot be modified.
  */
 export interface UpdatePersonaPostInput {
   postId: number;
@@ -126,9 +131,9 @@ export interface UpdatePersonaPostInput {
   attachments?: PersonaPostAttachments | null;
 }
 
-export async function updatePersonaPost(
+export async function updatePersonaPostRow(
   env: Env,
-  input: UpdatePersonaPostInput
+  input: UpdatePersonaPostInput,
 ): Promise<PersonaPost | null> {
   const { postId, author, authorIp, content, attachments } = input;
 
@@ -147,9 +152,7 @@ export async function updatePersonaPost(
 
   if (attachments !== undefined) {
     sets.push("attachments = ?");
-    params.push(
-      attachments === null ? null : JSON.stringify(attachments)
-    );
+    params.push(attachments === null ? null : JSON.stringify(attachments));
   }
 
   if (sets.length === 0) {
@@ -170,12 +173,12 @@ export async function updatePersonaPost(
 
   const res = await env.DB.prepare(sql).bind(...params).run();
 
-  if (res.meta.changes === 0) {
+  if ((res.meta.changes ?? 0) === 0) {
     return null;
   }
 
   const row = await env.DB.prepare(
-    `SELECT * FROM persona_posts WHERE id = ?`
+    `SELECT * FROM persona_posts WHERE id = ?`,
   )
     .bind(postId)
     .first<PersonaPostRow>();
@@ -184,12 +187,12 @@ export async function updatePersonaPost(
 }
 
 /**
- * 포스트 삭제 – 소프트 삭제, 작성자 본인만
+ * Soft delete a post.
  */
-export async function softDeletePersonaPost(
+export async function softDeletePersonaPostRow(
   env: Env,
   postId: number,
-  author: string
+  author: string,
 ): Promise<boolean> {
   const res = await env.DB.prepare(
     `
@@ -199,20 +202,20 @@ export async function softDeletePersonaPost(
     WHERE id = ?
       AND author = ?
       AND is_deleted = 0
-    `
+    `,
   )
     .bind(postId, author)
     .run();
 
-  return res.meta.changes > 0;
+  return (res.meta.changes ?? 0) > 0;
 }
 
 /**
- * 단일 포스트 조회 (삭제된 글 제외)
+ * Get single post by id (excluding soft-deleted).
  */
-export async function getPersonaPostById(
+export async function getPersonaPostRowById(
   env: Env,
-  postId: number
+  postId: number,
 ): Promise<PersonaPost | null> {
   const row = await env.DB.prepare(
     `
@@ -220,7 +223,7 @@ export async function getPersonaPostById(
     FROM persona_posts
     WHERE id = ?
       AND is_deleted = 0
-    `
+    `,
   )
     .bind(postId)
     .first<PersonaPostRow>();
@@ -229,9 +232,7 @@ export async function getPersonaPostById(
 }
 
 /**
- * 일반 타임라인 / 프로필 타임라인 조회
- * - author 지정 시 해당 유저 글만
- * - parentPostId 지정 시 해당 글의 댓글만
+ * List posts for timeline / profile / replies.
  */
 export interface ListPersonaPostsOptions {
   author?: string;
@@ -240,16 +241,11 @@ export interface ListPersonaPostsOptions {
   offset?: number;
 }
 
-export async function listPersonaPosts(
+export async function listPersonaPostRows(
   env: Env,
-  options: ListPersonaPostsOptions = {}
+  options: ListPersonaPostsOptions = {},
 ): Promise<PersonaPost[]> {
-  const {
-    author,
-    parentPostId,
-    limit = 20,
-    offset = 0,
-  } = options;
+  const { author, parentPostId, limit = 20, offset = 0 } = options;
 
   const where: string[] = ["is_deleted = 0"];
   const params: any[] = [];
@@ -262,9 +258,6 @@ export async function listPersonaPosts(
   if (parentPostId !== undefined) {
     where.push("parent_post_id = ?");
     params.push(parentPostId);
-  } else {
-    // 기본 타임라인에서는 "루트 포스트"만 보여주고 싶으면 아래 주석 해제
-    // where.push("parent_post_id IS NULL");
   }
 
   const sql = `
@@ -282,17 +275,17 @@ export async function listPersonaPosts(
     .bind(...params)
     .all<PersonaPostRow>();
 
-  return rows.results.map(rowToPersonaPost);
+  return (rows.results ?? []).map(rowToPersonaPost);
 }
 
 /**
- * 포스트 + 댓글 한번에 조회
+ * Get a post with its direct replies.
  */
-export async function getPersonaPostWithReplies(
+export async function getPersonaPostRowWithReplies(
   env: Env,
-  postId: number
+  postId: number,
 ): Promise<{ post: PersonaPost; replies: PersonaPost[] } | null> {
-  const post = await getPersonaPostById(env, postId);
+  const post = await getPersonaPostRowById(env, postId);
   if (!post) return null;
 
   const replyRows = await env.DB.prepare(
@@ -302,128 +295,140 @@ export async function getPersonaPostWithReplies(
     WHERE parent_post_id = ?
       AND is_deleted = 0
     ORDER BY created_at ASC
-    `
+    `,
   )
     .bind(postId)
     .all<PersonaPostRow>();
 
-  const replies = replyRows.results.map(rowToPersonaPost);
+  const replies = (replyRows.results ?? []).map(rowToPersonaPost);
 
   return { post, replies };
 }
 
 /**
- * 좋아요 / 좋아요 취소 / 북마크 / 북마크 취소
+ * Like / unlike / bookmark / unbookmark helpers.
  */
 
-export async function likePersonaPost(
+export async function likePersonaPostRow(
   env: Env,
   postId: number,
-  account: string
-): Promise<void> {
+  account: string,
+): Promise<boolean> {
   const insert = await env.DB.prepare(
     `
     INSERT OR IGNORE INTO persona_post_likes (post_id, account)
     VALUES (?, ?)
-    `
+    `,
   )
     .bind(postId, account)
     .run();
 
-  if (insert.meta.changes === 1) {
+  if ((insert.meta.changes ?? 0) === 1) {
     await env.DB.prepare(
       `
       UPDATE persona_posts
       SET like_count = like_count + 1
       WHERE id = ?
-      `
+      `,
     )
       .bind(postId)
       .run();
+
+    return true;
   }
+  return false;
 }
 
-export async function unlikePersonaPost(
+export async function unlikePersonaPostRow(
   env: Env,
   postId: number,
-  account: string
-): Promise<void> {
+  account: string,
+): Promise<boolean> {
   const del = await env.DB.prepare(
     `
     DELETE FROM persona_post_likes
     WHERE post_id = ?
       AND account = ?
-    `
+    `,
   )
     .bind(postId, account)
     .run();
 
-  if (del.meta.changes === 1) {
+  if ((del.meta.changes ?? 0) === 1) {
     await env.DB.prepare(
       `
       UPDATE persona_posts
       SET like_count =
         CASE WHEN like_count > 0 THEN like_count - 1 ELSE 0 END
       WHERE id = ?
-      `
+      `,
     )
       .bind(postId)
       .run();
+
+    return true;
   }
+  return false;
 }
 
-export async function bookmarkPersonaPost(
+export async function bookmarkPersonaPostRow(
   env: Env,
   postId: number,
-  account: string
-): Promise<void> {
+  account: string,
+): Promise<boolean> {
   const insert = await env.DB.prepare(
     `
     INSERT OR IGNORE INTO persona_post_bookmarks (post_id, account)
     VALUES (?, ?)
-    `
+    `,
   )
     .bind(postId, account)
     .run();
 
-  if (insert.meta.changes === 1) {
+  if ((insert.meta.changes ?? 0) === 1) {
     await env.DB.prepare(
       `
       UPDATE persona_posts
       SET bookmark_count = bookmark_count + 1
       WHERE id = ?
-      `
+      `,
     )
       .bind(postId)
       .run();
+
+    return true;
   }
+  return false;
 }
 
-export async function unbookmarkPersonaPost(
+export async function unbookmarkPersonaPostRow(
   env: Env,
   postId: number,
-  account: string
-): Promise<void> {
+  account: string,
+): Promise<boolean> {
   const del = await env.DB.prepare(
     `
     DELETE FROM persona_post_bookmarks
     WHERE post_id = ?
       AND account = ?
-    `
+    `,
   )
     .bind(postId, account)
     .run();
 
-  if (del.meta.changes === 1) {
+  if ((del.meta.changes ?? 0) === 1) {
     await env.DB.prepare(
       `
       UPDATE persona_posts
       SET bookmark_count =
         CASE WHEN bookmark_count > 0 THEN bookmark_count - 1 ELSE 0 END
       WHERE id = ?
-      `
+      `,
     )
       .bind(postId)
       .run();
+
+    return true;
   }
+  return false;
 }

@@ -5,6 +5,7 @@ import {
   Hex,
   http,
   keccak256,
+  parseEther,
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { base, baseSepolia } from 'viem/chains';
@@ -84,9 +85,6 @@ export async function handlePersonaHoldingReward(
     const holdingRewardsAddress = env.PERSONA_FRAGMENTS_ADDRESS as `0x${string}`;
     const signerKey = env.HOLDING_VERIFIER_PRIVATE_KEY as `0x${string}`;
 
-    // 기본 리워드 비율 (1e18 = 100%)
-    const defaultRewardRatioStr = '0';
-
     if (!holdingRewardsAddress || !signerKey) {
       return jsonWithCors(
         {
@@ -98,18 +96,8 @@ export async function handlePersonaHoldingReward(
       );
     }
 
-    let rewardRatio: bigint;
-    try {
-      rewardRatio = BigInt(defaultRewardRatioStr);
-    } catch {
-      return jsonWithCors(
-        {
-          ok: false,
-          error: 'Invalid DEFAULT_HOLDING_REWARD_RATIO in env',
-        },
-        500,
-      );
-    }
+    //TODO: 리워드 비율 (1e18 = 100%), 추후 보유한 자산 수량을 바탕으로 계산하도록 수정하기
+    const rewardRatio = parseEther('0');
 
     // side 에 따라 비율을 다르게 주고 싶으면 여기에서 분기
     const _side: HoldingRewardSide = side;
