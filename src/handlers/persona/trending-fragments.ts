@@ -1,7 +1,20 @@
 import { jsonWithCors } from '@gaiaprotocol/worker-common';
+import type { ExploreSortKey } from '../../db/persona/fragments';
 import { listTrendingPersonaFragmentsService } from '../../services/persona/fragments';
 import { TrendingPersonaFragment } from '../../types/persona-fragments';
 import { getPersonaProfile } from '../persona-profile';
+
+function normalizeSortKey(raw: string | null): ExploreSortKey {
+  switch (raw) {
+    case 'holders':
+    case 'volume':
+    case 'price':
+      return raw;
+    case 'trending':
+    default:
+      return 'trending';
+  }
+}
 
 export async function handleTrendingPersonaFragments(
   request: Request,
@@ -10,9 +23,12 @@ export async function handleTrendingPersonaFragments(
   try {
     const url = new URL(request.url);
     const limitParam = url.searchParams.get('limit');
-    const limit = Math.min(Math.max(Number(limitParam) || 6, 1), 24);
+    const sortParam = url.searchParams.get('sort');
 
-    const base = await listTrendingPersonaFragmentsService(env, limit);
+    const limit = Math.min(Math.max(Number(limitParam) || 6, 1), 100);
+    const sortKey = normalizeSortKey(sortParam);
+
+    const base = await listTrendingPersonaFragmentsService(env, limit, sortKey);
 
     const enriched: TrendingPersonaFragment[] = await Promise.all(
       base.map(async (row) => {
@@ -32,6 +48,8 @@ export async function handleTrendingPersonaFragments(
           holderCount: row.holderCount,
           lastPrice: row.lastPrice,
           lastBlockNumber: row.lastBlockNumber,
+          volume24hWei: row.volume24hWei,
+          change24hPct: row.change24hPct,
         };
       }),
     );

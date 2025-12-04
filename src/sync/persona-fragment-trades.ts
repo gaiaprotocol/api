@@ -30,6 +30,18 @@ type HolderState = {
   lastLogIndex: number;
 };
 
+type OhlcvBucketAgg = {
+  bucketStart: number;
+  openPrice: bigint;
+  highPrice: bigint;
+  lowPrice: bigint;
+  closePrice: bigint;
+  volume: bigint;
+  buyVolume: bigint;
+  sellVolume: bigint;
+  tradeCount: number;
+};
+
 /**
  * Sync TradeExecuted events from the PersonaFragments contract.
  *
@@ -58,7 +70,12 @@ type HolderState = {
  *     - holder_count is computed inside SQL via:
  *         (SELECT COUNT(*) FROM persona_fragment_holders WHERE persona_address = ?)
  *
- * - All writes (trades + holders + persona snapshots + sync-status) are
+ * - For persona_fragment_ohlcv_1h:
+ *     - Aggregate trades into 1-hour buckets per persona.
+ *     - For each (persona, bucket_start), merge with existing row if present
+ *       and upsert final OHLCV values.
+ *
+ * - All writes (trades + holders + persona snapshots + OHLCV + sync-status) are
  *   executed in a single DB.batch() call so the whole sync is transactional.
  */
 export async function syncPersonaFragmentTrades(env: Env): Promise<void> {
@@ -137,9 +154,12 @@ export async function syncPersonaFragmentTrades(env: Env): Promise<void> {
   // Personas affected by trades in this batch (for persona_fragments updates)
   const affectedPersonas = new Set<string>();
 
+  // personaAddress -> (bucketStart -> OhlcvBucketAgg)
+  const ohlcvAgg = new Map<string, Map<number, OhlcvBucketAgg>>();
+
   // ------------------------------------------------------------------
   // 4. First pass: filter logs, track final holder balances & persona snapshots,
-  //    and collect trade INSERTs.
+  //    collect trade INSERTs, and aggregate OHLCV buckets.
   // ------------------------------------------------------------------
   for (const log of logs) {
     const blockNumber = log.blockNumber;
@@ -179,6 +199,10 @@ export async function syncPersonaFragmentTrades(env: Env): Promise<void> {
     const numericBlock = Number(blockNumber);
     const numericLogIndex = Number(logIndex);
 
+    const amountBig = amount as bigint;
+    const priceBig = price as bigint;
+    const isBuyBool = Boolean(isBuy);
+
     // 4-1. Prepare trade history INSERT (includes trader_balance_after)
     tradeStatements.push(
       env.DB.prepare(
@@ -195,9 +219,9 @@ export async function syncPersonaFragmentTrades(env: Env): Promise<void> {
         blockTimestamp,
         personaAddress,
         traderAddress,
-        isBuy ? 1 : 0,
-        (amount as bigint).toString(),
-        (price as bigint).toString(),
+        isBuyBool ? 1 : 0,
+        amountBig.toString(),
+        priceBig.toString(),
         (protocolFee as bigint).toString(),
         (personaFee as bigint).toString(),
         (holdingReward as bigint).toString(),
@@ -216,8 +240,8 @@ export async function syncPersonaFragmentTrades(env: Env): Promise<void> {
     const existingHolderState = holderMap.get(traderAddress);
     const newState: HolderState = {
       finalBalance: traderBalance as bigint,
-      lastTradePrice: price as bigint,
-      lastTradeIsBuy: isBuy ? 1 : 0,
+      lastTradePrice: priceBig,
+      lastTradeIsBuy: isBuyBool ? 1 : 0,
       lastBlockNumber: blockNumber,
       lastLogIndex: numericLogIndex,
     };
@@ -236,8 +260,8 @@ export async function syncPersonaFragmentTrades(env: Env): Promise<void> {
     const existingSnapshot = personaSnapshots.get(personaAddress);
     const snapshotCandidate: PersonaSnapshot = {
       supplyAfter: supply as bigint,
-      lastPrice: price as bigint,
-      lastIsBuy: isBuy ? 1 : 0,
+      lastPrice: priceBig,
+      lastIsBuy: isBuyBool ? 1 : 0,
       lastBlockNumber: numericBlock,
       lastLogIndex: numericLogIndex,
       lastTxHash: txHash,
@@ -252,6 +276,48 @@ export async function syncPersonaFragmentTrades(env: Env): Promise<void> {
         numericLogIndex > existingSnapshot.lastLogIndex)
     ) {
       personaSnapshots.set(personaAddress, snapshotCandidate);
+    }
+
+    // 4-4. Aggregate 1-hour OHLCV buckets
+    const bucketStart = Math.floor(blockTimestamp / 3600) * 3600; // 1h bucket
+
+    let perPersonaBuckets = ohlcvAgg.get(personaAddress);
+    if (!perPersonaBuckets) {
+      perPersonaBuckets = new Map<number, OhlcvBucketAgg>();
+      ohlcvAgg.set(personaAddress, perPersonaBuckets);
+    }
+
+    let bucket = perPersonaBuckets.get(bucketStart);
+    const tradeValue = amountBig * priceBig;
+
+    if (!bucket) {
+      bucket = {
+        bucketStart,
+        openPrice: priceBig,
+        highPrice: priceBig,
+        lowPrice: priceBig,
+        closePrice: priceBig,
+        volume: tradeValue,
+        buyVolume: isBuyBool ? tradeValue : 0n,
+        sellVolume: isBuyBool ? 0n : tradeValue,
+        tradeCount: 1,
+      };
+      perPersonaBuckets.set(bucketStart, bucket);
+    } else {
+      // 가격
+      bucket.closePrice = priceBig;
+      if (priceBig > bucket.highPrice) bucket.highPrice = priceBig;
+      if (priceBig < bucket.lowPrice) bucket.lowPrice = priceBig;
+
+      // 볼륨
+      bucket.volume += tradeValue;
+      if (isBuyBool) {
+        bucket.buyVolume += tradeValue;
+      } else {
+        bucket.sellVolume += tradeValue;
+      }
+
+      bucket.tradeCount += 1;
     }
   }
 
@@ -351,7 +417,118 @@ export async function syncPersonaFragmentTrades(env: Env): Promise<void> {
   }
 
   // ------------------------------------------------------------------
-  // 7. Build sync-status statement (to be included in the same batch)
+  // 7. Build OHLCV (1h) upserts for persona_fragment_ohlcv_1h
+  // ------------------------------------------------------------------
+  const ohlcvStatements: D1PreparedStatement[] = [];
+
+  for (const [personaAddress, buckets] of ohlcvAgg.entries()) {
+    for (const [bucketStart, agg] of buckets.entries()) {
+      // 기존 버킷이 있다면 가져와서 병합
+      const existing = await env.DB
+        .prepare(
+          `SELECT
+             open_price,
+             high_price,
+             low_price,
+             close_price,
+             volume_wei,
+             buy_volume_wei,
+             sell_volume_wei,
+             trade_count
+           FROM persona_fragment_ohlcv_1h
+           WHERE persona_address = ? AND bucket_start = ?`
+        )
+        .bind(personaAddress, bucketStart)
+        .first<{
+          open_price: string | null;
+          high_price: string | null;
+          low_price: string | null;
+          close_price: string | null;
+          volume_wei: string;
+          buy_volume_wei: string;
+          sell_volume_wei: string;
+          trade_count: number;
+        } | null>();
+
+      let finalOpen = agg.openPrice;
+      let finalHigh = agg.highPrice;
+      let finalLow = agg.lowPrice;
+      let finalClose = agg.closePrice;
+      let finalVolume = agg.volume;
+      let finalBuyVolume = agg.buyVolume;
+      let finalSellVolume = agg.sellVolume;
+      let finalTradeCount = agg.tradeCount;
+
+      if (existing) {
+        // open_price는 기존 값 유지 (시간 상 앞선 트레이드일 가능성이 높음)
+        if (existing.open_price !== null) {
+          finalOpen = BigInt(existing.open_price);
+        }
+
+        if (existing.high_price !== null) {
+          const exHigh = BigInt(existing.high_price);
+          if (exHigh > finalHigh) finalHigh = exHigh;
+        }
+
+        if (existing.low_price !== null) {
+          const exLow = BigInt(existing.low_price);
+          if (exLow < finalLow) finalLow = exLow;
+        }
+
+        if (existing.close_price !== null) {
+          // 기존 close는 지난번 sync의 마지막 트레이드,
+          // 이번 batch의 close가 더 뒤에 오므로 그대로 agg.closePrice 사용
+          // (따로 비교할 필요 없이 '새로운 마지막'으로 덮어씀)
+          // finalClose는 이미 agg.closePrice
+        }
+
+        finalVolume += BigInt(existing.volume_wei);
+        finalBuyVolume += BigInt(existing.buy_volume_wei);
+        finalSellVolume += BigInt(existing.sell_volume_wei);
+        finalTradeCount += existing.trade_count;
+      }
+
+      ohlcvStatements.push(
+        env.DB.prepare(
+          `INSERT INTO persona_fragment_ohlcv_1h (
+             persona_address,
+             bucket_start,
+             open_price,
+             high_price,
+             low_price,
+             close_price,
+             volume_wei,
+             buy_volume_wei,
+             sell_volume_wei,
+             trade_count
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+           ON CONFLICT(persona_address, bucket_start) DO UPDATE SET
+             open_price      = excluded.open_price,
+             high_price      = excluded.high_price,
+             low_price       = excluded.low_price,
+             close_price     = excluded.close_price,
+             volume_wei      = excluded.volume_wei,
+             buy_volume_wei  = excluded.buy_volume_wei,
+             sell_volume_wei = excluded.sell_volume_wei,
+             trade_count     = excluded.trade_count`
+        ).bind(
+          personaAddress,
+          bucketStart,
+          finalOpen.toString(),
+          finalHigh.toString(),
+          finalLow.toString(),
+          finalClose.toString(),
+          finalVolume.toString(),
+          finalBuyVolume.toString(),
+          finalSellVolume.toString(),
+          finalTradeCount
+        )
+      );
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // 8. Build sync-status statement (to be included in the same batch)
   // ------------------------------------------------------------------
   const syncStatusStatement = buildSyncStatusStatement(
     env,
@@ -360,16 +537,18 @@ export async function syncPersonaFragmentTrades(env: Env): Promise<void> {
   );
 
   // ------------------------------------------------------------------
-  // 8. Execute all mutations in a single batch/transaction:
+  // 9. Execute all mutations in a single batch/transaction:
   //     - trades
   //     - holder balances (incl. last_trade_price/is_buy)
   //     - persona snapshots
+  //     - OHLCV 1h buckets
   //     - sync checkpoint
   // ------------------------------------------------------------------
   const statements: D1PreparedStatement[] = [
     ...tradeStatements,
     ...holderStatements,
     ...personaStatements,
+    ...ohlcvStatements,
     syncStatusStatement,
   ];
 

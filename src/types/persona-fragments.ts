@@ -83,14 +83,18 @@ export function rowToPersonaFragmentHolding(
   };
 }
 
-export interface TrendingPersonaFragment {
-  personaAddress: string;     // 0x...
-  name: string;               // profile nickname or shortened address
-  currentSupply: string;      // uint256 as string
+export type TrendingPersonaFragment = {
+  personaAddress: `0x${string}`;
+  name: string;              // handler에서 profile nickname or address
+  currentSupply: string;
   holderCount: number;
-  lastPrice: string;          // wei as string
+  lastPrice: string;
   lastBlockNumber: number;
-}
+
+  // 새로 추가된 필드들
+  volume24hWei: string;      // 24h volume in wei (string)
+  change24hPct: number | null; // 24h price change in percent (e.g. 12.34)
+};
 
 export interface TrendingPersonaFragmentsResponse {
   personas: TrendingPersonaFragment[];
