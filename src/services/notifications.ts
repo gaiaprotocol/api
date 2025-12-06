@@ -1,5 +1,6 @@
 import {
   NotificationRow,
+  NotificationRowWithProfiles,
   NotificationUnreadCounterRow,
   ensureUnreadCounterRow,
   getUnreadCounterRow,
@@ -11,9 +12,19 @@ import {
 
 export interface Notification {
   id: number;
+
+  // recipient 정보
   recipient: string;
+  recipientNickname: string | null;
+  recipientAvatarUrl: string | null;
+
+  // actor 정보
   actor: string | null;
   actorType: string | null;
+  actorNickname: string | null;
+  actorAvatarUrl: string | null;
+
+  // 기타 메타
   notificationType: string;
   targetId: string | null;
   metadata: any | null;
@@ -73,6 +84,7 @@ export async function createNotification(
     createdAt,
   });
 
+  // 생성 직후에는 profile JOIN 이 없으므로 nickname/avatar 는 null
   return mapRowToNotification(row);
 }
 
@@ -211,12 +223,34 @@ export async function markAllNotificationsAsRead(
 
 /* ----------------- internal helpers ----------------- */
 
-function mapRowToNotification(row: NotificationRow): Notification {
+function mapRowToNotification(
+  row: NotificationRow | NotificationRowWithProfiles,
+): Notification {
+  const withProfiles = row as NotificationRowWithProfiles;
+
   return {
     id: row.id,
     recipient: row.recipient,
+    recipientNickname:
+      typeof withProfiles.recipient_nickname === "string"
+        ? withProfiles.recipient_nickname
+        : null,
+    recipientAvatarUrl:
+      typeof withProfiles.recipient_avatar_url === "string"
+        ? withProfiles.recipient_avatar_url
+        : null,
+
     actor: row.actor,
     actorType: row.actor_type,
+    actorNickname:
+      typeof withProfiles.actor_nickname === "string"
+        ? withProfiles.actor_nickname
+        : null,
+    actorAvatarUrl:
+      typeof withProfiles.actor_avatar_url === "string"
+        ? withProfiles.actor_avatar_url
+        : null,
+
     notificationType: row.notification_type,
     targetId: row.target_id,
     metadata: row.metadata ? safeParseJSON(row.metadata) : null,

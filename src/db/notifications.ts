@@ -14,6 +14,13 @@ export interface NotificationRow {
   created_at: number;
 }
 
+export interface NotificationRowWithProfiles extends NotificationRow {
+  actor_nickname: string | null;
+  actor_avatar_url: string | null;
+  recipient_nickname: string | null;
+  recipient_avatar_url: string | null;
+}
+
 export interface NotificationUnreadCounterRow {
   recipient: string;
   unread_count: number;
@@ -97,24 +104,43 @@ export async function insertNotificationWithUnreadCounter(
 
 /**
  * List notifications for a recipient, newest first.
+ *  - actor / recipient 의 profile 정보를 LEFT JOIN 해서 함께 반환
  */
 export async function listNotificationsByRecipient(
   env: Env,
   params: { recipient: string; limit: number; offset: number },
-): Promise<NotificationRow[]> {
+): Promise<NotificationRowWithProfiles[]> {
   const { recipient, limit, offset } = params;
 
   const res = await env.DB.prepare(
     `
-    SELECT *
-    FROM ${NOTIFICATIONS_TABLE}
-    WHERE recipient = ?
-    ORDER BY created_at DESC, id DESC
+    SELECT
+      n.id,
+      n.recipient,
+      n.actor,
+      n.actor_type,
+      n.notification_type,
+      n.target_id,
+      n.metadata,
+      n.is_read,
+      n.read_at,
+      n.created_at,
+      ap.nickname  AS actor_nickname,
+      ap.avatar_url AS actor_avatar_url,
+      rp.nickname  AS recipient_nickname,
+      rp.avatar_url AS recipient_avatar_url
+    FROM ${NOTIFICATIONS_TABLE} n
+    LEFT JOIN profiles ap
+      ON ap.account = n.actor
+    LEFT JOIN profiles rp
+      ON rp.account = n.recipient
+    WHERE n.recipient = ?
+    ORDER BY n.created_at DESC, n.id DESC
     LIMIT ? OFFSET ?
     `,
   )
     .bind(recipient, limit, offset)
-    .all<NotificationRow>();
+    .all<NotificationRowWithProfiles>();
 
   return res.results ?? [];
 }

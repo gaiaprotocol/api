@@ -20,6 +20,7 @@ export async function handlePersonaPostWithReplies(request: Request, env: Env) {
       return jsonWithCors({ error: 'Post not found' }, 404);
     }
 
+    // result.post / result.replies 각각 authorNickname / authorAvatarUrl 포함
     return jsonWithCors(result, 200);
   } catch (err) {
     console.error('[handlePersonaPostWithReplies] error', err);

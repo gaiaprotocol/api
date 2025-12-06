@@ -15,6 +15,7 @@ import { createNotificationWithEnv } from "../notifications";
 
 /**
  * Create a post and emit appropriate notifications.
+ *  - 반환되는 post 에는 authorNickname / authorAvatarUrl 포함
  */
 export async function createPersonaPostService(
   env: Env,
@@ -73,6 +74,7 @@ export async function createPersonaPostService(
 
 /**
  * Update / delete wrappers (no notifications for now).
+ *  - update 시에도 authorNickname / authorAvatarUrl 포함된 post 반환
  */
 export const updatePersonaPostService = updatePersonaPostRow;
 export const softDeletePersonaPostService = softDeletePersonaPostRow;

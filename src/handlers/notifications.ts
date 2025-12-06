@@ -17,7 +17,22 @@ import {
  *
  * Response:
  *  {
- *    notifications: Notification[],
+ *    notifications: Array<{
+ *      id: number;
+ *      recipient: string;
+ *      recipientNickname: string | null;
+ *      recipientAvatarUrl: string | null;
+ *      actor: string | null;
+ *      actorType: string | null;
+ *      actorNickname: string | null;
+ *      actorAvatarUrl: string | null;
+ *      notificationType: string;
+ *      targetId: string | null;
+ *      metadata: any | null;
+ *      isRead: boolean;
+ *      readAt: number | null;
+ *      createdAt: number;
+ *    }>,
  *    nextCursor: number | null,
  *    unreadCount: number
  *  }
@@ -66,6 +81,7 @@ export async function handleListNotifications(request: Request, env: Env) {
       recipient,
       limit,
       cursorCreatedAt: cursor ?? null,
+      // 현재는 offset 기반이지만, 외부에서 offset 으로 변환해서 넘기는 식으로 사용 가능
     });
 
     const nextCursor =
@@ -125,6 +141,9 @@ export async function handleUnreadNotificationCount(
  *
  * Body:
  *  { id: number }
+ *
+ * Response:
+ *  { ok: true, unreadCount: number }
  */
 export async function handleMarkNotificationRead(
   request: Request,
@@ -180,6 +199,9 @@ export async function handleMarkNotificationRead(
  *
  * Body (optional):
  *  { upToCreatedAt?: number }  // UNIX seconds; default = now
+ *
+ * Response:
+ *  { ok: true, unreadCount: number }
  */
 export async function handleMarkAllNotificationsRead(
   request: Request,

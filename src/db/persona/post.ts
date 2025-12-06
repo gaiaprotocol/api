@@ -1,8 +1,8 @@
 import {
   PersonaPost,
   PersonaPostAttachments,
-  PersonaPostRow,
-  rowToPersonaPost,
+  PersonaPostRowWithProfile,
+  rowToPersonaPost
 } from "../../types/post";
 
 /**
@@ -107,11 +107,21 @@ export async function insertPersonaPost(
     await env.DB.batch(batch);
   }
 
+  // 생성된 포스트를 작성자 프로필 포함해서 다시 조회
   const row = await env.DB.prepare(
-    `SELECT * FROM persona_posts WHERE id = ?`,
+    `
+    SELECT
+      p.*,
+      pr.nickname   AS author_nickname,
+      pr.avatar_url AS author_avatar_url
+    FROM persona_posts p
+    LEFT JOIN profiles pr
+      ON pr.account = p.author
+    WHERE p.id = ?
+    `,
   )
     .bind(postId)
-    .first<PersonaPostRow>();
+    .first<PersonaPostRowWithProfile>();
 
   if (!row) {
     throw new Error("Failed to fetch created post");
@@ -178,10 +188,19 @@ export async function updatePersonaPostRow(
   }
 
   const row = await env.DB.prepare(
-    `SELECT * FROM persona_posts WHERE id = ?`,
+    `
+    SELECT
+      p.*,
+      pr.nickname   AS author_nickname,
+      pr.avatar_url AS author_avatar_url
+    FROM persona_posts p
+    LEFT JOIN profiles pr
+      ON pr.account = p.author
+    WHERE p.id = ?
+    `,
   )
     .bind(postId)
-    .first<PersonaPostRow>();
+    .first<PersonaPostRowWithProfile>();
 
   return row ? rowToPersonaPost(row) : null;
 }
@@ -212,6 +231,7 @@ export async function softDeletePersonaPostRow(
 
 /**
  * Get single post by id (excluding soft-deleted).
+ *  - 작성자 프로필 포함
  */
 export async function getPersonaPostRowById(
   env: Env,
@@ -219,20 +239,26 @@ export async function getPersonaPostRowById(
 ): Promise<PersonaPost | null> {
   const row = await env.DB.prepare(
     `
-    SELECT *
-    FROM persona_posts
-    WHERE id = ?
-      AND is_deleted = 0
+    SELECT
+      p.*,
+      pr.nickname   AS author_nickname,
+      pr.avatar_url AS author_avatar_url
+    FROM persona_posts p
+    LEFT JOIN profiles pr
+      ON pr.account = p.author
+    WHERE p.id = ?
+      AND p.is_deleted = 0
     `,
   )
     .bind(postId)
-    .first<PersonaPostRow>();
+    .first<PersonaPostRowWithProfile>();
 
   return row ? rowToPersonaPost(row) : null;
 }
 
 /**
  * List posts for timeline / profile / replies.
+ *  - 작성자 프로필 포함
  */
 export interface ListPersonaPostsOptions {
   author?: string;
@@ -247,24 +273,29 @@ export async function listPersonaPostRows(
 ): Promise<PersonaPost[]> {
   const { author, parentPostId, limit = 20, offset = 0 } = options;
 
-  const where: string[] = ["is_deleted = 0"];
+  const where: string[] = ["p.is_deleted = 0"];
   const params: any[] = [];
 
   if (author) {
-    where.push("author = ?");
+    where.push("p.author = ?");
     params.push(author);
   }
 
   if (parentPostId !== undefined) {
-    where.push("parent_post_id = ?");
+    where.push("p.parent_post_id = ?");
     params.push(parentPostId);
   }
 
   const sql = `
-    SELECT *
-    FROM persona_posts
+    SELECT
+      p.*,
+      pr.nickname   AS author_nickname,
+      pr.avatar_url AS author_avatar_url
+    FROM persona_posts p
+    LEFT JOIN profiles pr
+      ON pr.account = p.author
     WHERE ${where.join(" AND ")}
-    ORDER BY created_at DESC
+    ORDER BY p.created_at DESC
     LIMIT ?
     OFFSET ?
   `;
@@ -273,13 +304,14 @@ export async function listPersonaPostRows(
 
   const rows = await env.DB.prepare(sql)
     .bind(...params)
-    .all<PersonaPostRow>();
+    .all<PersonaPostRowWithProfile>();
 
   return (rows.results ?? []).map(rowToPersonaPost);
 }
 
 /**
  * Get a post with its direct replies.
+ *  - post / replies 모두 작성자 프로필 포함
  */
 export async function getPersonaPostRowWithReplies(
   env: Env,
@@ -290,15 +322,20 @@ export async function getPersonaPostRowWithReplies(
 
   const replyRows = await env.DB.prepare(
     `
-    SELECT *
-    FROM persona_posts
-    WHERE parent_post_id = ?
-      AND is_deleted = 0
-    ORDER BY created_at ASC
+    SELECT
+      p.*,
+      pr.nickname   AS author_nickname,
+      pr.avatar_url AS author_avatar_url
+    FROM persona_posts p
+    LEFT JOIN profiles pr
+      ON pr.account = p.author
+    WHERE p.parent_post_id = ?
+      AND p.is_deleted = 0
+    ORDER BY p.created_at ASC
     `,
   )
     .bind(postId)
-    .all<PersonaPostRow>();
+    .all<PersonaPostRowWithProfile>();
 
   const replies = (replyRows.results ?? []).map(rowToPersonaPost);
 

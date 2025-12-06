@@ -27,6 +27,7 @@ export async function handleListPersonaPosts(request: Request, env: Env) {
       offset: parsed.offset,
     });
 
+    // 각 post 객체에 authorNickname / authorAvatarUrl 포함
     return jsonWithCors({ posts }, 200);
   } catch (err) {
     console.error('[handleListPersonaPosts] error', err);
