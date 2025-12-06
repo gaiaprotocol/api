@@ -36,6 +36,7 @@ export async function handleHeldPersonaFragments(
       holderAddress,
     );
 
+    // 🔥 holdings 안에 각 persona 의 name, avatarUrl 이 포함되어 있음
     return jsonWithCors({ holdings });
   } catch (err) {
     console.error('[handleHeldPersonaFragments] error', err);

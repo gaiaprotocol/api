@@ -1,3 +1,5 @@
+drop table persona_chat_messages;
+
 -- ======================================
 -- persona_chat_messages
 --  - One implicit chat room per persona_address
@@ -21,7 +23,7 @@ CREATE TABLE IF NOT EXISTS persona_chat_messages (
   reaction_counts   TEXT,                  -- JSON map: reaction_type -> count
 
   created_at        INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-  edited_at         INTEGER,
+  updated_at        INTEGER,
   is_deleted        INTEGER NOT NULL DEFAULT 0,
   deleted_at        INTEGER,
 

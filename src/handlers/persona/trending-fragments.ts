@@ -1,8 +1,8 @@
 import { jsonWithCors } from '@gaiaprotocol/worker-common';
 import type { ExploreSortKey } from '../../db/persona/fragments';
+import { fetchProfileByAddress } from '../../db/profile';
 import { listTrendingPersonaFragmentsService } from '../../services/persona/fragments';
 import { TrendingPersonaFragment } from '../../types/persona-fragments';
-import { getPersonaProfile } from '../persona-profile';
 
 function normalizeSortKey(raw: string | null): ExploreSortKey {
   switch (raw) {
@@ -33,10 +33,11 @@ export async function handleTrendingPersonaFragments(
     const enriched: TrendingPersonaFragment[] = await Promise.all(
       base.map(async (row) => {
         let displayName: string = row.personaAddress;
+        let avatarUrl: string | null = null;
         try {
-          const result = await getPersonaProfile(env, row.personaAddress);
-          const p = result?.profile;
+          const p = await fetchProfileByAddress(env, row.personaAddress);
           if (p?.nickname) displayName = p.nickname;
+          if (p?.avatarUrl) avatarUrl = p.avatarUrl;
         } catch {
           // ignore profile errors and keep address as name
         }
@@ -44,6 +45,7 @@ export async function handleTrendingPersonaFragments(
         return {
           personaAddress: row.personaAddress,
           name: displayName,
+          avatarUrl,
           currentSupply: row.currentSupply,
           holderCount: row.holderCount,
           lastPrice: row.lastPrice,

@@ -1,3 +1,7 @@
+// -----------------------------
+// 기본 persona_fragments 타입
+// -----------------------------
+
 /**
  * DB row 타입 (컬럼명 그대로)
  */
@@ -34,7 +38,7 @@ export interface PersonaFragments {
  * Row → 도메인 객체 변환
  */
 export function rowToPersonaFragments(
-  row: PersonaFragmentsRow
+  row: PersonaFragmentsRow,
 ): PersonaFragments {
   return {
     personaAddress: row.persona_address,
@@ -50,28 +54,42 @@ export function rowToPersonaFragments(
   };
 }
 
+// -----------------------------
+// holdings (내가 가진 조각들)
+// -----------------------------
+
 export type PersonaFragmentHolding = PersonaFragments & {
   balance: string;
   lastTradePrice: string | null;
   lastTradeIsBuy: 0 | 1 | null;
   holderUpdatedAt: number;
+
+  /** 🔥 프로필 닉네임 + 아바타 (profiles 테이블에서 join) */
+  name: string | null;
+  avatarUrl: string | null;
 };
 
 /**
  * holdings용 DB row 타입
- * (persona_fragments JOIN persona_fragment_holders 등에서 나오는 형태라고 가정)
+ * persona_fragments JOIN persona_fragment_holders + profiles 에서 나오는 형태
  */
 export interface PersonaFragmentHoldingRow extends PersonaFragmentsRow {
   balance: string;
   last_trade_price: string | null;
   last_trade_is_buy: 0 | 1 | null;
   holder_updated_at: number;
+
+  // profiles 조인 결과
+  persona_nickname: string | null;
+  persona_avatar_url: string | null;
 }
 
+/**
+ * holdings row → 도메인 객체 변환
+ */
 export function rowToPersonaFragmentHolding(
   row: PersonaFragmentHoldingRow,
 ): PersonaFragmentHolding {
-  // 공통 fragments 부분은 기존 rowToPersonaFragments 재사용
   const fragments: PersonaFragments = rowToPersonaFragments(row);
 
   return {
@@ -80,19 +98,27 @@ export function rowToPersonaFragmentHolding(
     lastTradePrice: row.last_trade_price,
     lastTradeIsBuy: row.last_trade_is_buy,
     holderUpdatedAt: row.holder_updated_at,
+
+    // 🔥 nickname이 있으면 그걸, 없으면 주소를 name으로
+    name: row.persona_nickname ?? row.persona_address,
+    avatarUrl: row.persona_avatar_url,
   };
 }
 
+// -----------------------------
+// 트렌딩 / explore용 타입
+// -----------------------------
+
 export type TrendingPersonaFragment = {
   personaAddress: `0x${string}`;
-  name: string;              // handler에서 profile nickname or address
+  name: string;                // handler에서 profile nickname or address 주입
   currentSupply: string;
   holderCount: number;
   lastPrice: string;
   lastBlockNumber: number;
 
   // 새로 추가된 필드들
-  volume24hWei: string;      // 24h volume in wei (string)
+  volume24hWei: string;        // 24h volume in wei (string)
   change24hPct: number | null; // 24h price change in percent (e.g. 12.34)
 };
 

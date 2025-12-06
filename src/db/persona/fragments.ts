@@ -45,6 +45,7 @@ export async function queryPersonaFragmentsByAddress(
 
 /**
  * Fetch all persona fragments held by a holder.
+ *  - 🔥 profiles 를 LEFT JOIN 해서 persona 닉네임 + 아바타 포함
  */
 export async function queryHeldPersonaFragmentsForHolder(
   env: Env,
@@ -63,10 +64,14 @@ export async function queryHeldPersonaFragmentsForHolder(
       pf.last_is_buy,
       pf.last_block_number,
       pf.last_tx_hash,
-      pf.last_updated_at
+      pf.last_updated_at,
+      p.nickname          AS persona_nickname,
+      p.avatar_url        AS persona_avatar_url
     FROM persona_fragment_holders ph
     JOIN persona_fragments pf
       ON pf.persona_address = ph.persona_address
+    LEFT JOIN profiles p
+      ON p.account = ph.persona_address
     WHERE ph.holder_address = ?
       AND ph.balance != '0'
     ORDER BY pf.last_block_number DESC
