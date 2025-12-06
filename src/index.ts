@@ -394,9 +394,7 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
         );
       }
 
-      if (envType === 'dev' || envType === 'testnet') {
-        await syncPersonaFragmentTrades(this.env);
-      }
+      await syncPersonaFragmentTrades(this.env);
     }
 
     if (controller.cron === '0 * * * *') {
