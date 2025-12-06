@@ -27,6 +27,14 @@
 		{
 			"binding": "GOD_IMAGES_BUCKET",
 			"bucket_name": "god-images"
+		},
+		{
+			"binding": "AVATAR_BUCKET",
+			"bucket_name": "avatars"
+		},
+		{
+			"binding": "BANNER_BUCKET",
+			"bucket_name": "banners"
 		}
 	],
 	"kv_namespaces": [
@@ -73,7 +81,9 @@
 		"PERSONAS_DOMAIN": "personas.gaia.cc",
 		"PERSONAS_URI": "https://personas.gaia.cc",
 		"HOLDING_VERIFIER_PUBLIC_KEY": "0x67e81DE7802A5f7efEF66b156F2d06a526Bd5BD6",
-		"PERSONA_FRAGMENTS_ADDRESS": "0xE59557cC3F9524Fa062120a02e467E1B07272688"
+		"PERSONA_FRAGMENTS_ADDRESS": "0xE59557cC3F9524Fa062120a02e467E1B07272688",
+		"AVATAR_BASE_URL": "https://avatars.gaia.cc",
+		"BANNER_BASE_URL": "https://banners.gaia.cc"
 	},
 	"env": {
 		"testnet": {
@@ -88,6 +98,14 @@
 				{
 					"binding": "GOD_IMAGES_BUCKET",
 					"bucket_name": "god-images-testnet"
+				},
+				{
+					"binding": "AVATAR_BUCKET",
+					"bucket_name": "avatars-testnet"
+				},
+				{
+					"binding": "BANNER_BUCKET",
+					"bucket_name": "banners-testnet"
 				}
 			],
 			"kv_namespaces": [
@@ -131,7 +149,9 @@
 				"PERSONAS_DOMAIN": "testnet.personas.gaia.cc",
 				"PERSONAS_URI": "https://testnet.personas.gaia.cc",
 				"HOLDING_VERIFIER_PUBLIC_KEY": "0x67e81DE7802A5f7efEF66b156F2d06a526Bd5BD6",
-				"PERSONA_FRAGMENTS_ADDRESS": "0x4720B04934c87388a7b9413413E2378EFF1D117C"
+				"PERSONA_FRAGMENTS_ADDRESS": "0x4720B04934c87388a7b9413413E2378EFF1D117C",
+				"AVATAR_BASE_URL": "https://avatars-testnet.gaia.cc",
+				"BANNER_BASE_URL": "https://banners-testnet.gaia.cc"
 			}
 		}
 	}

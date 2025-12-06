@@ -92,6 +92,8 @@ import {
 import { syncPersonaFragmentTrades } from './sync/persona-fragment-trades';
 
 // Service helpers used by internal methods
+import { handleLocalR2Proxy } from './handlers/local-r2-proxy';
+import { handleUploadAvatar, handleUploadBanner } from './handlers/upload-media';
 import { getPersonaPostWithRepliesService } from './services/persona/post';
 
 const MAINNET_CLIENT = createPublicClient({ chain: mainnet, transport: http() });
@@ -111,6 +113,17 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
     if (request.method === 'OPTIONS') return preflightResponse();
 
     const url = new URL(request.url);
+    const isDev = this.env.ENV_TYPE as string === 'dev';
+
+    // --------------------------------------------------
+    // 로컬(dev) 환경 & /r2/* 일 때만 R2 proxy 처리
+    // --------------------------------------------------
+    if (isDev && url.pathname.startsWith('/r2/')) {
+      const r2Res = await handleLocalR2Proxy(request, this.env);
+      if (r2Res) return r2Res;
+      // /r2/* 인데도 파일이 없으면 바로 404
+      return new Response('Not Found', { status: 404 });
+    }
 
     // --------------------------------------------------
     // Basic / utility endpoints
@@ -184,6 +197,12 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
 
     if (url.pathname === '/gods-stats')
       return handleGodsStats(request, this.env);
+
+    if (url.pathname === '/upload/avatar' && request.method === 'POST')
+      return handleUploadAvatar(request, this.env);
+
+    if (url.pathname === '/upload/banner' && request.method === 'POST')
+      return handleUploadBanner(request, this.env);
 
     // --------------------------------------------------
     // Notifications API
