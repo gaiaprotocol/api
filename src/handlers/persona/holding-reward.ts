@@ -1,11 +1,11 @@
+import { checkGodMode } from '@gaiaprotocol/god-mode-worker';
 import { jsonWithCors } from '@gaiaprotocol/worker-common';
 import {
   createPublicClient,
   encodePacked,
   Hex,
   http,
-  keccak256,
-  parseEther,
+  keccak256
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { base, baseSepolia } from 'viem/chains';
@@ -96,15 +96,22 @@ export async function handlePersonaHoldingReward(
       );
     }
 
-    //TODO: 리워드 비율 (1e18 = 100%), 추후 보유한 자산 수량을 바탕으로 계산하도록 수정하기
-    const rewardRatio = parseEther('0');
+    let holdingPoint = 0n;
 
-    // side 에 따라 비율을 다르게 주고 싶으면 여기에서 분기
-    const _side: HoldingRewardSide = side;
-    if (_side === 'sell') {
-      // 예시: sell 에서는 리워드 0
-      // rewardRatio = 0n;
+    // God 홀더인 경우 1만 포인트 지급
+    if (await checkGodMode(persona)) {
+      holdingPoint += 10000n;
     }
+
+    //TODO: 토큰 론칭 시, 토큰 보유량에 따른 홀딩 포인트 계산해야 함
+
+    // 최대 1만 포인트
+    if (holdingPoint > 10000n) {
+      holdingPoint = 10000n;
+    }
+
+    // 리워드 비율 (1e18 = 100%), 보유한 자산 수량을 바탕으로 계산
+    const rewardRatio = holdingPoint * 10n ** 14n;
 
     // ===== 3. public client 생성 =====
     const publicClient = createPublicClient({
