@@ -82,10 +82,10 @@ export async function handleSetName(request: Request, env: Env) {
     // 핵심만 발췌
     await env.DB.prepare(`
       INSERT INTO ${TABLE_NAME} (account, name, created_at, updated_at)
-      VALUES (?, ?, datetime('now'), NULL)
+      VALUES (?, ?, strftime('%s','now'), NULL)
       ON CONFLICT(account) DO UPDATE SET
         name       = excluded.name,
-        updated_at = datetime('now')
+        updated_at = strftime('%s','now')
     `).bind(payload.sub, name).run();
 
     return jsonWithCors({ ok: true });

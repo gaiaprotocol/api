@@ -202,7 +202,7 @@ export async function markNotificationReadWithCounter(
         WHEN unread_count > 0 THEN unread_count - 1
         ELSE 0
       END,
-      updated_at = ?
+      updated_at = strftime('%s','now')
     WHERE recipient = ?
       AND EXISTS (
         SELECT 1
@@ -212,18 +212,18 @@ export async function markNotificationReadWithCounter(
           AND is_read = 0
       )
     `,
-  ).bind(readAt, recipient, notificationId, recipient);
+  ).bind(recipient, notificationId, recipient);
 
   const notifStmt = env.DB.prepare(
     `
     UPDATE ${NOTIFICATIONS_TABLE}
     SET is_read = 1,
-        read_at = ?
+        read_at = strftime('%s','now')
     WHERE id = ?
       AND recipient = ?
       AND is_read = 0
     `,
-  ).bind(readAt, notificationId, recipient);
+  ).bind(notificationId, recipient);
 
   const [counterRes, notifRes] = await env.DB.batch([
     counterStmt,
@@ -250,20 +250,20 @@ export async function markAllNotificationsReadWithCounter(
     `
     UPDATE ${NOTIFICATIONS_TABLE}
     SET is_read = 1,
-        read_at = ?
+        read_at = strftime('%s','now')
     WHERE recipient = ?
       AND is_read = 0
     `,
-  ).bind(readAt, recipient);
+  ).bind(recipient);
 
   const counterStmt = env.DB.prepare(
     `
     UPDATE ${NOTIFICATION_COUNTERS_TABLE}
     SET unread_count = 0,
-        updated_at   = ?
+        updated_at   = strftime('%s','now')
     WHERE recipient = ?
     `,
-  ).bind(readAt, recipient);
+  ).bind(recipient);
 
   await env.DB.batch([notifStmt, counterStmt]);
 }
