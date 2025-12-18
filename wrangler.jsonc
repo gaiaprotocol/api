@@ -84,7 +84,7 @@
 		"PERSONAS_DOMAIN": "personas.gaia.cc",
 		"PERSONAS_URI": "https://personas.gaia.cc",
 		"HOLDING_VERIFIER_PUBLIC_KEY": "0x67e81DE7802A5f7efEF66b156F2d06a526Bd5BD6",
-		"PERSONA_FRAGMENTS_ADDRESS": "0x29C1A5cCE947560f10df4d9aA3B8Ee11ddA98a1A",
+		"PERSONA_FRAGMENTS_ADDRESS": "0x936F400412bD9104578BD44ec2d9bB158e34450E",
 		"AVATAR_BASE_URL": "https://avatars.gaia.cc",
 		"BANNER_BASE_URL": "https://banners.gaia.cc"
 	},
@@ -152,7 +152,7 @@
 				"PERSONAS_DOMAIN": "testnet.personas.gaia.cc",
 				"PERSONAS_URI": "https://testnet.personas.gaia.cc",
 				"HOLDING_VERIFIER_PUBLIC_KEY": "0x67e81DE7802A5f7efEF66b156F2d06a526Bd5BD6",
-				"PERSONA_FRAGMENTS_ADDRESS": "0x140AEc1F9fd26B8eB2832aF5C449f3D0C2EA0836",
+				"PERSONA_FRAGMENTS_ADDRESS": "0xdAd0dEE876BddB30558882E54B563f88ADde30e0",
 				"AVATAR_BASE_URL": "https://avatars-testnet.gaia.cc",
 				"BANNER_BASE_URL": "https://banners-testnet.gaia.cc"
 			}
