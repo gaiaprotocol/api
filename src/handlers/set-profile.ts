@@ -99,7 +99,10 @@ export async function handleSetProfile(request: Request, env: Env) {
     const account = payload.sub as string;
 
     // 2) Parse request body
-    const body = await request.json().catch(() => ({}));
+    const body: any = await request.json().catch(() => ({}));
+
+    if (!body.avatarUrl) body.avatarUrl = undefined
+    if (!body.bannerUrl) body.bannerUrl = undefined
 
     let parsed: z.infer<typeof SetProfileSchema>;
     try {
