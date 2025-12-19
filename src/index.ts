@@ -144,6 +144,7 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
         this.env,
         this.env.VALHALLA_DOMAIN,
         this.env.VALHALLA_URI,
+        this.env.MESSAGE_FOR_WALLET_LOGIN,
       );
 
     if (url.pathname === '/login/personas' && request.method === 'POST')
@@ -153,6 +154,7 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
         this.env,
         this.env.PERSONAS_DOMAIN,
         this.env.PERSONAS_URI,
+        this.env.MESSAGE_FOR_WALLET_LOGIN,
       );
 
     if (url.pathname === '/validate-token' && request.method === 'GET')
