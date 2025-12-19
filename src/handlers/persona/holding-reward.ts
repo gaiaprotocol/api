@@ -116,7 +116,7 @@ export async function handlePersonaHoldingReward(
     // ===== 3. public client 생성 =====
     const publicClient = createPublicClient({
       chain,
-      transport: http(),
+      transport: env.ENV_TYPE === 'prod' ? http(env.BASE_ENDPOINT_URL) : http(),
     });
 
     // ===== 4. on-chain nonces(trader) 조회 =====
