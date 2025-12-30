@@ -183,7 +183,6 @@ function toAbsoluteUrl(origin: string, maybePathOrUrl: string): string {
 export class FcmService {
   #serviceAccount: ServiceAccountKey;
   #app: AppType;
-  #serverKey: string;
   #publicOrigin: string;
 
   constructor(env: Env, app: AppType = 'valhalla') {
@@ -196,12 +195,6 @@ export class FcmService {
 
     this.#serviceAccount = JSON.parse(serviceAccountJson);
 
-    // Legacy Server Key (토픽 구독/해제에 필요)
-    // wrangler secret으로 설정: FIREBASE_SERVER_KEY_VALHALLA, FIREBASE_SERVER_KEY_PERSONAS
-    this.#serverKey = app === 'personas'
-      ? (env.FIREBASE_SERVER_KEY_PERSONAS || '')
-      : (env.FIREBASE_SERVER_KEY_VALHALLA || '');
-
     // Public Origin (절대 URL 생성용) - 기존 환경 변수 활용
     this.#publicOrigin = app === 'personas'
       ? (env.PERSONAS_URI || 'https://personas.gaia.cc')
@@ -210,21 +203,18 @@ export class FcmService {
 
   /**
    * FCM 토큰을 특정 토픽에 구독 (batchAdd 방식)
-   * Legacy Server Key를 사용하여 확실하게 토픽 구독
+   * OAuth Bearer 토큰 + access_token_auth 헤더 사용 (Firebase Admin SDK 방식)
    */
   async subscribeToTopic(token: string, topic: string): Promise<boolean> {
     try {
-      // Server Key가 없으면 경고 후 false 반환
-      if (!this.#serverKey) {
-        console.error(`[FCM] No server key configured for app: ${this.#app}`);
-        return false;
-      }
+      const accessToken = await getAccessToken(this.#serviceAccount);
 
       const response = await fetch('https://iid.googleapis.com/iid/v1:batchAdd', {
         method: 'POST',
         headers: {
-          'Authorization': `key=${this.#serverKey}`,
+          'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
+          'access_token_auth': 'true', // Firebase Admin SDK가 사용하는 헤더
         },
         body: JSON.stringify({
           to: `/topics/${topic}`,
@@ -239,8 +229,18 @@ export class FcmService {
         return false;
       }
 
-      // batchAdd는 성공해도 부분 실패가 있을 수 있음 → 응답 로그
-      console.log(`[FCM] subscribeToTopic ok (app=${this.#app}) topic=${topic} body=${text}`);
+      // batchAdd 응답에서 부분 실패 확인
+      try {
+        const result = JSON.parse(text);
+        if (result.results?.[0]?.error) {
+          console.error(`[FCM] subscribeToTopic partial error (app=${this.#app}) topic=${topic} error=${result.results[0].error}`);
+          return false;
+        }
+      } catch {
+        // JSON 파싱 실패는 무시 (성공 응답일 수 있음)
+      }
+
+      console.log(`[FCM] subscribeToTopic ok (app=${this.#app}) topic=${topic}`);
       return true;
     } catch (err) {
       console.error(`[FCM] subscribeToTopic error (app=${this.#app})`, err);
@@ -253,17 +253,14 @@ export class FcmService {
    */
   async unsubscribeFromTopic(token: string, topic: string): Promise<boolean> {
     try {
-      // Server Key가 없으면 경고 후 false 반환
-      if (!this.#serverKey) {
-        console.error(`[FCM] No server key configured for app: ${this.#app}`);
-        return false;
-      }
+      const accessToken = await getAccessToken(this.#serviceAccount);
 
       const response = await fetch('https://iid.googleapis.com/iid/v1:batchRemove', {
         method: 'POST',
         headers: {
-          'Authorization': `key=${this.#serverKey}`,
+          'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
+          'access_token_auth': 'true',
         },
         body: JSON.stringify({
           to: `/topics/${topic}`,
@@ -278,7 +275,7 @@ export class FcmService {
         return false;
       }
 
-      console.log(`[FCM] unsubscribeFromTopic ok (app=${this.#app}) topic=${topic} body=${text}`);
+      console.log(`[FCM] unsubscribeFromTopic ok (app=${this.#app}) topic=${topic}`);
       return true;
     } catch (err) {
       console.error(`[FCM] unsubscribeFromTopic error (app=${this.#app})`, err);
