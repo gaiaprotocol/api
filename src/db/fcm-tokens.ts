@@ -1,7 +1,10 @@
 export const FCM_TOKENS_TABLE = 'fcm_tokens';
 
+export type AppType = 'valhalla' | 'personas';
+
 export interface FcmTokenRow {
   id: number;
+  app: AppType;
   account: string;
   token: string;
   platform: string;
@@ -18,19 +21,21 @@ export interface FcmTokenRow {
 export async function upsertFcmToken(
   env: Env,
   params: {
+    app?: AppType;
     account: string;
     token: string;
     platform?: string;
   },
 ): Promise<FcmTokenRow> {
-  const { account, token, platform = 'web' } = params;
+  const { app = 'valhalla', account, token, platform = 'web' } = params;
   const now = Math.floor(Date.now() / 1000);
 
   const result = await env.DB.prepare(
     `
-    INSERT INTO ${FCM_TOKENS_TABLE} (account, token, platform, is_active, last_used_at, created_at, updated_at)
-    VALUES (?, ?, ?, 1, ?, ?, ?)
+    INSERT INTO ${FCM_TOKENS_TABLE} (app, account, token, platform, is_active, last_used_at, created_at, updated_at)
+    VALUES (?, ?, ?, ?, 1, ?, ?, ?)
     ON CONFLICT(token) DO UPDATE SET
+      app = excluded.app,
       account = excluded.account,
       platform = excluded.platform,
       is_active = 1,
@@ -39,7 +44,7 @@ export async function upsertFcmToken(
     RETURNING *
     `,
   )
-    .bind(account, token, platform, now, now, now)
+    .bind(app, account, token, platform, now, now, now)
     .first<FcmTokenRow>();
 
   if (!result) {
@@ -113,18 +118,18 @@ export async function deactivateFcmToken(
  */
 export async function deleteFcmToken(
   env: Env,
-  params: { account: string; token: string },
+  params: { account: string; token: string; app?: AppType },
 ): Promise<boolean> {
-  const { account, token } = params;
+  const { account, token, app } = params;
 
-  const result = await env.DB.prepare(
-    `
-    DELETE FROM ${FCM_TOKENS_TABLE}
-    WHERE account = ? AND token = ?
-    `,
-  )
-    .bind(account, token)
-    .run();
+  const sql = app
+    ? `DELETE FROM ${FCM_TOKENS_TABLE} WHERE account = ? AND token = ? AND app = ?`
+    : `DELETE FROM ${FCM_TOKENS_TABLE} WHERE account = ? AND token = ?`;
+
+  const stmt = env.DB.prepare(sql);
+  const result = app
+    ? await stmt.bind(account, token, app).run()
+    : await stmt.bind(account, token).run();
 
   return (result.meta?.changes ?? 0) > 0;
 }

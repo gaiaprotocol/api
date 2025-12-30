@@ -6,6 +6,9 @@
 CREATE TABLE IF NOT EXISTS fcm_tokens (
   id                    INTEGER PRIMARY KEY AUTOINCREMENT,
 
+  -- 앱 구분: valhalla | personas
+  app                   TEXT NOT NULL DEFAULT 'valhalla',
+
   -- 토큰 소유자 (지갑 주소)
   account               TEXT NOT NULL,
 
@@ -29,10 +32,16 @@ CREATE TABLE IF NOT EXISTS fcm_tokens (
 );
 
 -- =====================================================
--- Index: 계정별 활성 토큰 조회
+-- Index: 계정 + 앱별 활성 토큰 조회
 -- =====================================================
-CREATE INDEX IF NOT EXISTS idx_fcm_tokens_account_active
-  ON fcm_tokens (account, is_active);
+CREATE INDEX IF NOT EXISTS idx_fcm_tokens_account_app_active
+  ON fcm_tokens (account, app, is_active);
+
+-- =====================================================
+-- Index: 앱별 활성 토큰 조회
+-- =====================================================
+CREATE INDEX IF NOT EXISTS idx_fcm_tokens_app_active
+  ON fcm_tokens (app, is_active);
 
 -- =====================================================
 -- Index: 토큰으로 빠른 조회

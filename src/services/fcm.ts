@@ -1,8 +1,10 @@
+import type { AppType } from '../db/fcm-tokens';
+
 // Topic name for notices
 export const FCM_TOPIC_NOTICES = 'notices';
 
-// App types
-export type AppType = 'valhalla' | 'personas';
+// Re-export AppType for convenience
+export type { AppType } from '../db/fcm-tokens';
 
 export interface PushNotificationPayload {
   title: string;
@@ -164,12 +166,25 @@ async function getAccessToken(serviceAccount: ServiceAccountKey): Promise<string
   return data.access_token;
 }
 
+// 상대 경로를 절대 URL로 변환
+function toAbsoluteUrl(origin: string, maybePathOrUrl: string): string {
+  try {
+    // 이미 절대 URL이면 그대로 반환
+    return new URL(maybePathOrUrl).toString();
+  } catch {
+    // 상대 경로면 origin 기준으로 변환
+    return new URL(maybePathOrUrl.startsWith('/') ? maybePathOrUrl : `/${maybePathOrUrl}`, origin).toString();
+  }
+}
+
 /**
  * FCM 푸시 알림 전송 서비스
  */
 export class FcmService {
   #serviceAccount: ServiceAccountKey;
   #app: AppType;
+  #serverKey: string;
+  #publicOrigin: string;
 
   constructor(env: Env, app: AppType = 'valhalla') {
     this.#app = app;
@@ -180,68 +195,93 @@ export class FcmService {
       : env.FIREBASE_SERVICE_ACCOUNT_JSON_VALHALLA;
 
     this.#serviceAccount = JSON.parse(serviceAccountJson);
+
+    // Legacy Server Key (토픽 구독/해제에 필요)
+    // wrangler secret으로 설정: FIREBASE_SERVER_KEY_VALHALLA, FIREBASE_SERVER_KEY_PERSONAS
+    this.#serverKey = app === 'personas'
+      ? (env.FIREBASE_SERVER_KEY_PERSONAS || '')
+      : (env.FIREBASE_SERVER_KEY_VALHALLA || '');
+
+    // Public Origin (절대 URL 생성용) - 기존 환경 변수 활용
+    this.#publicOrigin = app === 'personas'
+      ? (env.PERSONAS_URI || 'https://personas.gaia.cc')
+      : (env.VALHALLA_URI || 'https://valhalla.gaia.cc');
   }
 
   /**
-   * FCM 토큰을 특정 토픽에 구독
+   * FCM 토큰을 특정 토픽에 구독 (batchAdd 방식)
+   * Legacy Server Key를 사용하여 확실하게 토픽 구독
    */
   async subscribeToTopic(token: string, topic: string): Promise<boolean> {
     try {
-      const accessToken = await getAccessToken(this.#serviceAccount);
-
-      const response = await fetch(
-        `https://iid.googleapis.com/iid/v1/${token}/rel/topics/${topic}`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      if (!response.ok) {
-        const error = await response.text();
-        console.error(`[FCM] Failed to subscribe token to topic (${response.status}): ${error}`);
+      // Server Key가 없으면 경고 후 false 반환
+      if (!this.#serverKey) {
+        console.error(`[FCM] No server key configured for app: ${this.#app}`);
         return false;
       }
 
-      console.log(`[FCM] Token subscribed to topic: ${topic} (app: ${this.#app})`);
+      const response = await fetch('https://iid.googleapis.com/iid/v1:batchAdd', {
+        method: 'POST',
+        headers: {
+          'Authorization': `key=${this.#serverKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: `/topics/${topic}`,
+          registration_tokens: [token],
+        }),
+      });
+
+      const text = await response.text();
+
+      if (!response.ok) {
+        console.error(`[FCM] subscribeToTopic failed (app=${this.#app}) status=${response.status} body=${text}`);
+        return false;
+      }
+
+      // batchAdd는 성공해도 부분 실패가 있을 수 있음 → 응답 로그
+      console.log(`[FCM] subscribeToTopic ok (app=${this.#app}) topic=${topic} body=${text}`);
       return true;
     } catch (err) {
-      console.error('[FCM] Error subscribing to topic:', err);
+      console.error(`[FCM] subscribeToTopic error (app=${this.#app})`, err);
       return false;
     }
   }
 
   /**
-   * FCM 토큰을 특정 토픽에서 구독 해제
+   * FCM 토큰을 특정 토픽에서 구독 해제 (batchRemove 방식)
    */
   async unsubscribeFromTopic(token: string, topic: string): Promise<boolean> {
     try {
-      const accessToken = await getAccessToken(this.#serviceAccount);
-
-      const response = await fetch(
-        `https://iid.googleapis.com/iid/v1/${token}/rel/topics/${topic}`,
-        {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      if (!response.ok) {
-        const error = await response.text();
-        console.error(`[FCM] Failed to unsubscribe token from topic (${response.status}): ${error}`);
+      // Server Key가 없으면 경고 후 false 반환
+      if (!this.#serverKey) {
+        console.error(`[FCM] No server key configured for app: ${this.#app}`);
         return false;
       }
 
-      console.log(`[FCM] Token unsubscribed from topic: ${topic} (app: ${this.#app})`);
+      const response = await fetch('https://iid.googleapis.com/iid/v1:batchRemove', {
+        method: 'POST',
+        headers: {
+          'Authorization': `key=${this.#serverKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: `/topics/${topic}`,
+          registration_tokens: [token],
+        }),
+      });
+
+      const text = await response.text();
+
+      if (!response.ok) {
+        console.error(`[FCM] unsubscribeFromTopic failed (app=${this.#app}) status=${response.status} body=${text}`);
+        return false;
+      }
+
+      console.log(`[FCM] unsubscribeFromTopic ok (app=${this.#app}) topic=${topic} body=${text}`);
       return true;
     } catch (err) {
-      console.error('[FCM] Error unsubscribing from topic:', err);
+      console.error(`[FCM] unsubscribeFromTopic error (app=${this.#app})`, err);
       return false;
     }
   }
@@ -253,14 +293,23 @@ export class FcmService {
     try {
       const accessToken = await getAccessToken(this.#serviceAccount);
 
+      // 아이콘, 배지, 링크를 절대 URL로 변환
+      const icon = toAbsoluteUrl(this.#publicOrigin, payload.icon || '/images/icon-192x192.png');
+      const badge = toAbsoluteUrl(this.#publicOrigin, payload.badge || '/images/icon-192x192.png');
+      const link = toAbsoluteUrl(this.#publicOrigin, payload.clickAction || '/');
+
       const message: FCMTopicMessage = {
         topic,
         notification: {
           title: payload.title,
           body: payload.body,
-          image: payload.icon,
+          image: icon,
         },
-        data: payload.data,
+        data: {
+          ...payload.data,
+          // clickAction을 data에도 포함 (SW에서 사용)
+          clickAction: payload.clickAction || '/',
+        },
         android: {
           priority: 'high',
           notification: {
@@ -285,11 +334,11 @@ export class FcmService {
         },
         webpush: {
           notification: {
-            icon: payload.icon || '/images/icon-192x192.png',
-            badge: payload.badge || '/images/icon-192x192.png',
+            icon,
+            badge,
           },
           fcm_options: {
-            link: payload.clickAction || '/',
+            link, // 절대 URL 사용
           },
         },
       };

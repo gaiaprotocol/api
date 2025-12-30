@@ -3,8 +3,9 @@ import { z } from 'zod';
 import {
   deleteFcmToken,
   upsertFcmToken,
+  type AppType,
 } from '../db/fcm-tokens';
-import { AppType, FCM_TOPIC_NOTICES, FcmService } from '../services/fcm';
+import { FCM_TOPIC_NOTICES, FcmService } from '../services/fcm';
 
 /**
  * POST /fcm-tokens/register
@@ -51,24 +52,44 @@ export async function handleRegisterFcmToken(request: Request, env: Env) {
 
     const { token: fcmToken, platform = 'web', app = 'valhalla' } = parsed.data;
 
-    // DB에 토큰 저장
-    await upsertFcmToken(env, {
+    // 토큰이 너무 짧으면 거의 항상 잘못된 값(클라 버그/권한 미승인 등)
+    if (fcmToken.length < 80) {
+      return jsonWithCors({
+        success: false,
+        error: 'Token looks invalid (too short)'
+      }, 400);
+    }
+
+    // DB에 토큰 저장 (app 포함)
+    const row = await upsertFcmToken(env, {
+      app: app as AppType,
       account,
       token: fcmToken,
       platform,
     });
 
     // notices 토픽에 구독
+    let subscribed = false;
     try {
       const fcmService = new FcmService(env, app as AppType);
-      await fcmService.subscribeToTopic(fcmToken, FCM_TOPIC_NOTICES);
-      console.log(`[FCM] Token subscribed to topic: ${FCM_TOPIC_NOTICES} (app: ${app})`);
+      subscribed = await fcmService.subscribeToTopic(fcmToken, FCM_TOPIC_NOTICES);
+      console.log(`[FCM] Token subscription result: ${subscribed} (app: ${app})`);
     } catch (err) {
       console.error('[FCM] Failed to subscribe to topic:', err);
-      // 토픽 구독 실패해도 토큰 등록은 성공으로 처리
     }
 
-    return jsonWithCors({ success: true }, 200);
+    return jsonWithCors({
+      success: true,
+      saved: true,
+      subscribed,
+      token: {
+        id: row.id,
+        app: row.app,
+        account: row.account,
+        platform: row.platform,
+        is_active: row.is_active,
+      },
+    }, 200);
   } catch (err) {
     console.error('[handleRegisterFcmToken] error', err);
     return jsonWithCors({ error: 'Internal server error.' }, 500);
@@ -119,21 +140,23 @@ export async function handleUnregisterFcmToken(request: Request, env: Env) {
     const { token: fcmToken, app = 'valhalla' } = parsed.data;
 
     // notices 토픽에서 구독 해제
+    let unsubscribed = false;
     try {
       const fcmService = new FcmService(env, app as AppType);
-      await fcmService.unsubscribeFromTopic(fcmToken, FCM_TOPIC_NOTICES);
-      console.log(`[FCM] Token unsubscribed from topic: ${FCM_TOPIC_NOTICES} (app: ${app})`);
+      unsubscribed = await fcmService.unsubscribeFromTopic(fcmToken, FCM_TOPIC_NOTICES);
+      console.log(`[FCM] Token unsubscription result: ${unsubscribed} (app: ${app})`);
     } catch (err) {
       console.error('[FCM] Failed to unsubscribe from topic:', err);
     }
 
     // DB에서 토큰 삭제
-    await deleteFcmToken(env, {
+    const deleted = await deleteFcmToken(env, {
       account,
       token: fcmToken,
+      app: app as AppType,
     });
 
-    return jsonWithCors({ success: true }, 200);
+    return jsonWithCors({ success: true, unsubscribed, deleted }, 200);
   } catch (err) {
     console.error('[handleUnregisterFcmToken] error', err);
     return jsonWithCors({ error: 'Internal server error.' }, 500);
