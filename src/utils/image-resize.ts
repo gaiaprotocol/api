@@ -1,9 +1,9 @@
 /**
- * Cloudflare Image Resizing utilities for generating thumbnail URLs.
+ * Cloudflare Image Resizing utilities for generating thumbnails.
  *
- * This uses Cloudflare's Image Resizing feature which transforms images on-the-fly
- * via URL parameters. The format is:
- * https://example.com/cdn-cgi/image/{options}/{path}
+ * This module provides two ways to generate thumbnails:
+ * 1. URL-based: Generate Cloudflare Image Resizing URLs (on-the-fly transformation)
+ * 2. File-based: Fetch resized images and store them as actual files in R2
  *
  * Reference: https://developers.cloudflare.com/images/transform-images/transform-via-url/
  */

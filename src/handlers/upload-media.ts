@@ -1,6 +1,10 @@
 import { jsonWithCors, verifyToken } from '@gaiaprotocol/worker-common';
 import { v4 as uuidv4 } from 'uuid';
-import { getAvatarThumbnailUrl, getBannerThumbnailUrl } from '../utils/image-resize';
+import {
+  AVATAR_THUMBNAIL_CONFIG,
+  BANNER_THUMBNAIL_CONFIG,
+  ThumbnailConfig,
+} from '../utils/image-resize';
 
 // 업로드 가능한 최대 크기 (10MB 예시)
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
@@ -8,10 +12,58 @@ const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 type UploadTarget = 'avatar' | 'banner';
 
 /**
+ * Cloudflare Image Resizing을 사용하여 실제 썸네일 이미지를 생성하고 R2에 저장
+ */
+async function generateAndUploadThumbnail(
+  originalUrl: string,
+  bucket: R2Bucket,
+  thumbnailKey: string,
+  config: ThumbnailConfig,
+): Promise<boolean> {
+  try {
+    // Cloudflare Image Resizing을 통해 리사이즈된 이미지 fetch
+    const resizedResponse = await fetch(originalUrl, {
+      cf: {
+        image: {
+          width: config.width,
+          height: config.height,
+          fit: config.fit,
+          quality: config.quality,
+          format: config.format === 'auto' ? 'webp' : config.format,
+        },
+      },
+    });
+
+    if (!resizedResponse.ok) {
+      console.error(
+        '[generateAndUploadThumbnail] Failed to resize image:',
+        resizedResponse.status,
+        resizedResponse.statusText,
+      );
+      return false;
+    }
+
+    const resizedBuffer = await resizedResponse.arrayBuffer();
+
+    // R2에 썸네일 저장
+    await bucket.put(thumbnailKey, resizedBuffer, {
+      httpMetadata: {
+        contentType: `image/${config.format === 'auto' ? 'webp' : config.format}`,
+      },
+    });
+
+    return true;
+  } catch (err) {
+    console.error('[generateAndUploadThumbnail] error:', err);
+    return false;
+  }
+}
+
+/**
  * 공통 이미지 업로드 핸들러
  *  - Authorization: Bearer <token> 으로 인증
  *  - body: 이미지 바이너리 (image/png, image/jpeg 등)
- *  - 성공 시: { url: string } JSON 반환
+ *  - 성공 시: { url: string, thumbnailUrl: string } JSON 반환
  *
  * Env 요구사항 예시:
  *  - AVATAR_BUCKET: R2Bucket
@@ -77,22 +129,28 @@ async function handleImageUpload(
     // 3) 업로드 대상 선택 (아바타 / 배너)
     let bucket: R2Bucket;
     let baseUrl: string;
+    let thumbnailConfig: ThumbnailConfig;
 
     if (target === 'avatar') {
       bucket = env.AVATAR_BUCKET;
-      baseUrl = env.AVATAR_BASE_URL; // 예: https://static.example.com/avatars
+      baseUrl = env.AVATAR_BASE_URL;
+      thumbnailConfig = AVATAR_THUMBNAIL_CONFIG;
     } else {
       bucket = env.BANNER_BUCKET;
-      baseUrl = env.BANNER_BASE_URL; // 예: https://static.example.com/banners
+      baseUrl = env.BANNER_BASE_URL;
+      thumbnailConfig = BANNER_THUMBNAIL_CONFIG;
     }
 
     // 4) 키 생성
     const account = payload.sub as string;
+    const uuid = uuidv4();
     // 간단한 확장자 추출 (image/png -> png)
     const ext = contentType.split('/')[1] || 'bin';
-    const key = `${account}/${uuidv4()}.${ext}`;
+    const key = `${account}/${uuid}.${ext}`;
+    const thumbnailExt = thumbnailConfig.format === 'auto' ? 'webp' : thumbnailConfig.format;
+    const thumbnailKey = `${account}/${uuid}_thumb.${thumbnailExt}`;
 
-    // 5) R2 에 업로드
+    // 5) R2 에 원본 이미지 업로드
     await bucket.put(key, body, {
       httpMetadata: {
         contentType,
@@ -100,12 +158,23 @@ async function handleImageUpload(
     });
 
     const publicUrl = `${baseUrl}/${key}`;
+    let thumbnailUrl = publicUrl; // 기본값: 원본 URL (썸네일 생성 실패 시)
 
-    // Generate thumbnail URL using Cloudflare Image Resizing
-    const thumbnailUrl =
-      target === 'avatar'
-        ? getAvatarThumbnailUrl(publicUrl)
-        : getBannerThumbnailUrl(publicUrl);
+    // 6) 썸네일 생성 및 업로드
+    const thumbnailSuccess = await generateAndUploadThumbnail(
+      publicUrl,
+      bucket,
+      thumbnailKey,
+      thumbnailConfig,
+    );
+
+    if (thumbnailSuccess) {
+      thumbnailUrl = `${baseUrl}/${thumbnailKey}`;
+    } else {
+      console.warn(
+        '[handleImageUpload] Thumbnail generation failed, using original URL as fallback',
+      );
+    }
 
     return jsonWithCors({ url: publicUrl, thumbnailUrl }, 200);
   } catch (err) {
