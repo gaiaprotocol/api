@@ -31,7 +31,8 @@ declare namespace Cloudflare {
 		HOLDING_VERIFIER_PRIVATE_KEY: string;
 		BASE_ENDPOINT_URL: string;
 		ADMIN_PASSWORD: string;
-		FIREBASE_SERVICE_ACCOUNT_JSON: string;
+		FIREBASE_SERVICE_ACCOUNT_JSON_VALHALLA: string;
+		FIREBASE_SERVICE_ACCOUNT_JSON_PERSONAS: string;
 		PERSONA_CHAT_ROOM: DurableObjectNamespace<import("./src/index").PersonaChatRoomDO>;
 		GOD_IMAGES_BUCKET: R2Bucket;
 		AVATAR_BUCKET: R2Bucket;

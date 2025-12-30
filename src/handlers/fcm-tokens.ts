@@ -4,7 +4,7 @@ import {
   deleteFcmToken,
   upsertFcmToken,
 } from '../db/fcm-tokens';
-import { FCM_TOPIC_NOTICES, FcmService } from '../services/fcm';
+import { AppType, FCM_TOPIC_NOTICES, FcmService } from '../services/fcm';
 
 /**
  * POST /fcm-tokens/register
@@ -14,6 +14,7 @@ import { FCM_TOPIC_NOTICES, FcmService } from '../services/fcm';
  *  {
  *    token: string;      // FCM 등록 토큰
  *    platform?: string;  // 플랫폼 (web, android, ios) - 기본값: web
+ *    app?: string;       // 앱 타입 (valhalla, personas) - 기본값: valhalla
  *  }
  *
  * Response:
@@ -37,6 +38,7 @@ export async function handleRegisterFcmToken(request: Request, env: Env) {
     const schema = z.object({
       token: z.string().min(1),
       platform: z.enum(['web', 'android', 'ios']).optional(),
+      app: z.enum(['valhalla', 'personas']).optional(),
     });
 
     const parsed = schema.safeParse(body);
@@ -47,7 +49,7 @@ export async function handleRegisterFcmToken(request: Request, env: Env) {
       );
     }
 
-    const { token: fcmToken, platform = 'web' } = parsed.data;
+    const { token: fcmToken, platform = 'web', app = 'valhalla' } = parsed.data;
 
     // DB에 토큰 저장
     await upsertFcmToken(env, {
@@ -58,9 +60,9 @@ export async function handleRegisterFcmToken(request: Request, env: Env) {
 
     // notices 토픽에 구독
     try {
-      const fcmService = new FcmService(env);
+      const fcmService = new FcmService(env, app as AppType);
       await fcmService.subscribeToTopic(fcmToken, FCM_TOPIC_NOTICES);
-      console.log(`[FCM] Token subscribed to topic: ${FCM_TOPIC_NOTICES}`);
+      console.log(`[FCM] Token subscribed to topic: ${FCM_TOPIC_NOTICES} (app: ${app})`);
     } catch (err) {
       console.error('[FCM] Failed to subscribe to topic:', err);
       // 토픽 구독 실패해도 토큰 등록은 성공으로 처리
@@ -80,6 +82,7 @@ export async function handleRegisterFcmToken(request: Request, env: Env) {
  * Body:
  *  {
  *    token: string;
+ *    app?: string;       // 앱 타입 (valhalla, personas) - 기본값: valhalla
  *  }
  *
  * Response:
@@ -102,6 +105,7 @@ export async function handleUnregisterFcmToken(request: Request, env: Env) {
     const body = await request.json().catch(() => ({}));
     const schema = z.object({
       token: z.string().min(1),
+      app: z.enum(['valhalla', 'personas']).optional(),
     });
 
     const parsed = schema.safeParse(body);
@@ -112,13 +116,13 @@ export async function handleUnregisterFcmToken(request: Request, env: Env) {
       );
     }
 
-    const { token: fcmToken } = parsed.data;
+    const { token: fcmToken, app = 'valhalla' } = parsed.data;
 
     // notices 토픽에서 구독 해제
     try {
-      const fcmService = new FcmService(env);
+      const fcmService = new FcmService(env, app as AppType);
       await fcmService.unsubscribeFromTopic(fcmToken, FCM_TOPIC_NOTICES);
-      console.log(`[FCM] Token unsubscribed from topic: ${FCM_TOPIC_NOTICES}`);
+      console.log(`[FCM] Token unsubscribed from topic: ${FCM_TOPIC_NOTICES} (app: ${app})`);
     } catch (err) {
       console.error('[FCM] Failed to unsubscribe from topic:', err);
     }

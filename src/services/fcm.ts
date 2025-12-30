@@ -3,6 +3,9 @@ import { EnhancedFcmMessage, FCM, FcmOptions } from 'fcm-cloudflare-workers';
 // Topic name for notices
 export const FCM_TOPIC_NOTICES = 'notices';
 
+// App types
+export type AppType = 'valhalla' | 'personas';
+
 export interface PushNotificationPayload {
   title: string;
   body: string;
@@ -19,14 +22,24 @@ export class FcmService {
   #fcm: FCM;
   #env: Env;
   #serviceAccount: any;
+  #app: AppType;
+  #cacheKey: string;
 
-  constructor(env: Env) {
+  constructor(env: Env, app: AppType = 'valhalla') {
     this.#env = env;
-    this.#serviceAccount = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT_JSON);
+    this.#app = app;
+    this.#cacheKey = `fcm_access_token_${app}`;
+
+    // 앱 별로 다른 Firebase 서비스 계정 사용
+    const serviceAccountJson = app === 'personas'
+      ? env.FIREBASE_SERVICE_ACCOUNT_JSON_PERSONAS
+      : env.FIREBASE_SERVICE_ACCOUNT_JSON_VALHALLA;
+
+    this.#serviceAccount = JSON.parse(serviceAccountJson);
     const fcmOptions = new FcmOptions({
       serviceAccount: this.#serviceAccount,
       kvStore: env.FCM_TOKEN_CACHE,
-      kvCacheKey: 'fcm_access_token',
+      kvCacheKey: this.#cacheKey,
     });
     this.#fcm = new FCM(fcmOptions);
   }
@@ -148,7 +161,7 @@ export class FcmService {
    */
   async #getAccessToken(): Promise<string> {
     // Check cache first
-    const cached = await this.#env.FCM_TOKEN_CACHE.get('fcm_access_token');
+    const cached = await this.#env.FCM_TOKEN_CACHE.get(this.#cacheKey);
     if (cached) {
       return cached;
     }
@@ -180,7 +193,7 @@ export class FcmService {
     const accessToken = data.access_token;
 
     // Cache the token (expires in 1 hour, cache for 55 minutes)
-    await this.#env.FCM_TOKEN_CACHE.put('fcm_access_token', accessToken, {
+    await this.#env.FCM_TOKEN_CACHE.put(this.#cacheKey, accessToken, {
       expirationTtl: 55 * 60,
     });
 
@@ -237,7 +250,7 @@ export class FcmService {
 }
 
 /**
- * 공지사항 푸시 알림 전송 (토픽 기반)
+ * 공지사항 푸시 알림 전송 (토픽 기반, 모든 앱에 전송)
  */
 export async function sendNoticePushNotification(
   env: Env,
@@ -247,15 +260,13 @@ export async function sendNoticePushNotification(
     content: string;
     type?: string;
   },
-): Promise<{ success: boolean }> {
-  const fcmService = new FcmService(env);
-
+): Promise<{ success: boolean; results: { valhalla: boolean; personas: boolean } }> {
   // 내용을 100자로 제한
   const bodyPreview = notice.content.length > 100
     ? notice.content.substring(0, 97) + '...'
     : notice.content;
 
-  const success = await fcmService.sendToTopic(FCM_TOPIC_NOTICES, {
+  const payload: PushNotificationPayload = {
     title: notice.title,
     body: bodyPreview,
     data: {
@@ -264,7 +275,19 @@ export async function sendNoticePushNotification(
       noticeType: notice.type || 'general',
     },
     clickAction: '/notices',
-  });
+  };
 
-  return { success };
+  // 두 앱에 모두 전송
+  const [valhallaResult, personasResult] = await Promise.all([
+    new FcmService(env, 'valhalla').sendToTopic(FCM_TOPIC_NOTICES, payload).catch(() => false),
+    new FcmService(env, 'personas').sendToTopic(FCM_TOPIC_NOTICES, payload).catch(() => false),
+  ]);
+
+  return {
+    success: valhallaResult || personasResult,
+    results: {
+      valhalla: valhallaResult,
+      personas: personasResult,
+    },
+  };
 }
