@@ -28,7 +28,8 @@ export class FcmService {
   constructor(env: Env, app: AppType = 'valhalla') {
     this.#env = env;
     this.#app = app;
-    this.#cacheKey = `fcm_access_token_${app}`;
+    // IID API용 캐시 키 (토픽 구독용)
+    this.#cacheKey = `fcm_iid_token_${app}`;
 
     // 앱 별로 다른 Firebase 서비스 계정 사용
     const serviceAccountJson = app === 'personas'
@@ -36,10 +37,11 @@ export class FcmService {
       : env.FIREBASE_SERVICE_ACCOUNT_JSON_VALHALLA;
 
     this.#serviceAccount = JSON.parse(serviceAccountJson);
+    // FCM 라이브러리용 캐시 키 (메시지 전송용) - 분리
     const fcmOptions = new FcmOptions({
       serviceAccount: this.#serviceAccount,
       kvStore: env.FCM_TOKEN_CACHE,
-      kvCacheKey: this.#cacheKey,
+      kvCacheKey: `fcm_send_token_${app}`,
     });
     this.#fcm = new FCM(fcmOptions);
   }
@@ -163,8 +165,11 @@ export class FcmService {
     // Check cache first
     const cached = await this.#env.FCM_TOKEN_CACHE.get(this.#cacheKey);
     if (cached) {
+      console.log(`[FCM] Using cached access token for ${this.#app}`);
       return cached;
     }
+
+    console.log(`[FCM] Generating new access token for ${this.#app}`);
 
     // Generate new token using JWT
     const now = Math.floor(Date.now() / 1000);
@@ -190,7 +195,14 @@ export class FcmService {
     });
 
     const data: any = await response.json();
+
+    if (!response.ok || !data.access_token) {
+      console.error(`[FCM] Failed to get access token for ${this.#app}:`, JSON.stringify(data));
+      throw new Error(`Failed to get access token: ${data.error_description || data.error || 'Unknown error'}`);
+    }
+
     const accessToken = data.access_token;
+    console.log(`[FCM] Got new access token for ${this.#app}`);
 
     // Cache the token (expires in 1 hour, cache for 55 minutes)
     await this.#env.FCM_TOKEN_CACHE.put(this.#cacheKey, accessToken, {
