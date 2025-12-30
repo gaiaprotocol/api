@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notice Admin</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #fff;
+    }
+    .card {
+      background: #16213e;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #fff;
+    }
+    .card-subtitle {
+      font-size: 0.875rem;
+      color: #888;
+      margin-bottom: 16px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.875rem;
+      color: #aaa;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #333;
+      border-radius: 8px;
+      background: #0f0f23;
+      color: #fff;
+      font-size: 1rem;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #4a6cf7;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .checkbox-group input {
+      width: auto;
+    }
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-primary {
+      background: #4a6cf7;
+      color: #fff;
+      width: 100%;
+    }
+    .btn-primary:hover {
+      background: #3a5ce7;
+    }
+    .btn-primary:disabled {
+      background: #333;
+      cursor: not-allowed;
+    }
+    .btn-small {
+      padding: 8px 16px;
+      font-size: 0.875rem;
+    }
+    .notice-list {
+      list-style: none;
+    }
+    .notice-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      background: #0f0f23;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .notice-item:hover {
+      background: #1a1a3e;
+    }
+    .notice-info {
+      flex: 1;
+    }
+    .notice-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .notice-preview {
+      font-size: 0.875rem;
+      color: #888;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 400px;
+    }
+    .notice-date {
+      font-size: 0.75rem;
+      color: #666;
+      margin-top: 4px;
+    }
+    .notice-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+    .badge-update { background: #22c55e; color: #fff; }
+    .badge-news { background: #3b82f6; color: #fff; }
+    .badge-event { background: #f59e0b; color: #000; }
+    .badge-maintenance { background: #ef4444; color: #fff; }
+    .badge-general { background: #6b7280; color: #fff; }
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #888;
+    }
+    .empty {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 16px 24px;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 500;
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+    }
+    .toast-success { background: #22c55e; }
+    .toast-error { background: #ef4444; }
+    .toast-warning { background: #f59e0b; }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal {
+      background: #16213e;
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 400px;
+      width: 90%;
+    }
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .modal-message {
+      color: #aaa;
+      margin-bottom: 20px;
+    }
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+    .btn-cancel {
+      background: #333;
+      color: #fff;
+    }
+    .btn-cancel:hover {
+      background: #444;
+    }
+    .btn-confirm {
+      background: #4a6cf7;
+      color: #fff;
+    }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Notice Admin</h1>
+
+    <!-- Create Notice Form -->
+    <div class="card">
+      <div class="card-title">Create New Notice</div>
+      <form id="createForm">
+        <div class="form-group">
+          <label for="title">Title</label>
+          <input type="text" id="title" placeholder="Enter notice title" maxlength="200" required>
+        </div>
+        <div class="form-group">
+          <label for="type">Type</label>
+          <select id="type">
+            <option value="">General</option>
+            <option value="update">Update</option>
+            <option value="news">News</option>
+            <option value="event">Event</option>
+            <option value="maintenance">Maintenance</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="content">Content (Markdown supported)</label>
+          <textarea id="content" placeholder="Enter notice content..." required></textarea>
+        </div>
+        <div class="form-group">
+          <div class="checkbox-group">
+            <input type="checkbox" id="sendPush" checked>
+            <label for="sendPush" style="margin-bottom: 0;">Send Push Notification</label>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" id="submitBtn">Create Notice</button>
+      </form>
+    </div>
+
+    <!-- Existing Notices -->
+    <div class="card">
+      <div class="card-title">Existing Notices</div>
+      <div class="card-subtitle">Click to send push notification</div>
+      <div id="noticeList">
+        <div class="loading">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-title" id="modalTitle">Confirm</div>
+      <div class="modal-message" id="modalMessage">Are you sure?</div>
+      <div class="modal-buttons">
+        <button class="btn btn-small btn-cancel" id="modalCancel">Cancel</button>
+        <button class="btn btn-small btn-confirm" id="modalConfirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '';
+
+    // Toast notification
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // Modal confirmation
+    function showConfirm(title, message) {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('modal');
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalMessage').textContent = message;
+        modal.classList.remove('hidden');
+
+        const handleConfirm = () => {
+          modal.classList.add('hidden');
+          cleanup();
+          resolve(true);
+        };
+        const handleCancel = () => {
+          modal.classList.add('hidden');
+          cleanup();
+          resolve(false);
+        };
+        const cleanup = () => {
+          document.getElementById('modalConfirm').removeEventListener('click', handleConfirm);
+          document.getElementById('modalCancel').removeEventListener('click', handleCancel);
+        };
+
+        document.getElementById('modalConfirm').addEventListener('click', handleConfirm);
+        document.getElementById('modalCancel').addEventListener('click', handleCancel);
+      });
+    }
+
+    // Format date
+    function formatDate(date) {
+      try {
+        const d = new Date(typeof date === 'number' ? date * 1000 : date);
+        return d.toLocaleDateString('en', {
+          year: 'numeric', month: 'short', day: 'numeric',
+          hour: '2-digit', minute: '2-digit'
+        });
+      } catch {
+        return String(date);
+      }
+    }
+
+    // Get badge class
+    function getBadgeClass(type) {
+      const classes = {
+        update: 'badge-update',
+        news: 'badge-news',
+        event: 'badge-event',
+        maintenance: 'badge-maintenance'
+      };
+      return classes[type] || 'badge-general';
+    }
+
+    // Load notices
+    async function loadNotices() {
+      const container = document.getElementById('noticeList');
+      container.innerHTML = '<div class="loading">Loading...</div>';
+
+      try {
+        const res = await fetch(`${API_BASE}/notices`);
+        const notices = await res.json();
+
+        if (!notices.length) {
+          container.innerHTML = '<div class="empty">No notices yet</div>';
+          return;
+        }
+
+        container.innerHTML = '<ul class="notice-list">' + notices.map(notice => `
+          <li class="notice-item" onclick="handleSendPush(${notice.id}, '${notice.title.replace(/'/g, "\\'")}')">
+            <div class="notice-info">
+              <div class="notice-title">${escapeHtml(notice.title)}</div>
+              <div class="notice-preview">${escapeHtml(notice.content.substring(0, 80))}${notice.content.length > 80 ? '...' : ''}</div>
+              <div class="notice-date">${formatDate(notice.created_at)}</div>
+            </div>
+            <div class="notice-actions">
+              ${notice.type ? `<span class="badge ${getBadgeClass(notice.type)}">${notice.type}</span>` : ''}
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4a6cf7" stroke-width="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+              </svg>
+            </div>
+          </li>
+        `).join('') + '</ul>';
+      } catch (err) {
+        console.error('Load notices error:', err);
+        container.innerHTML = '<div class="empty" style="color: #ef4444;">Failed to load notices</div>';
+      }
+    }
+
+    // Escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Handle send push
+    async function handleSendPush(noticeId, title) {
+      const confirmed = await showConfirm('Send Push', `Send push notification for "${title}" to all users?`);
+      if (!confirmed) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/notices/send-push`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ noticeId })
+        });
+        const result = await res.json();
+
+        if (result.success && result.push) {
+          showToast(`Push sent: ${result.push.success} success, ${result.push.failed} failed`,
+            result.push.failed > 0 ? 'warning' : 'success');
+        } else {
+          showToast(result.error || 'Failed to send push', 'error');
+        }
+      } catch (err) {
+        console.error('Send push error:', err);
+        showToast('Failed to send push', 'error');
+      }
+    }
+
+    // Handle create notice
+    document.getElementById('createForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const title = document.getElementById('title').value.trim();
+      const content = document.getElementById('content').value.trim();
+      const type = document.getElementById('type').value;
+      const sendPush = document.getElementById('sendPush').checked;
+
+      if (!title || !content) {
+        showToast('Please fill in all required fields', 'warning');
+        return;
+      }
+
+      const confirmMessage = sendPush
+        ? 'This will create a notice and send push notifications to all users. Continue?'
+        : 'This will create a notice without sending push notifications. Continue?';
+
+      const confirmed = await showConfirm('Create Notice', confirmMessage);
+      if (!confirmed) return;
+
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creating...';
+
+      try {
+        const res = await fetch(`${API_BASE}/notices/create`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, content, type: type || undefined, sendPush })
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          let message = 'Notice created successfully!';
+          if (result.push) {
+            message += ` Push: ${result.push.success} success, ${result.push.failed} failed`;
+          }
+          showToast(message, 'success');
+
+          // Reset form
+          document.getElementById('title').value = '';
+          document.getElementById('content').value = '';
+          document.getElementById('type').value = '';
+          document.getElementById('sendPush').checked = true;
+
+          // Reload list
+          loadNotices();
+        } else {
+          showToast(result.error || 'Failed to create notice', 'error');
+        }
+      } catch (err) {
+        console.error('Create notice error:', err);
+        showToast('Failed to create notice', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Create Notice';
+      }
+    });
+
+    // Initial load
+    loadNotices();
+  </script>
+</body>
+</html>

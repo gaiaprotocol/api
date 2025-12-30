@@ -113,7 +113,8 @@ export async function insertPersonaPost(
     SELECT
       p.*,
       pr.nickname   AS author_nickname,
-      pr.avatar_url AS author_avatar_url
+      pr.avatar_url AS author_avatar_url,
+      pr.avatar_thumbnail_url AS author_avatar_thumbnail_url
     FROM persona_posts p
     LEFT JOIN profiles pr
       ON pr.account = p.author
@@ -192,7 +193,8 @@ export async function updatePersonaPostRow(
     SELECT
       p.*,
       pr.nickname   AS author_nickname,
-      pr.avatar_url AS author_avatar_url
+      pr.avatar_url AS author_avatar_url,
+      pr.avatar_thumbnail_url AS author_avatar_thumbnail_url
     FROM persona_posts p
     LEFT JOIN profiles pr
       ON pr.account = p.author
@@ -242,7 +244,8 @@ export async function getPersonaPostRowById(
     SELECT
       p.*,
       pr.nickname   AS author_nickname,
-      pr.avatar_url AS author_avatar_url
+      pr.avatar_url AS author_avatar_url,
+      pr.avatar_thumbnail_url AS author_avatar_thumbnail_url
     FROM persona_posts p
     LEFT JOIN profiles pr
       ON pr.account = p.author
@@ -290,7 +293,8 @@ export async function listPersonaPostRows(
     SELECT
       p.*,
       pr.nickname   AS author_nickname,
-      pr.avatar_url AS author_avatar_url
+      pr.avatar_url AS author_avatar_url,
+      pr.avatar_thumbnail_url AS author_avatar_thumbnail_url
     FROM persona_posts p
     LEFT JOIN profiles pr
       ON pr.account = p.author
@@ -325,7 +329,8 @@ export async function getPersonaPostRowWithReplies(
     SELECT
       p.*,
       pr.nickname   AS author_nickname,
-      pr.avatar_url AS author_avatar_url
+      pr.avatar_url AS author_avatar_url,
+      pr.avatar_thumbnail_url AS author_avatar_thumbnail_url
     FROM persona_posts p
     LEFT JOIN profiles pr
       ON pr.account = p.author

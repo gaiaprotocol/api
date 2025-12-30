@@ -55,6 +55,11 @@
 			"binding": "SESSIONS",
 			"id": "8d4e7e62da644a89ad5f6f953586d7bb",
 			"preview_id": "f04d45e0593c4c4890013a16ff957af8"
+		},
+		{
+			"binding": "FCM_TOKEN_CACHE",
+			"id": "b20c55f82bc24774bc81ce9e2cbd32d3",
+			"preview_id": "3f1fa2c648a3453099c4930bb26d3194"
 		}
 	],
 	"durable_objects": {

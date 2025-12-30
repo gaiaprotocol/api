@@ -13,7 +13,9 @@ export async function fetchProfileByAddress(env: Env, account: string) {
       nickname,
       bio,
       avatar_url,
+      avatar_thumbnail_url,
       banner_url,
+      banner_thumbnail_url,
       social_links,
       created_at,
       updated_at

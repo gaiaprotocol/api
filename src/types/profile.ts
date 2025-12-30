@@ -5,7 +5,9 @@ export interface Profile {
   nickname: string | null;
   bio: string | null;
   avatarUrl: string | null;
+  avatarThumbnailUrl: string | null;
   bannerUrl: string | null;
+  bannerThumbnailUrl: string | null;
 
   // DB: string | null (JSON), Domain: parsed object
   socialLinks: SocialLinks | null;
@@ -19,7 +21,9 @@ export type ProfileRow = {
   nickname: string | null;
   bio: string | null;
   avatar_url: string | null;
+  avatar_thumbnail_url: string | null;
   banner_url: string | null;
+  banner_thumbnail_url: string | null;
   social_links: string | null; // JSON string
   created_at: number;
   updated_at: number | null;
@@ -42,7 +46,9 @@ export function rowToProfile(row: ProfileRow): Profile {
     nickname: row.nickname,
     bio: row.bio,
     avatarUrl: row.avatar_url,
+    avatarThumbnailUrl: row.avatar_thumbnail_url,
     bannerUrl: row.banner_url,
+    bannerThumbnailUrl: row.banner_thumbnail_url,
     socialLinks,
     createdAt: row.created_at,
     updatedAt: row.updated_at,

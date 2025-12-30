@@ -30,7 +30,8 @@ import { handleMyName } from './handlers/my-name';
 import { handleMyProfile } from './handlers/my-profile';
 import { handleNftDataRequest } from './handlers/nft';
 import { handleNftDataByIds } from './handlers/nft-by-ids';
-import { handleNotices } from './handlers/notice';
+import { handleCreateNotice, handleNotices, handleSendNoticePush } from './handlers/notice';
+import { handleRegisterFcmToken, handleUnregisterFcmToken } from './handlers/fcm-tokens';
 import { handleSaveMetadata } from './handlers/save-metadata';
 import { handleSearchNames } from './handlers/search-names';
 import { handleSetName } from './handlers/set-name';
@@ -130,6 +131,18 @@ export default class ApiWorker extends WorkerEntrypoint<Env> {
     // --------------------------------------------------
     if (url.pathname === '/envtype') return new Response(this.env.ENV_TYPE);
     if (url.pathname === '/notices') return handleNotices(this.env);
+    if (url.pathname === '/notices/create' && request.method === 'POST')
+      return handleCreateNotice(request, this.env);
+    if (url.pathname === '/notices/send-push' && request.method === 'POST')
+      return handleSendNoticePush(request, this.env);
+
+    // --------------------------------------------------
+    // FCM Token API
+    // --------------------------------------------------
+    if (url.pathname === '/fcm-tokens/register' && request.method === 'POST')
+      return handleRegisterFcmToken(request, this.env);
+    if (url.pathname === '/fcm-tokens/unregister' && request.method === 'POST')
+      return handleUnregisterFcmToken(request, this.env);
 
     // --------------------------------------------------
     // Authentication & Token

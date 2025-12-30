@@ -1,5 +1,6 @@
 import { jsonWithCors, verifyToken } from '@gaiaprotocol/worker-common';
 import { v4 as uuidv4 } from 'uuid';
+import { getAvatarThumbnailUrl, getBannerThumbnailUrl } from '../utils/image-resize';
 
 // 업로드 가능한 최대 크기 (10MB 예시)
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
@@ -100,7 +101,13 @@ async function handleImageUpload(
 
     const publicUrl = `${baseUrl}/${key}`;
 
-    return jsonWithCors({ url: publicUrl }, 200);
+    // Generate thumbnail URL using Cloudflare Image Resizing
+    const thumbnailUrl =
+      target === 'avatar'
+        ? getAvatarThumbnailUrl(publicUrl)
+        : getBannerThumbnailUrl(publicUrl);
+
+    return jsonWithCors({ url: publicUrl, thumbnailUrl }, 200);
   } catch (err) {
     console.error('[handleImageUpload] error', err);
     return jsonWithCors({ error: 'Failed to upload image.' }, 500);

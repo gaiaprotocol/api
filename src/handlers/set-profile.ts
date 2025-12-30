@@ -57,6 +57,20 @@ const SetProfileSchema = z
       .max(MAX_URL_LEN, `bannerUrl URL exceeds maximum length of ${MAX_URL_LEN}.`)
       .optional(),
 
+    avatarThumbnailUrl: z
+      .string()
+      .trim()
+      .url('avatarThumbnailUrl must be a valid URL.')
+      .max(MAX_URL_LEN, `avatarThumbnailUrl URL exceeds maximum length of ${MAX_URL_LEN}.`)
+      .optional(),
+
+    bannerThumbnailUrl: z
+      .string()
+      .trim()
+      .url('bannerThumbnailUrl must be a valid URL.')
+      .max(MAX_URL_LEN, `bannerThumbnailUrl URL exceeds maximum length of ${MAX_URL_LEN}.`)
+      .optional(),
+
     socialLinks: SocialLinksSchema.optional(),
   })
   .refine(
@@ -64,11 +78,13 @@ const SetProfileSchema = z
       v.nickname !== undefined ||
       v.bio !== undefined ||
       v.avatarUrl !== undefined ||
+      v.avatarThumbnailUrl !== undefined ||
       v.bannerUrl !== undefined ||
+      v.bannerThumbnailUrl !== undefined ||
       v.socialLinks !== undefined,
     {
       message:
-        'At least one of nickname, bio, avatarUrl, bannerUrl, or socialLinks must be provided.',
+        'At least one of nickname, bio, avatarUrl, avatarThumbnailUrl, bannerUrl, bannerThumbnailUrl, or socialLinks must be provided.',
     },
   );
 
@@ -102,7 +118,9 @@ export async function handleSetProfile(request: Request, env: Env) {
     const body: any = await request.json().catch(() => ({}));
 
     if (!body.avatarUrl) body.avatarUrl = undefined
+    if (!body.avatarThumbnailUrl) body.avatarThumbnailUrl = undefined
     if (!body.bannerUrl) body.bannerUrl = undefined
+    if (!body.bannerThumbnailUrl) body.bannerThumbnailUrl = undefined
 
     let parsed: z.infer<typeof SetProfileSchema>;
     try {
@@ -151,6 +169,24 @@ export async function handleSetProfile(request: Request, env: Env) {
       }
     }
 
+    if (parsed.avatarThumbnailUrl !== undefined) {
+      if (!/^https?:\/\//i.test(parsed.avatarThumbnailUrl)) {
+        return jsonWithCors(
+          { error: 'Only http(s) URLs are allowed for avatarThumbnailUrl.' },
+          400,
+        );
+      }
+    }
+
+    if (parsed.bannerThumbnailUrl !== undefined) {
+      if (!/^https?:\/\//i.test(parsed.bannerThumbnailUrl)) {
+        return jsonWithCors(
+          { error: 'Only http(s) URLs are allowed for bannerThumbnailUrl.' },
+          400,
+        );
+      }
+    }
+
     if (parsed.socialLinks !== undefined) {
       for (const [key, url] of Object.entries(parsed.socialLinks)) {
         if (!/^https?:\/\//i.test(url)) {
@@ -166,7 +202,9 @@ export async function handleSetProfile(request: Request, env: Env) {
     const nickname = parsed.nickname ?? null;
     const bio = parsed.bio ?? null;
     const avatarUrl = parsed.avatarUrl ?? null;
+    const avatarThumbnailUrl = parsed.avatarThumbnailUrl ?? null;
     const bannerUrl = parsed.bannerUrl ?? null;
+    const bannerThumbnailUrl = parsed.bannerThumbnailUrl ?? null;
     const socialLinks =
       parsed.socialLinks !== undefined ? JSON.stringify(parsed.socialLinks) : null;
 
@@ -175,18 +213,20 @@ export async function handleSetProfile(request: Request, env: Env) {
     await env.DB.prepare(
       `
       INSERT INTO ${PROFILE_TABLE}
-        (account, nickname, bio, avatar_url, banner_url, social_links)
-      VALUES (?, ?, ?, ?, ?, ?)
+        (account, nickname, bio, avatar_url, avatar_thumbnail_url, banner_url, banner_thumbnail_url, social_links)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(account) DO UPDATE SET
-        nickname      = COALESCE(excluded.nickname, ${PROFILE_TABLE}.nickname),
-        bio           = COALESCE(excluded.bio, ${PROFILE_TABLE}.bio),
-        avatar_url    = COALESCE(excluded.avatar_url, ${PROFILE_TABLE}.avatar_url),
-        banner_url    = COALESCE(excluded.banner_url, ${PROFILE_TABLE}.banner_url),
-        social_links  = COALESCE(excluded.social_links, ${PROFILE_TABLE}.social_links),
-        updated_at    = strftime('%s','now')
+        nickname              = COALESCE(excluded.nickname, ${PROFILE_TABLE}.nickname),
+        bio                   = COALESCE(excluded.bio, ${PROFILE_TABLE}.bio),
+        avatar_url            = COALESCE(excluded.avatar_url, ${PROFILE_TABLE}.avatar_url),
+        avatar_thumbnail_url  = COALESCE(excluded.avatar_thumbnail_url, ${PROFILE_TABLE}.avatar_thumbnail_url),
+        banner_url            = COALESCE(excluded.banner_url, ${PROFILE_TABLE}.banner_url),
+        banner_thumbnail_url  = COALESCE(excluded.banner_thumbnail_url, ${PROFILE_TABLE}.banner_thumbnail_url),
+        social_links          = COALESCE(excluded.social_links, ${PROFILE_TABLE}.social_links),
+        updated_at            = strftime('%s','now')
       `,
     )
-      .bind(account, nickname, bio, avatarUrl, bannerUrl, socialLinks)
+      .bind(account, nickname, bio, avatarUrl, avatarThumbnailUrl, bannerUrl, bannerThumbnailUrl, socialLinks)
       .run();
 
     return jsonWithCors({ ok: true });
