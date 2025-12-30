@@ -306,13 +306,13 @@ export class FcmService {
         },
       );
 
+      const result = await response.json() as { name?: string; error?: { message?: string } };
+
       if (!response.ok) {
-        const error = await response.json() as { error?: { message?: string } };
-        console.error(`[FCM] Failed to send to topic: ${topic} (app: ${this.#app})`, error.error?.message);
+        console.error(`[FCM] Failed to send to topic: ${topic} (app: ${this.#app})`, result.error?.message);
         return false;
       }
 
-      const result = (await response.json()) as { name: string };
       console.log(`[FCM] Push sent to topic: ${topic} (app: ${this.#app}), messageId: ${result.name}`);
       return true;
     } catch (err: any) {
