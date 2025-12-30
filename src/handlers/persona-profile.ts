@@ -35,7 +35,7 @@ export async function getPersonaProfile(env: Env, walletAddress: string) {
     fetchPersonaFragmentsByAddressService(env, walletAddress),
   ]);
 
-  const profile: Profile =
+  const profile =
     profileRow ??
     {
       account: walletAddress,

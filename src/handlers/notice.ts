@@ -1,73 +1,72 @@
-import { jsonWithCors, verifyToken } from "@gaiaprotocol/worker-common";
+import { jsonWithCors } from "@gaiaprotocol/worker-common";
 import { z } from "zod";
-import { createNotice, fetchNotices } from "../db/notice";
-import { sendNoticePushNotification } from "../services/fcm";
+import { createNotice, fetchNotice, fetchNotices } from "../db/notice";
+import { FCM_TOPICS, sendNoticePushNotification } from "../services/fcm";
 
-// 관리자 주소 목록 (환경변수로 관리하는 것이 좋음)
-const ADMIN_ADDRESSES = [
-  '0x67e81DE7802A5f7efEF66b156F2d06a526Bd5BD6', // HOLDING_VERIFIER
-].map((a) => a.toLowerCase());
-
-function isAdmin(address: string): boolean {
-  return ADMIN_ADDRESSES.includes(address.toLowerCase());
+/**
+ * 관리자 비밀번호 검증
+ */
+function verifyAdminPassword(request: Request, env: Env): boolean {
+  const password = request.headers.get('X-Admin-Password');
+  if (!password || !env.ADMIN_PASSWORD) {
+    return false;
+  }
+  return password === env.ADMIN_PASSWORD;
 }
 
 export async function handleNotices(env: Env): Promise<Response> {
   try {
     const notices = await fetchNotices(env);
-
-    return jsonWithCors({
-      success: true,
-      data: notices
-    });
+    return jsonWithCors(notices);
   } catch (err) {
     console.error(err);
-    return jsonWithCors({
-      success: false,
-      error: 'Failed to fetch notices'
-    }, 500);
+    return jsonWithCors({ error: 'Failed to fetch notices' }, 500);
+  }
+}
+
+/**
+ * POST /admin/verify
+ * 관리자 비밀번호 검증
+ */
+export async function handleAdminVerify(request: Request, env: Env): Promise<Response> {
+  try {
+    const body = await request.json().catch(() => ({}));
+    const schema = z.object({
+      password: z.string().min(1),
+    });
+
+    const parsed = schema.safeParse(body);
+    if (!parsed.success) {
+      return jsonWithCors({ success: false, error: 'Password is required' }, 400);
+    }
+
+    const { password } = parsed.data;
+
+    if (!env.ADMIN_PASSWORD) {
+      console.error('[handleAdminVerify] ADMIN_PASSWORD not configured');
+      return jsonWithCors({ success: false, error: 'Admin not configured' }, 500);
+    }
+
+    if (password === env.ADMIN_PASSWORD) {
+      return jsonWithCors({ success: true });
+    }
+
+    return jsonWithCors({ success: false, error: 'Invalid password' }, 401);
+  } catch (err) {
+    console.error('[handleAdminVerify] error', err);
+    return jsonWithCors({ success: false, error: 'Internal server error' }, 500);
   }
 }
 
 /**
  * POST /notices/create
  * 새 공지사항 생성 및 푸시 알림 전송 (관리자 전용)
- *
- * Body:
- *  {
- *    title: string;
- *    content: string;
- *    type?: string;  // 'update', 'news', 'event' 등
- *    translations?: Record<string, Record<string, string>>;
- *    sendPush?: boolean;  // 푸시 알림 전송 여부 (기본: true)
- *  }
- *
- * Response:
- *  {
- *    success: true,
- *    notice: Notice,
- *    push?: { success: number, failed: number }
- *  }
  */
 export async function handleCreateNotice(request: Request, env: Env): Promise<Response> {
   try {
-    // 인증 확인
-    const auth = request.headers.get('authorization');
-    if (!auth?.startsWith('Bearer ')) {
-      return jsonWithCors({ error: 'Missing or invalid authorization token.' }, 401);
-    }
-
-    const token = auth.slice(7);
-    const payload: any = await verifyToken(token, env).catch(() => null);
-    if (!payload?.sub) {
-      return jsonWithCors({ error: 'Invalid or expired token.' }, 401);
-    }
-
-    const userAddress = payload.sub as string;
-
-    // 관리자 권한 확인
-    if (!isAdmin(userAddress)) {
-      return jsonWithCors({ error: 'Admin access required.' }, 403);
+    // 관리자 비밀번호 확인
+    if (!verifyAdminPassword(request, env)) {
+      return jsonWithCors({ error: 'Unauthorized' }, 401);
     }
 
     // 요청 바디 파싱
@@ -98,26 +97,35 @@ export async function handleCreateNotice(request: Request, env: Env): Promise<Re
       translations,
     });
 
-    // 푸시 알림 전송
-    let pushResult: { success: number; failed: number } | undefined;
+    // 푸시 알림 전송 (토픽 기반)
+    let pushSent = false;
     if (sendPush) {
       try {
-        pushResult = await sendNoticePushNotification(env, {
-          id: notice.id,
-          title: notice.title,
-          content: notice.content,
-          type: notice.type,
-        });
+        // 두 토픽에 모두 전송 (valhalla, personas)
+        const results = await Promise.all([
+          sendNoticePushNotification(env, {
+            id: notice.id,
+            title: notice.title,
+            content: notice.content,
+            type: notice.type,
+          }, FCM_TOPICS.VALHALLA_NOTICES),
+          sendNoticePushNotification(env, {
+            id: notice.id,
+            title: notice.title,
+            content: notice.content,
+            type: notice.type,
+          }, FCM_TOPICS.PERSONAS_NOTICES),
+        ]);
+        pushSent = results.some(r => r.success);
       } catch (err) {
         console.error('[handleCreateNotice] Push notification failed:', err);
-        // 푸시 실패해도 공지사항은 생성됨
       }
     }
 
     return jsonWithCors({
       success: true,
       notice,
-      push: pushResult,
+      pushSent,
     }, 201);
   } catch (err) {
     console.error('[handleCreateNotice] error', err);
@@ -128,32 +136,12 @@ export async function handleCreateNotice(request: Request, env: Env): Promise<Re
 /**
  * POST /notices/send-push
  * 기존 공지사항에 대해 푸시 알림 재전송 (관리자 전용)
- *
- * Body:
- *  { noticeId: number }
- *
- * Response:
- *  { success: true, push: { success: number, failed: number } }
  */
 export async function handleSendNoticePush(request: Request, env: Env): Promise<Response> {
   try {
-    // 인증 확인
-    const auth = request.headers.get('authorization');
-    if (!auth?.startsWith('Bearer ')) {
-      return jsonWithCors({ error: 'Missing or invalid authorization token.' }, 401);
-    }
-
-    const token = auth.slice(7);
-    const payload: any = await verifyToken(token, env).catch(() => null);
-    if (!payload?.sub) {
-      return jsonWithCors({ error: 'Invalid or expired token.' }, 401);
-    }
-
-    const userAddress = payload.sub as string;
-
-    // 관리자 권한 확인
-    if (!isAdmin(userAddress)) {
-      return jsonWithCors({ error: 'Admin access required.' }, 403);
+    // 관리자 비밀번호 확인
+    if (!verifyAdminPassword(request, env)) {
+      return jsonWithCors({ error: 'Unauthorized' }, 401);
     }
 
     // 요청 바디 파싱
@@ -173,24 +161,31 @@ export async function handleSendNoticePush(request: Request, env: Env): Promise<
     const { noticeId } = parsed.data;
 
     // 공지사항 조회
-    const { fetchNotice } = await import('../db/notice');
     const notice = await fetchNotice(env, noticeId);
-
     if (!notice) {
       return jsonWithCors({ error: 'Notice not found.' }, 404);
     }
 
-    // 푸시 알림 전송
-    const pushResult = await sendNoticePushNotification(env, {
-      id: notice.id,
-      title: notice.title,
-      content: notice.content,
-      type: notice.type,
-    });
+    // 푸시 알림 전송 (두 토픽에 모두)
+    const results = await Promise.all([
+      sendNoticePushNotification(env, {
+        id: notice.id,
+        title: notice.title,
+        content: notice.content,
+        type: notice.type,
+      }, FCM_TOPICS.VALHALLA_NOTICES),
+      sendNoticePushNotification(env, {
+        id: notice.id,
+        title: notice.title,
+        content: notice.content,
+        type: notice.type,
+      }, FCM_TOPICS.PERSONAS_NOTICES),
+    ]);
+
+    const success = results.some(r => r.success);
 
     return jsonWithCors({
-      success: true,
-      push: pushResult,
+      success,
     }, 200);
   } catch (err) {
     console.error('[handleSendNoticePush] error', err);

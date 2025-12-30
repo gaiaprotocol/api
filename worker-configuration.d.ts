@@ -30,6 +30,8 @@ declare namespace Cloudflare {
 		GOOGLE_CLIENT_SECRET: string;
 		HOLDING_VERIFIER_PRIVATE_KEY: string;
 		BASE_ENDPOINT_URL: string;
+		ADMIN_PASSWORD: string;
+		FIREBASE_SERVICE_ACCOUNT_JSON: string;
 		PERSONA_CHAT_ROOM: DurableObjectNamespace<import("./src/index").PersonaChatRoomDO>;
 		GOD_IMAGES_BUCKET: R2Bucket;
 		AVATAR_BUCKET: R2Bucket;
