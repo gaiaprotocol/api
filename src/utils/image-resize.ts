@@ -1,19 +1,18 @@
 /**
- * Cloudflare Image Resizing utilities for generating thumbnails.
+ * Image resizing utilities for generating thumbnails.
  *
- * This module provides two ways to generate thumbnails:
- * 1. URL-based: Generate Cloudflare Image Resizing URLs (on-the-fly transformation)
- * 2. File-based: Fetch resized images and store them as actual files in R2
- *
- * Reference: https://developers.cloudflare.com/images/transform-images/transform-via-url/
+ * This module uses @cf-wasm/resvg for image resizing in Cloudflare Workers.
+ * The approach: wrap the image in an SVG and render it at the target size.
  */
+
+import { Resvg } from '@cf-wasm/resvg';
 
 export interface ThumbnailConfig {
   width: number;
   height?: number;
   fit?: 'scale-down' | 'contain' | 'cover' | 'crop' | 'pad';
   quality?: number;
-  format?: 'auto' | 'webp' | 'avif' | 'json';
+  format?: 'auto' | 'webp' | 'avif' | 'png';
 }
 
 export const AVATAR_THUMBNAIL_CONFIG: ThumbnailConfig = {
@@ -21,61 +20,54 @@ export const AVATAR_THUMBNAIL_CONFIG: ThumbnailConfig = {
   height: 144,
   fit: 'cover',
   quality: 85,
-  format: 'webp',
+  format: 'png',
 };
 
 export const BANNER_THUMBNAIL_CONFIG: ThumbnailConfig = {
   width: 960,
-  fit: 'scale-down',
+  height: 540,
+  fit: 'cover',
   quality: 85,
-  format: 'webp',
+  format: 'png',
 };
 
 /**
- * Generate a Cloudflare Image Resizing URL for thumbnails.
- * This requires Cloudflare Image Resizing to be enabled on the domain.
- *
- * @param originalUrl - The original image URL
- * @param config - Thumbnail configuration
- * @returns The resized image URL
+ * Convert ArrayBuffer to base64 string
  */
-export function generateThumbnailUrl(
-  originalUrl: string,
-  config: ThumbnailConfig
-): string {
-  try {
-    const url = new URL(originalUrl);
-
-    // Build image options string
-    const options: string[] = [];
-    options.push(`width=${config.width}`);
-    if (config.height) options.push(`height=${config.height}`);
-    if (config.fit) options.push(`fit=${config.fit}`);
-    if (config.quality) options.push(`quality=${config.quality}`);
-    if (config.format) options.push(`format=${config.format}`);
-
-    const optionsString = options.join(',');
-
-    // Insert /cdn-cgi/image/{options}/ after the host
-    // Original: https://static.example.com/avatars/0x123/uuid.png
-    // Result:   https://static.example.com/cdn-cgi/image/width=144,height=144/avatars/0x123/uuid.png
-    return `${url.origin}/cdn-cgi/image/${optionsString}${url.pathname}`;
-  } catch (error) {
-    console.error('[generateThumbnailUrl] Failed to generate thumbnail URL:', error);
-    return originalUrl; // Fallback to original URL
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
   }
+  return btoa(binary);
 }
 
 /**
- * Generate avatar thumbnail URL (144x144)
+ * Resize an image using resvg (SVG rendering approach)
+ *
+ * @param imageBuffer - The original image as ArrayBuffer
+ * @param config - Thumbnail configuration
+ * @returns Resized image as Uint8Array (PNG format)
  */
-export function getAvatarThumbnailUrl(originalUrl: string): string {
-  return generateThumbnailUrl(originalUrl, AVATAR_THUMBNAIL_CONFIG);
-}
+export function resizeImage(
+  imageBuffer: ArrayBuffer,
+  config: ThumbnailConfig,
+): Uint8Array {
+  const { width, height } = config;
+  const targetHeight = height ?? width;
 
-/**
- * Generate banner thumbnail URL (960px width)
- */
-export function getBannerThumbnailUrl(originalUrl: string): string {
-  return generateThumbnailUrl(originalUrl, BANNER_THUMBNAIL_CONFIG);
+  const base64String = arrayBufferToBase64(imageBuffer);
+
+  // Create SVG that wraps the image with preserveAspectRatio for cover behavior
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${targetHeight}">
+    <image href="data:image/png;base64,${base64String}" x="0" y="0" width="${width}" height="${targetHeight}" preserveAspectRatio="xMidYMid slice" />
+  </svg>`;
+
+  const resvg = new Resvg(svg, {
+    fitTo: { mode: 'width', value: width },
+  });
+
+  return resvg.render().asPng();
 }

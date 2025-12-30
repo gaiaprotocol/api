@@ -4,6 +4,7 @@ import {
   AVATAR_THUMBNAIL_CONFIG,
   BANNER_THUMBNAIL_CONFIG,
   ThumbnailConfig,
+  resizeImage,
 } from '../utils/image-resize';
 
 // 업로드 가능한 최대 크기 (10MB 예시)
@@ -12,43 +13,22 @@ const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 type UploadTarget = 'avatar' | 'banner';
 
 /**
- * Cloudflare Image Resizing을 사용하여 실제 썸네일 이미지를 생성하고 R2에 저장
+ * resvg를 사용하여 실제 썸네일 이미지를 생성하고 R2에 저장
  */
 async function generateAndUploadThumbnail(
-  originalUrl: string,
+  imageBuffer: ArrayBuffer,
   bucket: R2Bucket,
   thumbnailKey: string,
   config: ThumbnailConfig,
 ): Promise<boolean> {
   try {
-    // Cloudflare Image Resizing을 통해 리사이즈된 이미지 fetch
-    const resizedResponse = await fetch(originalUrl, {
-      cf: {
-        image: {
-          width: config.width,
-          height: config.height,
-          fit: config.fit,
-          quality: config.quality,
-          format: config.format === 'auto' ? 'webp' : config.format,
-        },
-      },
-    });
-
-    if (!resizedResponse.ok) {
-      console.error(
-        '[generateAndUploadThumbnail] Failed to resize image:',
-        resizedResponse.status,
-        resizedResponse.statusText,
-      );
-      return false;
-    }
-
-    const resizedBuffer = await resizedResponse.arrayBuffer();
+    // resvg를 사용하여 이미지 리사이즈
+    const resizedBuffer = resizeImage(imageBuffer, config);
 
     // R2에 썸네일 저장
     await bucket.put(thumbnailKey, resizedBuffer, {
       httpMetadata: {
-        contentType: `image/${config.format === 'auto' ? 'webp' : config.format}`,
+        contentType: 'image/png',
       },
     });
 
@@ -147,8 +127,7 @@ async function handleImageUpload(
     // 간단한 확장자 추출 (image/png -> png)
     const ext = contentType.split('/')[1] || 'bin';
     const key = `${account}/${uuid}.${ext}`;
-    const thumbnailExt = thumbnailConfig.format === 'auto' ? 'webp' : thumbnailConfig.format;
-    const thumbnailKey = `${account}/${uuid}_thumb.${thumbnailExt}`;
+    const thumbnailKey = `${account}/${uuid}_thumb.png`;
 
     // 5) R2 에 원본 이미지 업로드
     await bucket.put(key, body, {
@@ -162,7 +141,7 @@ async function handleImageUpload(
 
     // 6) 썸네일 생성 및 업로드
     const thumbnailSuccess = await generateAndUploadThumbnail(
-      publicUrl,
+      body,
       bucket,
       thumbnailKey,
       thumbnailConfig,
