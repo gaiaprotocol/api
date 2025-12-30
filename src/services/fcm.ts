@@ -1,10 +1,7 @@
 import { EnhancedFcmMessage, FCM, FcmOptions } from 'fcm-cloudflare-workers';
 
-// Topic names for different apps
-export const FCM_TOPICS = {
-  VALHALLA_NOTICES: 'valhalla-notices',
-  PERSONAS_NOTICES: 'personas-notices',
-} as const;
+// Topic name for notices
+export const FCM_TOPIC_NOTICES = 'notices';
 
 export interface PushNotificationPayload {
   title: string;
@@ -250,7 +247,6 @@ export async function sendNoticePushNotification(
     content: string;
     type?: string;
   },
-  topic: string = FCM_TOPICS.VALHALLA_NOTICES,
 ): Promise<{ success: boolean }> {
   const fcmService = new FcmService(env);
 
@@ -259,7 +255,7 @@ export async function sendNoticePushNotification(
     ? notice.content.substring(0, 97) + '...'
     : notice.content;
 
-  const success = await fcmService.sendToTopic(topic, {
+  const success = await fcmService.sendToTopic(FCM_TOPIC_NOTICES, {
     title: notice.title,
     body: bodyPreview,
     data: {

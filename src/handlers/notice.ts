@@ -1,7 +1,7 @@
 import { jsonWithCors } from "@gaiaprotocol/worker-common";
 import { z } from "zod";
 import { createNotice, fetchNotice, fetchNotices } from "../db/notice";
-import { FCM_TOPICS, sendNoticePushNotification } from "../services/fcm";
+import { sendNoticePushNotification } from "../services/fcm";
 
 /**
  * 관리자 비밀번호 검증
@@ -101,22 +101,13 @@ export async function handleCreateNotice(request: Request, env: Env): Promise<Re
     let pushSent = false;
     if (sendPush) {
       try {
-        // 두 토픽에 모두 전송 (valhalla, personas)
-        const results = await Promise.all([
-          sendNoticePushNotification(env, {
-            id: notice.id,
-            title: notice.title,
-            content: notice.content,
-            type: notice.type,
-          }, FCM_TOPICS.VALHALLA_NOTICES),
-          sendNoticePushNotification(env, {
-            id: notice.id,
-            title: notice.title,
-            content: notice.content,
-            type: notice.type,
-          }, FCM_TOPICS.PERSONAS_NOTICES),
-        ]);
-        pushSent = results.some(r => r.success);
+        const result = await sendNoticePushNotification(env, {
+          id: notice.id,
+          title: notice.title,
+          content: notice.content,
+          type: notice.type,
+        });
+        pushSent = result.success;
       } catch (err) {
         console.error('[handleCreateNotice] Push notification failed:', err);
       }
@@ -166,23 +157,15 @@ export async function handleSendNoticePush(request: Request, env: Env): Promise<
       return jsonWithCors({ error: 'Notice not found.' }, 404);
     }
 
-    // 푸시 알림 전송 (두 토픽에 모두)
-    const results = await Promise.all([
-      sendNoticePushNotification(env, {
-        id: notice.id,
-        title: notice.title,
-        content: notice.content,
-        type: notice.type,
-      }, FCM_TOPICS.VALHALLA_NOTICES),
-      sendNoticePushNotification(env, {
-        id: notice.id,
-        title: notice.title,
-        content: notice.content,
-        type: notice.type,
-      }, FCM_TOPICS.PERSONAS_NOTICES),
-    ]);
+    // 푸시 알림 전송
+    const result = await sendNoticePushNotification(env, {
+      id: notice.id,
+      title: notice.title,
+      content: notice.content,
+      type: notice.type,
+    });
 
-    const success = results.some(r => r.success);
+    const success = result.success;
 
     return jsonWithCors({
       success,
