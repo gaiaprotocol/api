@@ -1,5 +1,3 @@
-import { EnhancedFcmMessage, FCM, FcmOptions } from 'fcm-cloudflare-workers';
-
 // Topic name for notices
 export const FCM_TOPIC_NOTICES = 'notices';
 
@@ -15,21 +13,166 @@ export interface PushNotificationPayload {
   clickAction?: string;
 }
 
+interface ServiceAccountKey {
+  type: string;
+  project_id: string;
+  private_key_id: string;
+  private_key: string;
+  client_email: string;
+  client_id: string;
+  auth_uri: string;
+  token_uri: string;
+  auth_provider_x509_cert_url: string;
+  client_x509_cert_url: string;
+}
+
+interface FCMMessageBase {
+  notification?: {
+    title: string;
+    body: string;
+    image?: string;
+  };
+  data?: Record<string, string>;
+  android?: {
+    priority?: 'normal' | 'high';
+    notification?: {
+      channel_id?: string;
+      click_action?: string;
+    };
+  };
+  apns?: {
+    headers?: Record<string, string>;
+    payload?: {
+      aps?: {
+        alert?: {
+          title?: string;
+          body?: string;
+        };
+        sound?: string;
+        badge?: number;
+      };
+    };
+  };
+  webpush?: {
+    notification?: {
+      icon?: string;
+      badge?: string;
+    };
+    fcm_options?: {
+      link?: string;
+    };
+  };
+}
+
+interface FCMTopicMessage extends FCMMessageBase {
+  topic: string;
+}
+
+// JWT 생성용 유틸
+function base64urlEncode(data: ArrayBuffer | Uint8Array): string {
+  const bytes = data instanceof ArrayBuffer ? new Uint8Array(data) : data;
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function textToArrayBuffer(text: string): ArrayBuffer {
+  return new TextEncoder().encode(text).buffer as ArrayBuffer;
+}
+
+async function createJWT(
+  serviceAccount: ServiceAccountKey,
+  scope: string,
+): Promise<string> {
+  const now = Math.floor(Date.now() / 1000);
+  const exp = now + 3600; // 1시간 후 만료
+
+  const header = {
+    alg: 'RS256',
+    typ: 'JWT',
+  };
+
+  const payload = {
+    iss: serviceAccount.client_email,
+    sub: serviceAccount.client_email,
+    aud: serviceAccount.token_uri,
+    iat: now,
+    exp,
+    scope,
+  };
+
+  const headerB64 = base64urlEncode(textToArrayBuffer(JSON.stringify(header)));
+  const payloadB64 = base64urlEncode(textToArrayBuffer(JSON.stringify(payload)));
+  const unsignedToken = `${headerB64}.${payloadB64}`;
+
+  // PEM 형식의 private key를 CryptoKey로 변환
+  const privateKey = await importPrivateKey(serviceAccount.private_key);
+
+  // 서명
+  const signature = await crypto.subtle.sign(
+    { name: 'RSASSA-PKCS1-v1_5' },
+    privateKey,
+    textToArrayBuffer(unsignedToken),
+  );
+
+  return `${unsignedToken}.${base64urlEncode(signature)}`;
+}
+
+async function importPrivateKey(pemKey: string): Promise<CryptoKey> {
+  // PEM 형식에서 base64 부분만 추출
+  const pemContents = pemKey
+    .replace('-----BEGIN PRIVATE KEY-----', '')
+    .replace('-----END PRIVATE KEY-----', '')
+    .replace(/\s/g, '');
+
+  const binaryDer = Uint8Array.from(atob(pemContents), (c) => c.charCodeAt(0));
+
+  return crypto.subtle.importKey(
+    'pkcs8',
+    binaryDer,
+    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  );
+}
+
+async function getAccessToken(serviceAccount: ServiceAccountKey): Promise<string> {
+  const jwt = await createJWT(
+    serviceAccount,
+    'https://www.googleapis.com/auth/firebase.messaging',
+  );
+
+  const response = await fetch(serviceAccount.token_uri, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({
+      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+      assertion: jwt,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Failed to get access token: ${error}`);
+  }
+
+  const data = (await response.json()) as { access_token: string };
+  return data.access_token;
+}
+
 /**
  * FCM 푸시 알림 전송 서비스
  */
 export class FcmService {
-  #fcm: FCM;
-  #env: Env;
-  #serviceAccount: any;
+  #serviceAccount: ServiceAccountKey;
   #app: AppType;
-  #cacheKey: string;
 
   constructor(env: Env, app: AppType = 'valhalla') {
-    this.#env = env;
     this.#app = app;
-    // IID API용 캐시 키 (토픽 구독용)
-    this.#cacheKey = `fcm_iid_token_${app}`;
 
     // 앱 별로 다른 Firebase 서비스 계정 사용
     const serviceAccountJson = app === 'personas'
@@ -37,13 +180,6 @@ export class FcmService {
       : env.FIREBASE_SERVICE_ACCOUNT_JSON_VALHALLA;
 
     this.#serviceAccount = JSON.parse(serviceAccountJson);
-    // FCM 라이브러리용 캐시 키 (메시지 전송용) - 분리
-    const fcmOptions = new FcmOptions({
-      serviceAccount: this.#serviceAccount,
-      kvStore: env.FCM_TOKEN_CACHE,
-      kvCacheKey: `fcm_send_token_${app}`,
-    });
-    this.#fcm = new FCM(fcmOptions);
   }
 
   /**
@@ -51,8 +187,7 @@ export class FcmService {
    */
   async subscribeToTopic(token: string, topic: string): Promise<boolean> {
     try {
-      // Get access token for Firebase API
-      const accessToken = await this.#getAccessToken();
+      const accessToken = await getAccessToken(this.#serviceAccount);
 
       const response = await fetch(
         `https://iid.googleapis.com/iid/v1/${token}/rel/topics/${topic}`,
@@ -67,11 +202,11 @@ export class FcmService {
 
       if (!response.ok) {
         const error = await response.text();
-        console.error(`[FCM] Failed to subscribe token to topic: ${error}`);
+        console.error(`[FCM] Failed to subscribe token to topic (${response.status}): ${error}`);
         return false;
       }
 
-      console.log(`[FCM] Token subscribed to topic: ${topic}`);
+      console.log(`[FCM] Token subscribed to topic: ${topic} (app: ${this.#app})`);
       return true;
     } catch (err) {
       console.error('[FCM] Error subscribing to topic:', err);
@@ -84,7 +219,7 @@ export class FcmService {
    */
   async unsubscribeFromTopic(token: string, topic: string): Promise<boolean> {
     try {
-      const accessToken = await this.#getAccessToken();
+      const accessToken = await getAccessToken(this.#serviceAccount);
 
       const response = await fetch(
         `https://iid.googleapis.com/iid/v1/${token}/rel/topics/${topic}`,
@@ -99,11 +234,11 @@ export class FcmService {
 
       if (!response.ok) {
         const error = await response.text();
-        console.error(`[FCM] Failed to unsubscribe token from topic: ${error}`);
+        console.error(`[FCM] Failed to unsubscribe token from topic (${response.status}): ${error}`);
         return false;
       }
 
-      console.log(`[FCM] Token unsubscribed from topic: ${topic}`);
+      console.log(`[FCM] Token unsubscribed from topic: ${topic} (app: ${this.#app})`);
       return true;
     } catch (err) {
       console.error('[FCM] Error unsubscribing from topic:', err);
@@ -115,149 +250,75 @@ export class FcmService {
    * 토픽으로 푸시 알림 전송
    */
   async sendToTopic(topic: string, payload: PushNotificationPayload): Promise<boolean> {
-    const message: EnhancedFcmMessage = {
-      notification: {
-        title: payload.title,
-        body: payload.body,
-        image: payload.icon,
-      },
-      data: payload.data,
-      android: {
+    try {
+      const accessToken = await getAccessToken(this.#serviceAccount);
+
+      const message: FCMTopicMessage = {
+        topic,
         notification: {
-          click_action: payload.clickAction || 'OPEN_APP',
-          channel_id: 'notices',
-          icon: 'notification_icon',
+          title: payload.title,
+          body: payload.body,
+          image: payload.icon,
         },
-      },
-      apns: {
-        payload: {
-          aps: {
-            badge: 1,
-            sound: 'default',
+        data: payload.data,
+        android: {
+          priority: 'high',
+          notification: {
+            channel_id: 'notices',
+            click_action: payload.clickAction || 'OPEN_APP',
           },
         },
-      },
-      webpush: {
-        notification: {
-          icon: payload.icon || '/images/icon-192x192.png',
-          badge: payload.badge || '/images/icon-192x192.png',
+        apns: {
+          headers: {
+            'apns-priority': '10',
+          },
+          payload: {
+            aps: {
+              alert: {
+                title: payload.title,
+                body: payload.body,
+              },
+              sound: 'default',
+              badge: 1,
+            },
+          },
         },
-        fcm_options: {
-          link: payload.clickAction || '/',
+        webpush: {
+          notification: {
+            icon: payload.icon || '/images/icon-192x192.png',
+            badge: payload.badge || '/images/icon-192x192.png',
+          },
+          fcm_options: {
+            link: payload.clickAction || '/',
+          },
         },
-      },
-    };
+      };
 
-    try {
-      await this.#fcm.sendToTopic(message, topic);
-      console.log(`[FCM] Push sent to topic: ${topic}`);
+      const response = await fetch(
+        `https://fcm.googleapis.com/v1/projects/${this.#serviceAccount.project_id}/messages:send`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ message }),
+        },
+      );
+
+      if (!response.ok) {
+        const error = await response.json() as { error?: { message?: string } };
+        console.error(`[FCM] Failed to send to topic: ${topic} (app: ${this.#app})`, error.error?.message);
+        return false;
+      }
+
+      const result = (await response.json()) as { name: string };
+      console.log(`[FCM] Push sent to topic: ${topic} (app: ${this.#app}), messageId: ${result.name}`);
       return true;
     } catch (err: any) {
-      console.error(`[FCM] Failed to send to topic: ${topic}`, err);
+      console.error(`[FCM] Error sending to topic: ${topic} (app: ${this.#app})`, err?.message || err);
       return false;
     }
-  }
-
-  /**
-   * Get OAuth2 access token for Firebase API calls
-   */
-  async #getAccessToken(): Promise<string> {
-    // Check cache first
-    const cached = await this.#env.FCM_TOKEN_CACHE.get(this.#cacheKey);
-    if (cached) {
-      console.log(`[FCM] Using cached access token for ${this.#app}`);
-      return cached;
-    }
-
-    console.log(`[FCM] Generating new access token for ${this.#app}`);
-
-    // Generate new token using JWT
-    const now = Math.floor(Date.now() / 1000);
-    const header = { alg: 'RS256', typ: 'JWT' };
-    const payload = {
-      iss: this.#serviceAccount.client_email,
-      sub: this.#serviceAccount.client_email,
-      aud: 'https://oauth2.googleapis.com/token',
-      iat: now,
-      exp: now + 3600,
-      scope: 'https://www.googleapis.com/auth/firebase.messaging',
-    };
-
-    const jwt = await this.#signJwt(header, payload, this.#serviceAccount.private_key);
-
-    const response = await fetch('https://oauth2.googleapis.com/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-        assertion: jwt,
-      }),
-    });
-
-    const data: any = await response.json();
-
-    if (!response.ok || !data.access_token) {
-      console.error(`[FCM] Failed to get access token for ${this.#app}:`, JSON.stringify(data));
-      throw new Error(`Failed to get access token: ${data.error_description || data.error || 'Unknown error'}`);
-    }
-
-    const accessToken = data.access_token;
-    console.log(`[FCM] Got new access token for ${this.#app}`);
-
-    // Cache the token (expires in 1 hour, cache for 55 minutes)
-    await this.#env.FCM_TOKEN_CACHE.put(this.#cacheKey, accessToken, {
-      expirationTtl: 55 * 60,
-    });
-
-    return accessToken;
-  }
-
-  async #signJwt(header: any, payload: any, privateKeyPem: string): Promise<string> {
-    const encoder = new TextEncoder();
-
-    const headerB64 = this.#base64UrlEncode(JSON.stringify(header));
-    const payloadB64 = this.#base64UrlEncode(JSON.stringify(payload));
-    const signingInput = `${headerB64}.${payloadB64}`;
-
-    // Import the private key
-    const privateKey = await crypto.subtle.importKey(
-      'pkcs8',
-      this.#pemToBinary(privateKeyPem),
-      { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
-      false,
-      ['sign']
-    );
-
-    // Sign the input
-    const signature = await crypto.subtle.sign(
-      'RSASSA-PKCS1-v1_5',
-      privateKey,
-      encoder.encode(signingInput)
-    );
-
-    const signatureB64 = this.#base64UrlEncode(
-      String.fromCharCode(...new Uint8Array(signature))
-    );
-
-    return `${signingInput}.${signatureB64}`;
-  }
-
-  #base64UrlEncode(str: string): string {
-    const base64 = btoa(str);
-    return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  }
-
-  #pemToBinary(pem: string): ArrayBuffer {
-    const lines = pem.split('\n');
-    const base64 = lines
-      .filter(line => !line.startsWith('-----'))
-      .join('');
-    const binary = atob(base64);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) {
-      bytes[i] = binary.charCodeAt(i);
-    }
-    return bytes.buffer;
   }
 }
 
