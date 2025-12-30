@@ -48,11 +48,13 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
  * Resize an image using resvg (SVG rendering approach)
  *
  * @param imageBuffer - The original image as ArrayBuffer
+ * @param contentType - The MIME type of the image (e.g., 'image/jpeg', 'image/png')
  * @param config - Thumbnail configuration
  * @returns Resized image as Uint8Array (PNG format)
  */
 export function resizeImage(
   imageBuffer: ArrayBuffer,
+  contentType: string,
   config: ThumbnailConfig,
 ): Uint8Array {
   const { width, height } = config;
@@ -60,9 +62,12 @@ export function resizeImage(
 
   const base64String = arrayBufferToBase64(imageBuffer);
 
+  // Use the correct MIME type for the data URI
+  const mimeType = contentType.startsWith('image/') ? contentType : 'image/png';
+
   // Create SVG that wraps the image with preserveAspectRatio for cover behavior
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${targetHeight}">
-    <image href="data:image/png;base64,${base64String}" x="0" y="0" width="${width}" height="${targetHeight}" preserveAspectRatio="xMidYMid slice" />
+    <image href="data:${mimeType};base64,${base64String}" x="0" y="0" width="${width}" height="${targetHeight}" preserveAspectRatio="xMidYMid slice" />
   </svg>`;
 
   const resvg = new Resvg(svg, {

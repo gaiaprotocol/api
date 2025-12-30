@@ -17,13 +17,14 @@ type UploadTarget = 'avatar' | 'banner';
  */
 async function generateAndUploadThumbnail(
   imageBuffer: ArrayBuffer,
+  contentType: string,
   bucket: R2Bucket,
   thumbnailKey: string,
   config: ThumbnailConfig,
 ): Promise<boolean> {
   try {
     // resvg를 사용하여 이미지 리사이즈
-    const resizedBuffer = resizeImage(imageBuffer, config);
+    const resizedBuffer = resizeImage(imageBuffer, contentType, config);
 
     // R2에 썸네일 저장
     await bucket.put(thumbnailKey, resizedBuffer, {
@@ -142,6 +143,7 @@ async function handleImageUpload(
     // 6) 썸네일 생성 및 업로드
     const thumbnailSuccess = await generateAndUploadThumbnail(
       body,
+      contentType,
       bucket,
       thumbnailKey,
       thumbnailConfig,
